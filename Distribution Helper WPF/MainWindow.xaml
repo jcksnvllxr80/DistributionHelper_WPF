@@ -1,0 +1,91 @@
+﻿<Controls:MetroWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:Distribution_Helper_WPF"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:DistributionsDataSetTableAdapters="clr-namespace:Distribution_Helper_WPF.DistributionsDataSetTableAdapters" xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic" xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit" x:Name="Distribution_Helper" x:Class="MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="731" Width="554" Opacity="0.93" AllowsTransparency="True" WindowStyle="None">
+    <Controls:MetroWindow.Resources>
+        <local:DistributionsDataSet x:Key="DistributionsDataSet"/>
+        <CollectionViewSource x:Key="DistributionsViewSource" Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}"/>
+    </Controls:MetroWindow.Resources>
+    <Grid x:Name="FormGrid" Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="33" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="33" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" VerticalContentAlignment="Top" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" />
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Close" />
+            </MenuItem>
+            <MenuItem Header="_Print">
+                <MenuItem Header="_Preview" />
+                <MenuItem Header="_Location Info" />
+                <MenuItem Header="_RTVP" />
+                <MenuItem Header="_Location Files" />
+            </MenuItem>
+            <MenuItem Header="_Database">
+                <MenuItem Header="_All" />
+                <MenuItem Header="_Location" />
+                <Separator />
+                <MenuItem Header="_Refresh" />
+            </MenuItem>
+        </Menu>
+        <ToolBar Grid.Row="1" x:Name="Toolbar" >
+            <Button x:Name="InsertToDB" Command="" ToolTip="Insert Location Info to Database">
+                <Image Source="Database_32x.png" />
+            </Button>
+            <Button x:Name="RefreshDB" Command="" ToolTip="Refresh Database">
+                <Image Source="Refresh_32x.png" />
+            </Button>
+            <Button x:Name="Print" Command="" ToolTip="Print">
+                <Image Source="Print_32x.png" />
+            </Button>
+        </ToolBar>
+        <TabControl Grid.Row="2" x:Name="Tabs">
+            <TabItem x:Name="DistributionTab" Header="Distribution" Visibility="Visible">
+                <Grid x:Name="DistributionTabGrid" />
+            </TabItem>
+            <TabItem x:Name="PrintPreviewTab" Header="Preview" Visibility="Visible">
+                <Grid x:Name="PrintPrevTabGrid">
+                    <DocumentViewer x:Name="LocationInfoViewer" Background="DarkGray" />
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DatabaseTab" Header="Database" Visibility="Visible">
+                <Grid x:Name="DatabaseTabGrid">
+                    <DataGrid x:Name="DistributionsDataGrid" ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StatusBar Grid.Row="3" x:Name="StatBar" Background="DarkGray">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch"  HorizontalContentAlignment="Stretch">
+                <TextBlock x:Name="StatusLabel" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch">
+                <ProgressBar Name="Progress" Value="50" Height="28" Visibility="Hidden"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Controls:MetroWindow>

@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DistributionsDataSet" targetNamespace="http://tempuri.org/DistributionsDataSet.xsd" xmlns:mstns="http://tempuri.org/DistributionsDataSet.xsd" xmlns="http://tempuri.org/DistributionsDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="MySettings" AppSettingsPropertyName="DistributionsConnectionString" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="DistributionsConnectionString (MySettings)" ParameterPrefix="@" PropertyReference="ApplicationSettings.Distribution_Helper_WPF.MySettings.GlobalReference.Default.DistributionsConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="DistributionsTableAdapter" GeneratorDataComponentClassName="DistributionsTableAdapter" Name="Distributions" UserDataComponentName="DistributionsTableAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="DistributionsConnectionString (MySettings)" DbObjectName="Distributions.dbo.Distributions" DbObjectType="Table" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="true" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="true">
+                    <CommandText>SELECT Distributions.programName, Distributions.locationName, Distributions.revision, Distributions.date, Distributions.checksum_h14, Distributions.CRC_h14, Distributions.checksum_h15, Distributions.CRC_h15, Distributions.checksum_h30, Distributions.CRC_h30, Distributions.checksum_h31, Distributions.CRC_h31, Distributions.equipmentType, Distributions.consCRC, Distributions.consSum, Distributions.v_crc, Distributions.v_sum, Distributions.nv_crc, Distributions.nv_sum, Distributions.v_valcrc, Distributions.nv_valcrc, Distributions.customer, Distributions.customerJobNum, Distributions.internalJobNum FROM Distributions INNER JOIN (SELECT DISTINCT programName, MAX(date) AS date, MAX(revision) AS revision FROM Distributions AS Distributions_1 GROUP BY programName) AS b ON Distributions.programName = b.programName AND Distributions.date = b.date AND Distributions.revision = b.revision</CommandText>
+                    <Parameters />
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="locationName" DataSetColumn="locationName" />
+              <Mapping SourceColumn="programName" DataSetColumn="programName" />
+              <Mapping SourceColumn="date" DataSetColumn="date" />
+              <Mapping SourceColumn="checksum_h14" DataSetColumn="checksum_h14" />
+              <Mapping SourceColumn="CRC_h14" DataSetColumn="CRC_h14" />
+              <Mapping SourceColumn="checksum_h15" DataSetColumn="checksum_h15" />
+              <Mapping SourceColumn="CRC_h15" DataSetColumn="CRC_h15" />
+              <Mapping SourceColumn="checksum_h30" DataSetColumn="checksum_h30" />
+              <Mapping SourceColumn="CRC_h30" DataSetColumn="CRC_h30" />
+              <Mapping SourceColumn="checksum_h31" DataSetColumn="checksum_h31" />
+              <Mapping SourceColumn="CRC_h31" DataSetColumn="CRC_h31" />
+              <Mapping SourceColumn="equipmentType" DataSetColumn="equipmentType" />
+              <Mapping SourceColumn="consCRC" DataSetColumn="consCRC" />
+              <Mapping SourceColumn="consSum" DataSetColumn="consSum" />
+              <Mapping SourceColumn="v_crc" DataSetColumn="v_crc" />
+              <Mapping SourceColumn="v_sum" DataSetColumn="v_sum" />
+              <Mapping SourceColumn="nv_crc" DataSetColumn="nv_crc" />
+              <Mapping SourceColumn="nv_sum" DataSetColumn="nv_sum" />
+              <Mapping SourceColumn="v_valcrc" DataSetColumn="v_valcrc" />
+              <Mapping SourceColumn="nv_valcrc" DataSetColumn="nv_valcrc" />
+              <Mapping SourceColumn="revision" DataSetColumn="revision" />
+              <Mapping SourceColumn="customer" DataSetColumn="customer" />
+              <Mapping SourceColumn="customerJobNum" DataSetColumn="customerJobNum" />
+              <Mapping SourceColumn="internalJobNum" DataSetColumn="internalJobNum" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DistributionsDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="True" msprop:Generator_DataSetName="DistributionsDataSet" msprop:Generator_UserDSName="DistributionsDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Distributions" msprop:Generator_TableClassName="DistributionsDataTable" msprop:Generator_TableVarName="tableDistributions" msprop:Generator_RowChangedName="DistributionsRowChanged" msprop:Generator_TablePropName="Distributions" msprop:Generator_RowDeletingName="DistributionsRowDeleting" msprop:Generator_RowChangingName="DistributionsRowChanging" msprop:Generator_RowEvHandlerName="DistributionsRowChangeEventHandler" msprop:Generator_RowDeletedName="DistributionsRowDeleted" msprop:Generator_RowClassName="DistributionsRow" msprop:Generator_UserTableName="Distributions" msprop:Generator_RowEvArgName="DistributionsRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="locationName" msprop:Generator_ColumnVarNameInTable="columnlocationName" msprop:Generator_ColumnPropNameInRow="locationName" msprop:Generator_ColumnPropNameInTable="locationNameColumn" msprop:Generator_UserColumnName="locationName">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="programName" msprop:Generator_ColumnVarNameInTable="columnprogramName" msprop:Generator_ColumnPropNameInRow="programName" msprop:Generator_ColumnPropNameInTable="programNameColumn" msprop:Generator_UserColumnName="programName">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="date" msprop:Generator_ColumnVarNameInTable="columndate" msprop:Generator_ColumnPropNameInRow="_date" msprop:Generator_ColumnPropNameInTable="dateColumn" msprop:Generator_UserColumnName="date" type="xs:dateTime" />
+              <xs:element name="checksum_h14" msprop:Generator_ColumnVarNameInTable="columnchecksum_h14" msprop:Generator_ColumnPropNameInRow="checksum_h14" msprop:Generator_ColumnPropNameInTable="checksum_h14Column" msprop:Generator_UserColumnName="checksum_h14" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CRC_h14" msprop:Generator_ColumnVarNameInTable="columnCRC_h14" msprop:Generator_ColumnPropNameInRow="CRC_h14" msprop:Generator_ColumnPropNameInTable="CRC_h14Column" msprop:Generator_UserColumnName="CRC_h14" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="checksum_h15" msprop:Generator_ColumnVarNameInTable="columnchecksum_h15" msprop:Generator_ColumnPropNameInRow="checksum_h15" msprop:Generator_ColumnPropNameInTable="checksum_h15Column" msprop:Generator_UserColumnName="checksum_h15" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CRC_h15" msprop:Generator_ColumnVarNameInTable="columnCRC_h15" msprop:Generator_ColumnPropNameInRow="CRC_h15" msprop:Generator_ColumnPropNameInTable="CRC_h15Column" msprop:Generator_UserColumnName="CRC_h15" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="checksum_h30" msprop:Generator_ColumnVarNameInTable="columnchecksum_h30" msprop:Generator_ColumnPropNameInRow="checksum_h30" msprop:Generator_ColumnPropNameInTable="checksum_h30Column" msprop:Generator_UserColumnName="checksum_h30" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CRC_h30" msprop:Generator_ColumnVarNameInTable="columnCRC_h30" msprop:Generator_ColumnPropNameInRow="CRC_h30" msprop:Generator_ColumnPropNameInTable="CRC_h30Column" msprop:Generator_UserColumnName="CRC_h30" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="checksum_h31" msprop:Generator_ColumnVarNameInTable="columnchecksum_h31" msprop:Generator_ColumnPropNameInRow="checksum_h31" msprop:Generator_ColumnPropNameInTable="checksum_h31Column" msprop:Generator_UserColumnName="checksum_h31" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CRC_h31" msprop:Generator_ColumnVarNameInTable="columnCRC_h31" msprop:Generator_ColumnPropNameInRow="CRC_h31" msprop:Generator_ColumnPropNameInTable="CRC_h31Column" msprop:Generator_UserColumnName="CRC_h31" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="equipmentType" msprop:Generator_ColumnVarNameInTable="columnequipmentType" msprop:Generator_ColumnPropNameInRow="equipmentType" msprop:Generator_ColumnPropNameInTable="equipmentTypeColumn" msprop:Generator_UserColumnName="equipmentType">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="consCRC" msprop:Generator_ColumnVarNameInTable="columnconsCRC" msprop:Generator_ColumnPropNameInRow="consCRC" msprop:Generator_ColumnPropNameInTable="consCRCColumn" msprop:Generator_UserColumnName="consCRC" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="consSum" msprop:Generator_ColumnVarNameInTable="columnconsSum" msprop:Generator_ColumnPropNameInRow="consSum" msprop:Generator_ColumnPropNameInTable="consSumColumn" msprop:Generator_UserColumnName="consSum" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="v_crc" msprop:Generator_ColumnVarNameInTable="columnv_crc" msprop:Generator_ColumnPropNameInRow="v_crc" msprop:Generator_ColumnPropNameInTable="v_crcColumn" msprop:Generator_UserColumnName="v_crc" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="v_sum" msprop:Generator_ColumnVarNameInTable="columnv_sum" msprop:Generator_ColumnPropNameInRow="v_sum" msprop:Generator_ColumnPropNameInTable="v_sumColumn" msprop:Generator_UserColumnName="v_sum" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="nv_crc" msprop:Generator_ColumnVarNameInTable="columnnv_crc" msprop:Generator_ColumnPropNameInRow="nv_crc" msprop:Generator_ColumnPropNameInTable="nv_crcColumn" msprop:Generator_UserColumnName="nv_crc" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="nv_sum" msprop:Generator_ColumnVarNameInTable="columnnv_sum" msprop:Generator_ColumnPropNameInRow="nv_sum" msprop:Generator_ColumnPropNameInTable="nv_sumColumn" msprop:Generator_UserColumnName="nv_sum" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="4" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="v_valcrc" msprop:Generator_ColumnVarNameInTable="columnv_valcrc" msprop:Generator_ColumnPropNameInRow="v_valcrc" msprop:Generator_ColumnPropNameInTable="v_valcrcColumn" msprop:Generator_UserColumnName="v_valcrc" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="8" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="nv_valcrc" msprop:Generator_ColumnVarNameInTable="columnnv_valcrc" msprop:Generator_ColumnPropNameInRow="nv_valcrc" msprop:Generator_ColumnPropNameInTable="nv_valcrcColumn" msprop:Generator_UserColumnName="nv_valcrc" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="8" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="revision" msprop:Generator_ColumnVarNameInTable="columnrevision" msprop:Generator_ColumnPropNameInRow="revision" msprop:Generator_ColumnPropNameInTable="revisionColumn" msprop:Generator_UserColumnName="revision" type="xs:int" />
+              <xs:element name="customer" msprop:Generator_ColumnVarNameInTable="columncustomer" msprop:Generator_ColumnPropNameInRow="customer" msprop:Generator_ColumnPropNameInTable="customerColumn" msprop:Generator_UserColumnName="customer">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="customerJobNum" msprop:Generator_ColumnVarNameInTable="columncustomerJobNum" msprop:Generator_ColumnPropNameInRow="customerJobNum" msprop:Generator_ColumnPropNameInTable="customerJobNumColumn" msprop:Generator_UserColumnName="customerJobNum" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="internalJobNum" msprop:Generator_ColumnVarNameInTable="columninternalJobNum" msprop:Generator_ColumnPropNameInRow="internalJobNum" msprop:Generator_ColumnPropNameInTable="internalJobNumColumn" msprop:Generator_UserColumnName="internalJobNum">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
