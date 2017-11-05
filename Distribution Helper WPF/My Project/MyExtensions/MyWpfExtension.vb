@@ -90,6 +90,9 @@ Namespace My
                 MyBase.New()
             End Sub
             <Global.System.ThreadStatic()> Private Shared s_WindowBeingCreated As Global.System.Collections.Hashtable
+            Friend ProgramSelectorWindow As Object
+            Friend Shared DistroPathText As Object
+
             <Global.System.ComponentModel.EditorBrowsable(Global.System.ComponentModel.EditorBrowsableState.Never)> Public Overrides Function Equals(ByVal o As Object) As Boolean
                 Return MyBase.Equals(o)
             End Function

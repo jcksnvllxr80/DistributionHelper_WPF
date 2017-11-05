@@ -11,6 +11,21 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <MyType>Custom</MyType>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,6 +61,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
@@ -93,6 +111,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NonVitalHLC.vb" />
+    <Compile Include="ProgramFile.vb" />
+    <Compile Include="VitalHLC.vb" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -106,17 +127,23 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DistributionsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="EC4.vb" />
+    <Compile Include="ElectroLogIXS.vb" />
+    <Compile Include="GN2.vb" />
+    <Compile Include="HLC.vb" />
+    <Compile Include="LocationData.vb" />
     <Compile Include="MainWindow.xaml.vb">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Import Include="System.Threading.Tasks" />
-    <Import Include="System.Linq" />
-    <Import Include="System.Xml.Linq" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
+    <Import Include="System.Data" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Threading.Tasks" />
+    <Import Include="System.Xml.Linq" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />
     <Import Include="System.Diagnostics" />
@@ -131,6 +158,7 @@
     <Import Include="System.Windows.Navigation" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ML2.vb" />
     <Compile Include="My Project\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -153,6 +181,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
     </EmbeddedResource>
+    <Content Include="Blank.label">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="DistributionsDataSet.xsc">
       <DependentUpon>DistributionsDataSet.xsd</DependentUpon>
     </None>
@@ -174,15 +205,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="WriteToDatabase_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Refresh_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Print_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Database_32x.png" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +212,27 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Refresh_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Document_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Mail_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Create_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="MakeFile_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Folder_32x.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

@@ -3,31 +3,49 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:Distribution_Helper_WPF"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:DistributionsDataSetTableAdapters="clr-namespace:Distribution_Helper_WPF.DistributionsDataSetTableAdapters" xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic" xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit" x:Name="Distribution_Helper" x:Class="MainWindow"
+        xmlns:DistributionsDataSetTableAdapters="clr-namespace:Distribution_Helper_WPF.DistributionsDataSetTableAdapters" 
+        xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic" 
+        xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit" 
+        x:Name="Distribution_Helper" 
+        x:Class="MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="731" Width="554" Opacity="0.93" AllowsTransparency="True" WindowStyle="None">
+        Title="Distribution Helper" 
+        Height="731" 
+        Width="600" 
+        Opacity="0.951" 
+        AllowsTransparency="True" 
+        Icon="Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
+        WindowStyle="None">
     <Controls:MetroWindow.Resources>
         <local:DistributionsDataSet x:Key="DistributionsDataSet"/>
         <CollectionViewSource x:Key="DistributionsViewSource" Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}"/>
     </Controls:MetroWindow.Resources>
-    <Grid x:Name="FormGrid" Background="DarkGray">
+    <Grid x:Name="FormGrid" 
+          Background="DarkGray">
         <Grid.RowDefinitions>
             <RowDefinition Height="33" />
             <RowDefinition Height="36" />
             <RowDefinition Height="*" />
             <RowDefinition Height="33" />
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0" VerticalContentAlignment="Top" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <Menu Grid.Row="0" 
+              VerticalContentAlignment="Top" 
+              VerticalAlignment="Stretch" 
+              HorizontalContentAlignment="Stretch">
             <MenuItem Header="_File">
                 <MenuItem Header="_New" />
-                <MenuItem Header="_Open" />
+                <MenuItem Header="_Open" 
+                          x:Name="MenuItemOpen" 
+                          Click="SelectFolder"/>
                 <MenuItem Header="_Save" />
                 <Separator />
-                <MenuItem Header="_Close" />
+                <MenuItem Header="_Close" 
+                          x:Name="MenuItemClose" 
+                          Click="Exit_Application" />
             </MenuItem>
             <MenuItem Header="_Print">
                 <MenuItem Header="_Preview" />
@@ -36,39 +54,293 @@
                 <MenuItem Header="_Location Files" />
             </MenuItem>
             <MenuItem Header="_Database">
-                <MenuItem Header="_All" />
+                <MenuItem Header="_All" 
+                          x:Name="InsertToDBMenuItem" 
+                          Click="InsertDistInfoToDatabase"/>
                 <MenuItem Header="_Location" />
                 <Separator />
-                <MenuItem Header="_Refresh" />
+                <MenuItem Header="_Refresh" 
+                          x:Name="RefreshDatabase" 
+                          Click="fillDataGridFromDB"/>
             </MenuItem>
         </Menu>
-        <ToolBar Grid.Row="1" x:Name="Toolbar" >
-            <Button x:Name="InsertToDB" Command="" ToolTip="Insert Location Info to Database">
+        <ToolBar Grid.Row="1" 
+                 x:Name="Toolbar">
+            <Button x:Name="OpenFolderToolBttn" 
+                    Click="SelectFolder" 
+                    ToolTip="Browse" 
+                    Tag="Browse for Distribution Directory" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" >
+                <Image Source="Folder_32x.png" />
+            </Button>
+            <Button x:Name="InsertToDBToolBttn" 
+                    ToolTip="Insert to DB" 
+                    Tag="Insert Location Info to Database" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave"
+                    Click="InsertDistInfoToDatabase"
+                    IsEnabled="False">
                 <Image Source="Database_32x.png" />
             </Button>
-            <Button x:Name="RefreshDB" Command="" ToolTip="Refresh Database">
+            <Button x:Name="RefreshDBToolBttn" 
+                    ToolTip="Refresh DB" 
+                    Tag="Refresh Database" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" 
+                    IsEnabled="False">
                 <Image Source="Refresh_32x.png" />
             </Button>
-            <Button x:Name="Print" Command="" ToolTip="Print">
+            <Button x:Name="PrintToolBttn" 
+                    ToolTip="Print" 
+                    Tag="Print" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" 
+                    IsEnabled="False">
                 <Image Source="Print_32x.png" />
             </Button>
+            <Separator Background="Black"/>
+            <Button x:Name="CreateEmailToolBttn" 
+                    ToolTip="Email" 
+                    Tag="Create Distribution Email" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" 
+                    IsEnabled="False">
+                <Image Source="Mail_32x.png" />
+            </Button>
+            <Button x:Name="CreateLabelsToolBttn" 
+                    ToolTip="Labels" 
+                    Tag="Create Labels" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" 
+                    IsEnabled="False">
+                <Image Source="MakeFile_32x.png" />
+            </Button>
+            <Button x:Name="CreateLetterToolBttn" 
+                    ToolTip="Letter" 
+                    Tag="Create Distribution Letter" 
+                    MouseEnter="Text_MouseEnter" 
+                    MouseLeave="Text_MouseLeave" 
+                    IsEnabled="False">
+                <Image Source="Document_32x.png" />
+            </Button>
         </ToolBar>
-        <TabControl Grid.Row="2" x:Name="Tabs">
-            <TabItem x:Name="DistributionTab" Header="Distribution" Visibility="Visible">
-                <Grid x:Name="DistributionTabGrid" />
-            </TabItem>
-            <TabItem x:Name="PrintPreviewTab" Header="Preview" Visibility="Visible">
-                <Grid x:Name="PrintPrevTabGrid">
-                    <DocumentViewer x:Name="LocationInfoViewer" Background="DarkGray" />
+        <TabControl Grid.Row="2" 
+                    x:Name="Tabs" >
+            <TabItem x:Name="DistributionTab" 
+                     Header="Distribution" 
+                     Tag="Enter Distribution Information" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave"  
+                     Visibility="Visible" >
+                <Grid x:Name="DistributionTabGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="33" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="1" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="DistroPathLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Distribution Path" />
+                    <TextBox Grid.Row="1" 
+                             Grid.Column="2" 
+                             Grid.ColumnSpan="6" 
+                             x:Name="DistroPathText" 
+                             Text="" 
+                             MouseEnter="Text_MouseEnter" 
+                             MouseLeave="Text_MouseLeave" 
+                             Tag="Enter directory where distribution files reside"/>
+                    <Label Grid.Row="2" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="DistributionDateLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Distribution Date" />
+                    <Controls:DateTimePicker Grid.Row="2" 
+                                Grid.Column="2" 
+                                Grid.ColumnSpan="6" 
+                                x:Name="DistributionDatePicker" 
+                                MouseEnter="Text_MouseEnter" 
+                                MouseLeave="Text_MouseLeave"  
+                                SelectedDate="{x:Static sys:DateTime.Now}" 
+                                Tag="Pick a distribution date"/>
+                    <Label Grid.Row="3" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="LocationNameLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Location Name" />
+                    <TextBox Grid.Row="3" 
+                             Grid.Column="2" 
+                             Grid.ColumnSpan="6" 
+                             x:Name="LocationNameText" 
+                             Text="" 
+                             MouseEnter="Text_MouseEnter" 
+                             MouseLeave="Text_MouseLeave" 
+                             Tag="Enter location name"/>
+                    <Label Grid.Row="4" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="CustomerLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Customer Name" />
+                    <Controls1:AutoCompleteBox Grid.Row="4" 
+                                               Grid.Column="2" 
+                                               Grid.ColumnSpan="6" 
+                                               x:Name="CustomerComboBox" 
+                                               Text="" 
+                                               MouseEnter="Text_MouseEnter" 
+                                               MouseLeave="Text_MouseLeave" 
+                                               Tag="Enter customer name" 
+                                               Background="Transparent" 
+                                               Foreground="White">
+                    </Controls1:AutoCompleteBox>
+                    <Label Grid.Row="5" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="CustomerJobNumLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Customer Job Number" />
+                    <Controls1:AutoCompleteBox Grid.Row="5" 
+                                               Grid.Column="2" 
+                                               Grid.ColumnSpan="6" 
+                                               x:Name="CustomerJobNumComboBox" 
+                                               Text="" 
+                                               MouseEnter="Text_MouseEnter" 
+                                               MouseLeave="Text_MouseLeave" 
+                                               Tag="Enter customer job number" 
+                                               Background="Transparent" 
+                                               Foreground="White"/>
+                    <Label Grid.Row="6" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="InternalJobNumLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Internal Job Number" />
+                    <Controls1:AutoCompleteBox Grid.Row="6" 
+                                               Grid.Column="2" 
+                                               Grid.ColumnSpan="6" 
+                                               x:Name="InternalJobNumComboBox" 
+                                               Text="" 
+                                               MouseEnter="Text_MouseEnter" 
+                                               MouseLeave="Text_MouseLeave" 
+                                               Tag="Enter internal job number" 
+                                               Background="Transparent" 
+                                               Foreground="White"/>
+                    <Label Grid.Row="7" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="distroPathLAbel6" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Distribution Path" />
+                    <TextBox Grid.Row="7" 
+                             Grid.Column="2" 
+                             Grid.ColumnSpan="6" 
+                             x:Name="distroPathText6" 
+                             Text="" 
+                             MouseEnter="Text_MouseEnter" 
+                             MouseLeave="Text_MouseLeave" 
+                             Tag="Enter location name"/>
+                    <Label Grid.Row="8" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="distroPathLAbel7" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Distribution Path" />
+                    <TextBox Grid.Row="8" 
+                             Grid.Column="2" 
+                             Grid.ColumnSpan="6" 
+                             x:Name="distroPathText7" 
+                             Text="" 
+                             MouseEnter="Text_MouseEnter" 
+                             MouseLeave="Text_MouseLeave" 
+                             Tag="Enter location name"/>
+                    <Label Grid.Row="9" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="DistroAddressLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Distribution Address" />
+                    <TextBox Grid.Row="9" 
+                             Grid.RowSpan="3" 
+                             Grid.Column="2" 
+                             Grid.ColumnSpan="6" 
+                             x:Name="DistributionAddressText" 
+                             Text="" 
+                             MouseEnter="Text_MouseEnter" 
+                             MouseLeave="Text_MouseLeave" 
+                             Tag="Enter Distribution Address"/>
+                    <Label Grid.Row="13" 
+                           Grid.Column="1" 
+                           Grid.ColumnSpan="1" 
+                           x:Name="ProgramSelectorLabel" 
+                           HorizontalContentAlignment="Right" 
+                           Content="Select Distribution Software" 
+                           Visibility="Hidden"/>
+                    <WrapPanel x:Name="ProgramWrapPanel" 
+                               Grid.Row="13" 
+                               Grid.Column="2" 
+                               Grid.ColumnSpan="5" 
+                               Grid.RowSpan="4" 
+                               Orientation="Vertical" 
+                               Visibility="Hidden"/>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="DatabaseTab" Header="Database" Visibility="Visible">
+            <TabItem x:Name="PrintPreviewTab" 
+                     Header="Preview" 
+                     Tag="View the data extracted from this location" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Hidden">
+                <Grid x:Name="PrintPrevTabGrid">
+                    <FlowDocumentReader x:Name="LocationInfoViewer" 
+                                        Background="Transparent"/>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DatabaseTab" 
+                     Header="Database" 
+                     Tag="View all distributed software ever inserted to database" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Hidden">
                 <Grid x:Name="DatabaseTabGrid">
-                    <DataGrid x:Name="DistributionsDataGrid" ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}"/>
+                    <DataGrid x:Name="DistributionsDataGrid" 
+                              ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}"/>
                 </Grid>
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="3" x:Name="StatBar" Background="DarkGray">
+        <StatusBar Grid.Row="3" 
+                   x:Name="StatBar">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -80,11 +352,20 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem Grid.Column="0" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch"  HorizontalContentAlignment="Stretch">
-                <TextBlock x:Name="StatusLabel" />
+            <StatusBarItem Grid.Column="0" 
+                           Grid.ColumnSpan="2" 
+                           VerticalContentAlignment="Stretch"  
+                           HorizontalContentAlignment="Stretch">
+                <TextBlock x:Name="StatusLabel" 
+                           Text=""/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch">
-                <ProgressBar Name="Progress" Value="50" Height="28" Visibility="Hidden"/>
+            <StatusBarItem Grid.Column="2" 
+                           VerticalContentAlignment="Center" 
+                           HorizontalContentAlignment="Stretch">
+                <ProgressBar Name="ProgressBar" 
+                             Value="50" 
+                             Height="28" 
+                             Visibility="Hidden"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

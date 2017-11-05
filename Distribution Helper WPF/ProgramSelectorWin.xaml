@@ -1,0 +1,13 @@
+﻿<Controls:MetroWindow x:Name="ProgramSelectorWin1" x:Class="ProgramSelectorWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:Distribution_Helper_WPF"
+        mc:Ignorable="d"
+        Title="Select File(s) to Distribute" Height="300" Width="300" Icon="Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" FontSize="16">
+    <Grid x:Name="ProgramsGrid" Background="DarkGray">
+        
+    </Grid>
+</Controls:MetroWindow>
