@@ -3,6 +3,7 @@
 Imports System.Drawing
 Imports System.Drawing.Printing
 Imports System.IO
+Imports System.ComponentModel
 
 Class MainWindow
     Inherits MetroWindow
@@ -22,18 +23,54 @@ Class MainWindow
 
     End Sub
 
+
+    Private Sub PrintLocationInfo()
+        Dim printer As New PrintDialog
+        Dim result = printer.ShowDialog()
+        If result Then
+            printer.PrintVisual(LocationInfoViewer, Me.DistroPathText.Text & " Location Info")
+        End If
+    End Sub
+
+
+    Private Sub PrintDataGrid()
+        Dim printer As New PrintDialog
+        Dim result = printer.ShowDialog()
+        If result Then
+            printer.PrintVisual(DistributionsDataGrid, Me.DistroPathText.Text & " Location Info")
+        End If
+    End Sub
+
+
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
         fillDataGridFromDB()
     End Sub
 
     Private Sub fillDataGridFromDB()
+
         Dim DistributionsDataSet As Distribution_Helper_WPF.DistributionsDataSet = CType(Me.FindResource("DistributionsDataSet"), Distribution_Helper_WPF.DistributionsDataSet)
         'Load data into the table Distributions. You can modify this code as needed.
         Dim DistributionsDataSetDistributionsTableAdapter As Distribution_Helper_WPF.DistributionsDataSetTableAdapters.DistributionsTableAdapter =
-            New Distribution_Helper_WPF.DistributionsDataSetTableAdapters.DistributionsTableAdapter()
+                New Distribution_Helper_WPF.DistributionsDataSetTableAdapters.DistributionsTableAdapter()
         DistributionsDataSetDistributionsTableAdapter.Fill(DistributionsDataSet.Distributions)
-        Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource = CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
-        DistributionsViewSource.View.MoveCurrentToFirst()
+
+        Dim progName = Trim(Me.LocationNameText.Text)
+        If FilterDatabaseByLocation.IsChecked Then
+            If Not progName = "" Then
+                Dim dt = New DistributionsDataSet.DistributionsDataTable
+                DistributionsDataSetDistributionsTableAdapter.Fill(dt)
+                DistributionsDataGrid.DataContext = dt
+                Dim blv As IBindingListView = dt.DefaultView
+                blv.Filter = "locationName = '" & Me.LocationNameText.Text & "'"
+                DistributionsDataGrid.ItemsSource = dt.DefaultView
+            Else
+                MsgBox("Location Name Field is empty.")
+            End If
+        Else
+                Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource = CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
+            DistributionsViewSource.View.MoveCurrentToFirst()
+            DistributionsDataGrid.ItemsSource = DistributionsDataSet.Distributions.DefaultView
+        End If
 
         'read from database and fill in combo boxes
         LoadCustomerComboBox()
@@ -65,7 +102,10 @@ Class MainWindow
             End If
             Dim nextPrimaryKey = GetNextPrimaryKey(connection)
             Dim nextRevNumber = getNextRevisionNumber(connection, Prog.GetName)
-            Prog.InsertDistributionToDB(connection, nextPrimaryKey, nextRevNumber)
+            Dim userFieldData As New MainWindowData(Me.LocationNameText.Text, Me.CustomerComboBox.Text,
+                                                    Me.CustomerJobNumComboBox.Text, Me.InternalJobNumComboBox.Text,
+                                                    Me.DistributionDatePicker.DisplayDate)
+            Prog.InsertDistributionToDB(connection, nextPrimaryKey, nextRevNumber, userFieldData)
             'Console.WriteLine("Primary Key: " & nextPrimaryKey & vbCrLf & "Revision Number: " & nextRevNumber & vbCrLf & vbCrLf)
             currentProgress += 1
             Me.ProgressBar.Value = 100 * currentProgress / totalProgress
@@ -79,20 +119,9 @@ Class MainWindow
         LoadInternalJobNumComboBox()
         LoadCustomerComboBox()
         LoadCustomerJobNumComboBox()
-        BindGridAndFilterByProgName(Me.LocationNameText.Text)
-
-        Me.ProgressBar.Visibility = Visibility.Hidden
-    End Sub
-
-
-    Private Sub BindGridAndFilterByProgName(progName As String)
-        'DataGridView1.DataSource = DistributionsBindingSource
-
-        progName = Trim(progName)
-        If progName = "" Then Exit Sub
-
         fillDataGridFromDB()
 
+        Me.ProgressBar.Visibility = Visibility.Hidden
     End Sub
 
 
@@ -228,8 +257,8 @@ Class MainWindow
                 StatusLabel.Text = tempInfoString
             Else
                 tempInfoString = "Invalid path"
-                StatusLabel.Text = tempInfoString
             End If
+            StatusLabel.Text = tempInfoString
         End If
         'Console.Write("pressed " & Int(e.Key) & vbCrLf)
     End Sub
@@ -255,7 +284,7 @@ Class MainWindow
                         Me.ProgramWrapPanel.Children.Add(checkBox)
 
                         'Set size, position, ...
-                        checkBox.Content = filename
+                        checkBox.Content = "_" & filename
                         checkBox.Tag = Me.DistroPathText.Text
                         checkBox.Width = 150
                         checkBox.FontSize = 14.0
@@ -297,6 +326,7 @@ Class MainWindow
         Else
             ProgramSelectorLabel.Visibility = Visibility.Hidden
             ProgramWrapPanel.Visibility = Visibility.Hidden
+            ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
         End If
     End Sub
 
@@ -323,6 +353,7 @@ Class MainWindow
         For Each controlObj In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
             If controlObj.GetType() Is GetType(CheckBox) Then
                 If controlObj.IsChecked Then
+                    controlObj.Content = controlObj.Content.Substring(1)
                     If DistributionPrograms.First Is Nothing Then
                         DistributionPrograms.AddFirst(DetermineProgramType(controlObj))
                     Else
@@ -485,11 +516,10 @@ Class MainWindow
     Private Sub EnableDataViewFunctions()
         DistributionDataLoaded = True
 
-        'PrintToolBttn.Enabled = True
-        'PrintMenuItem.Enabled = True
+        PrintMenu.IsEnabled = True
+        PrintToolBttn.IsEnabled = True
+        'PrintLocInfoMenuItem.IsEnabled = True
 
-        'PrintPrevToolBttn.Enabled = True
-        'PrintPreviewMenuItem.Enabled = True
         PrintPreviewTab.Visibility = Visibility.Visible
         LocationInfoViewer.Document = CreateDistributionDocument()
 
@@ -509,11 +539,10 @@ Class MainWindow
     Private Sub DisableDataViewFunctions()
         DistributionDataLoaded = False
 
-        'PrintToolBttn.Enabled = False
-        'PrintMenuItem.Enabled = False
+        PrintMenu.IsEnabled = False
+        PrintToolBttn.IsEnabled = False
+        'PrintLocInfoMenuItem.IsEnabled = False
 
-        'PrintPrevToolBttn.Enabled = False
-        'PrintPreviewMenuItem.Enabled = False
         PrintPreviewTab.Visibility = Visibility.Hidden
 
         'SaveToolBttn.Enabled = False
@@ -528,43 +557,35 @@ Class MainWindow
         'DistEmailToolBttn.Enabled = False
 
         'CreateLetterToolBttn.Enabled = False
+    End Sub
 
+
+    Private Sub CheckFieldsForData()
+        If DistributionDataLoaded Then
+            If Not (Me.CustomerComboBox.Text.Trim = "" Or Me.InternalJobNumComboBox.Text.Trim = "" Or Me.LocationNameText.Text.Trim = "") Then
+                EnableCreationControls()
+                tempInfoString = ""
+            Else
+                DisableCreationControls()
+                tempInfoString = "Fill customer, internal job number, and location name fields."
+            End If
+            StatusLabel.Text = tempInfoString
+        End If
     End Sub
 
 
     Private Sub CustomerComboBox_TextChanged(sender As Object, e As EventArgs) Handles CustomerComboBox.TextChanged
-        If Not (Me.CustomerComboBox.Text.Trim.Equals("") Or Me.InternalJobNumComboBox.Text.Trim.Equals("") Or Me.LocationNameText.Text.Trim.Equals("")) And DistributionDataLoaded Then
-            EnableCreationControls()
-            tempInfoString = ""
-        Else
-            DisableCreationControls()
-            tempInfoString = "Fill customer, internal job number, and location name fields."
-        End If
-        StatusLabel.Text = tempInfoString
+        CheckFieldsForData()
     End Sub
 
 
     Private Sub InternalJobNumComboBox_TextChanged(sender As Object, e As EventArgs) Handles InternalJobNumComboBox.TextChanged
-        If Not (Me.CustomerComboBox.Text.Trim = "" Or Me.InternalJobNumComboBox.Text.Trim = "" Or Me.LocationNameText.Text.Trim = "") And DistributionDataLoaded Then
-            EnableCreationControls()
-            tempInfoString = ""
-        Else
-            DisableCreationControls()
-            tempInfoString = "Fill customer, internal job number, and location name fields."
-        End If
-        StatusLabel.Text = tempInfoString
+        CheckFieldsForData()
     End Sub
 
 
     Private Sub LocationNameText_TextChanged(sender As Object, e As EventArgs) Handles LocationNameText.TextChanged
-        If Not (Me.CustomerComboBox.Text.Trim = "" Or Me.InternalJobNumComboBox.Text.Trim = "" Or Me.LocationNameText.Text.Trim = "") And DistributionDataLoaded Then
-            EnableCreationControls()
-            tempInfoString = ""
-        Else
-            DisableCreationControls()
-            tempInfoString = "Fill customer, internal job number, and location name fields."
-        End If
-        StatusLabel.Text = tempInfoString
+        CheckFieldsForData()
     End Sub
 
 
@@ -637,11 +658,14 @@ Class MainWindow
 
 
     Private Sub EnableCreationControls()
-        BindGridAndFilterByProgName(Me.LocationNameText.Text)
+        fillDataGridFromDB()
 
+        FilterDatabaseByLocation.IsEnabled = True
+        PrintDatabaseMenuItem.IsEnabled = True
         InsertToDBToolBttn.IsEnabled = True
         InsertToDBMenuItem.IsEnabled = True
         RefreshDBToolBttn.IsEnabled = True
+        DatabaseMenu.IsEnabled = True
         DatabaseTab.Visibility = Visibility.Visible
 
         CreateLabelsToolBttn.IsEnabled = True
@@ -654,9 +678,12 @@ Class MainWindow
 
 
     Private Sub DisableCreationControls()
+        FilterDatabaseByLocation.IsEnabled = False
+        PrintDatabaseMenuItem.IsEnabled = False
         InsertToDBToolBttn.IsEnabled = False
         InsertToDBMenuItem.IsEnabled = False
         RefreshDBToolBttn.IsEnabled = False
+        DatabaseMenu.IsEnabled = False
         DatabaseTab.Visibility = Visibility.Hidden
 
         CreateLabelsToolBttn.IsEnabled = False
@@ -672,4 +699,7 @@ Class MainWindow
         Close()
     End Sub
 
+    Private Sub DistroPathText_MouseDoubleClick(sender As Object, e As MouseButtonEventArgs) Handles DistroPathText.MouseDoubleClick
+        SelectFolder()
+    End Sub
 End Class

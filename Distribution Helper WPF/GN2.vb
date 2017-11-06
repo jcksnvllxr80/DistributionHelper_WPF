@@ -54,16 +54,16 @@
     End Sub
 
 
-    Public Overrides Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer)
+    Public Overrides Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer, mainWin As MainWindowData)
         Dim cmd As New SqlClient.SqlCommand
 
         cmd.CommandText = "INSERT INTO Distributions(ID, locationName, programName, date, v_crc, v_sum, revision, 
             customer, customerJobNum, internalJobNum, equipmentType) VALUES(" & primaryKey & ", 
-            '" & My.Windows.MainWindow.LocationNameText.Text & "', '" & Me.GetName & "', 
-            '" & My.Windows.MainWindow.DistributionDatePicker.DisplayDate & "', '" & Me.GetNV_CRC & "', 
-            '" & Me.GetNV_Checksum & "', '" & revNum & "','" & My.Windows.MainWindow.CustomerComboBox.Text & "', 
-            '" & My.Windows.MainWindow.CustomerJobNumComboBox.Text & "', 
-            '" & My.Windows.MainWindow.InternalJobNumComboBox.Text & "', '" & Me.GetEquipType & "')"
+            '" & mainWin.GetLocationName & "', '" & Me.GetName & "', 
+            '" & mainWin.GetDistributionDate & "', '" & Me.GetNV_CRC & "', 
+            '" & Me.GetNV_Checksum & "', '" & revNum & "','" & mainWin.GetCustomer & "', 
+            '" & mainWin.GetCustomerNumber & "', 
+            '" & mainWin.GetInternalNumber & "', '" & Me.GetEquipType & "')"
 
         cmd.CommandType = CommandType.Text
         cmd.Connection = con

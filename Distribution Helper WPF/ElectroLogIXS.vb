@@ -165,18 +165,18 @@
     End Sub
 
 
-    Public Overrides Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer)
+    Public Overrides Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer, mainWin As MainWindowData)
         Dim cmd As New SqlClient.SqlCommand
 
         cmd.CommandText = "INSERT INTO Distributions(ID, locationName, programName, date, consCRC, consSum, v_crc,
             v_sum, nv_crc, nv_sum, v_valcrc, nv_valcrc, revision, customer, customerJobNum, internalJobNum, equipmentType)
-            VALUES(" & primaryKey & ", '" & My.Windows.MainWindow.LocationNameText.Text & "', '" & Me.GetName & "', 
-            '" & My.Windows.MainWindow.DistributionDatePicker.DisplayDate & "', '" & Me.GetConsCRC & "', '" & Me.GetConsSum & "', 
+            VALUES(" & primaryKey & ", '" & mainWin.GetLocationName & "', '" & Me.GetName & "', 
+            '" & mainWin.GetDistributionDate & "', '" & Me.GetConsCRC & "', '" & Me.GetConsSum & "', 
             '" & Me.GetV_CRC & "', '" & Me.GetV_Checksum & "', '" & Me.GetNV_CRC & "', '" & Me.GetNV_Checksum & "', 
             '" & Me.GetV_ValCRC & "', '" & Me.GetNV_ValCRC & "', '" & revNum & "', 
-            '" & My.Windows.MainWindow.CustomerComboBox.Text & "', 
-            '" & My.Windows.MainWindow.CustomerJobNumComboBox.Text & "', 
-            '" & My.Windows.MainWindow.InternalJobNumComboBox.Text & "', '" & Me.GetEquipType & "')"
+            '" & mainWin.GetCustomer & "', 
+            '" & mainWin.GetCustomerNumber & "', 
+            '" & mainWin.GetInternalNumber & "', '" & Me.GetEquipType & "')"
 
         cmd.CommandType = CommandType.Text
         cmd.Connection = con

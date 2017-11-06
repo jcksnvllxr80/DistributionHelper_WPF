@@ -111,6 +111,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MainWindowData.vb" />
     <Compile Include="NonVitalHLC.vb" />
     <Compile Include="ProgramFile.vb" />
     <Compile Include="VitalHLC.vb" />

@@ -55,7 +55,7 @@
     End Function
 
 
-    Public Overridable Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer)
+    Public Overridable Sub InsertDistributionToDB(con As SqlClient.SqlConnection, primaryKey As Integer, revNum As Integer, mainWin As MainWindowData)
 
     End Sub
 End Class

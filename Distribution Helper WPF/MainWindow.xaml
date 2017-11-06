@@ -10,8 +10,10 @@
         xmlns:DistributionsDataSetTableAdapters="clr-namespace:Distribution_Helper_WPF.DistributionsDataSetTableAdapters" 
         xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic" 
         xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit" 
+        xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit" 
         x:Name="Distribution_Helper" 
         x:Class="MainWindow"
+        GlowBrush="{DynamicResource AccentColorBrush}"
         mc:Ignorable="d"
         Title="Distribution Helper" 
         Height="731" 
@@ -37,27 +39,48 @@
               VerticalAlignment="Stretch" 
               HorizontalContentAlignment="Stretch">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" />
+                <MenuItem Header="_New" 
+                          x:Name="NewMenuItem"
+                          IsEnabled="False"/>
                 <MenuItem Header="_Open" 
                           x:Name="MenuItemOpen" 
                           Click="SelectFolder"/>
-                <MenuItem Header="_Save" />
+                <MenuItem Header="_Save" 
+                          x:Name="SaveMenuItem"
+                          IsEnabled="False"/>
                 <Separator />
                 <MenuItem Header="_Close" 
                           x:Name="MenuItemClose" 
                           Click="Exit_Application" />
             </MenuItem>
-            <MenuItem Header="_Print">
-                <MenuItem Header="_Preview" />
-                <MenuItem Header="_Location Info" />
-                <MenuItem Header="_RTVP" />
-                <MenuItem Header="_Location Files" />
+            <MenuItem Header="_Print"
+                      x:Name="PrintMenu"
+                      IsEnabled="False">
+                <MenuItem Header="_Location Info" 
+                          x:Name="PrintLocInfoMenuItem" 
+                          Click="PrintLocationInfo" />
+                <MenuItem Header="_Database" 
+                          x:Name="PrintDatabaseMenuItem" 
+                          Click="PrintDataGrid"
+                          IsEnabled="False"/>
+                <MenuItem Header="_RTVP" 
+                          x:Name="PrintRTVPmenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_Location Files" 
+                          x:Name="PrintLocFilesMenuItem"
+                          IsEnabled="False"/>
             </MenuItem>
-            <MenuItem Header="_Database">
-                <MenuItem Header="_All" 
+            <MenuItem Header="_Database"
+                      x:Name="DatabaseMenu"
+                      IsEnabled="False">
+                <MenuItem Header="_Insert This Loc" 
                           x:Name="InsertToDBMenuItem" 
                           Click="InsertDistInfoToDatabase"/>
-                <MenuItem Header="_Location" />
+                <MenuItem Header="_Filter by Location" 
+                          x:Name="FilterDatabaseByLocation" 
+                          IsEnabled="False"
+                          IsCheckable="True"
+                          IsChecked="False"/>
                 <Separator />
                 <MenuItem Header="_Refresh" 
                           x:Name="RefreshDatabase" 
@@ -88,6 +111,7 @@
                     Tag="Refresh Database" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
+                    Click="fillDataGridFromDB"
                     IsEnabled="False">
                 <Image Source="Refresh_32x.png" />
             </Button>
@@ -96,7 +120,8 @@
                     Tag="Print" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
-                    IsEnabled="False">
+                    IsEnabled="False"
+                    Click="PrintLocationInfo">
                 <Image Source="Print_32x.png" />
             </Button>
             <Separator Background="Black"/>
@@ -167,8 +192,7 @@
                         <ColumnDefinition Width="10" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Row="1" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="DistroPathLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Distribution Path" />
@@ -181,8 +205,7 @@
                              MouseLeave="Text_MouseLeave" 
                              Tag="Enter directory where distribution files reside"/>
                     <Label Grid.Row="2" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="DistributionDateLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Distribution Date" />
@@ -195,8 +218,7 @@
                                 SelectedDate="{x:Static sys:DateTime.Now}" 
                                 Tag="Pick a distribution date"/>
                     <Label Grid.Row="3" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="LocationNameLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Location Name" />
@@ -209,8 +231,7 @@
                              MouseLeave="Text_MouseLeave" 
                              Tag="Enter location name"/>
                     <Label Grid.Row="4" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="CustomerLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Customer Name" />
@@ -223,11 +244,9 @@
                                                MouseLeave="Text_MouseLeave" 
                                                Tag="Enter customer name" 
                                                Background="Transparent" 
-                                               Foreground="White">
-                    </Controls1:AutoCompleteBox>
+                                               Foreground="White"/>
                     <Label Grid.Row="5" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="CustomerJobNumLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Customer Job Number" />
@@ -242,8 +261,7 @@
                                                Background="Transparent" 
                                                Foreground="White"/>
                     <Label Grid.Row="6" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="InternalJobNumLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Internal Job Number" />
@@ -258,36 +276,33 @@
                                                Background="Transparent" 
                                                Foreground="White"/>
                     <Label Grid.Row="7" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
-                           x:Name="distroPathLAbel6" 
+                           Grid.Column="1"
+                           x:Name="Label" 
                            HorizontalContentAlignment="Right" 
-                           Content="Distribution Path" />
+                           Content="Extra" />
                     <TextBox Grid.Row="7" 
                              Grid.Column="2" 
                              Grid.ColumnSpan="6" 
-                             x:Name="distroPathText6" 
+                             x:Name="extraText" 
                              Text="" 
                              MouseEnter="Text_MouseEnter" 
                              MouseLeave="Text_MouseLeave" 
-                             Tag="Enter location name"/>
+                             Tag="Extra textbox"/>
                     <Label Grid.Row="8" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
-                           x:Name="distroPathLAbel7" 
+                           Grid.Column="1"
+                           x:Name="DistributionRecipientLabel" 
                            HorizontalContentAlignment="Right" 
-                           Content="Distribution Path" />
+                           Content="Delivery Recipient" />
                     <TextBox Grid.Row="8" 
                              Grid.Column="2" 
                              Grid.ColumnSpan="6" 
-                             x:Name="distroPathText7" 
+                             x:Name="recipientName" 
                              Text="" 
                              MouseEnter="Text_MouseEnter" 
                              MouseLeave="Text_MouseLeave" 
-                             Tag="Enter location name"/>
+                             Tag="Enter recipient of distribution"/>
                     <Label Grid.Row="9" 
-                           Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.Column="1"
                            x:Name="DistroAddressLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Distribution Address" />
@@ -300,11 +315,11 @@
                              MouseEnter="Text_MouseEnter" 
                              MouseLeave="Text_MouseLeave" 
                              Tag="Enter Distribution Address"/>
-                    <Label Grid.Row="13" 
+                    <Label Grid.Row="12" 
                            Grid.Column="1" 
-                           Grid.ColumnSpan="1" 
+                           Grid.ColumnSpan="2" 
                            x:Name="ProgramSelectorLabel" 
-                           HorizontalContentAlignment="Right" 
+                           HorizontalContentAlignment="Left" 
                            Content="Select Distribution Software" 
                            Visibility="Hidden"/>
                     <WrapPanel x:Name="ProgramWrapPanel" 
@@ -335,6 +350,7 @@
                      Visibility="Hidden">
                 <Grid x:Name="DatabaseTabGrid">
                     <DataGrid x:Name="DistributionsDataGrid" 
+                              IsReadOnly="True"   
                               ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}"/>
                 </Grid>
             </TabItem>
@@ -362,7 +378,7 @@
             <StatusBarItem Grid.Column="2" 
                            VerticalContentAlignment="Center" 
                            HorizontalContentAlignment="Stretch">
-                <ProgressBar Name="ProgressBar" 
+                <ProgressBar x:Name="ProgressBar" 
                              Value="50" 
                              Height="28" 
                              Visibility="Hidden"/>
