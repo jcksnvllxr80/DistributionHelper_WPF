@@ -4,6 +4,8 @@ Imports System.Drawing
 Imports System.Drawing.Printing
 Imports System.IO
 Imports System.ComponentModel
+Imports System.Windows.Markup
+Imports System.Windows.Forms.VisualStyles
 
 Class MainWindow
     Inherits MetroWindow
@@ -28,26 +30,22 @@ Class MainWindow
         Dim printer As New PrintDialog
         Dim result = printer.ShowDialog()
         If result Then
-            printer.PrintVisual(LocationInfoViewer, Me.DistroPathText.Text & " Location Info")
-        End If
-    End Sub
-
-
-    Private Sub PrintDataGrid()
-        Dim printer As New PrintDialog
-        Dim result = printer.ShowDialog()
-        If result Then
-            printer.PrintVisual(DistributionsDataGrid, Me.DistroPathText.Text & " Location Info")
+            Dim CloneDoc As FlowDocument = LocationInfoViewer.Document
+            CloneDoc.PageHeight = printer.PrintableAreaHeight
+            CloneDoc.PageWidth = printer.PrintableAreaWidth
+            CloneDoc.Foreground = System.Windows.Media.Brushes.Black
+            Dim idocument As IDocumentPaginatorSource = CloneDoc
+            printer.PrintDocument(idocument.DocumentPaginator, Me.DistroPathText.Text & " Location Info")
         End If
     End Sub
 
 
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
-        fillDataGridFromDB()
+        FillDataGridFromDB()
     End Sub
 
-    Private Sub fillDataGridFromDB()
 
+    Private Sub FillDataGridFromDB()
         Dim DistributionsDataSet As Distribution_Helper_WPF.DistributionsDataSet = CType(Me.FindResource("DistributionsDataSet"), Distribution_Helper_WPF.DistributionsDataSet)
         'Load data into the table Distributions. You can modify this code as needed.
         Dim DistributionsDataSetDistributionsTableAdapter As Distribution_Helper_WPF.DistributionsDataSetTableAdapters.DistributionsTableAdapter =
@@ -67,7 +65,7 @@ Class MainWindow
                 MsgBox("Location Name Field is empty.")
             End If
         Else
-                Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource = CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
+            Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource = CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
             DistributionsViewSource.View.MoveCurrentToFirst()
             DistributionsDataGrid.ItemsSource = DistributionsDataSet.Distributions.DefaultView
         End If
@@ -119,7 +117,7 @@ Class MainWindow
         LoadInternalJobNumComboBox()
         LoadCustomerComboBox()
         LoadCustomerJobNumComboBox()
-        fillDataGridFromDB()
+        FillDataGridFromDB()
 
         Me.ProgressBar.Visibility = Visibility.Hidden
     End Sub
@@ -658,10 +656,9 @@ Class MainWindow
 
 
     Private Sub EnableCreationControls()
-        fillDataGridFromDB()
+        FillDataGridFromDB()
 
         FilterDatabaseByLocation.IsEnabled = True
-        PrintDatabaseMenuItem.IsEnabled = True
         InsertToDBToolBttn.IsEnabled = True
         InsertToDBMenuItem.IsEnabled = True
         RefreshDBToolBttn.IsEnabled = True
@@ -679,7 +676,6 @@ Class MainWindow
 
     Private Sub DisableCreationControls()
         FilterDatabaseByLocation.IsEnabled = False
-        PrintDatabaseMenuItem.IsEnabled = False
         InsertToDBToolBttn.IsEnabled = False
         InsertToDBMenuItem.IsEnabled = False
         RefreshDBToolBttn.IsEnabled = False

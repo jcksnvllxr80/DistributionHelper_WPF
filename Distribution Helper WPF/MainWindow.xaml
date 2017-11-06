@@ -59,10 +59,6 @@
                 <MenuItem Header="_Location Info" 
                           x:Name="PrintLocInfoMenuItem" 
                           Click="PrintLocationInfo" />
-                <MenuItem Header="_Database" 
-                          x:Name="PrintDatabaseMenuItem" 
-                          Click="PrintDataGrid"
-                          IsEnabled="False"/>
                 <MenuItem Header="_RTVP" 
                           x:Name="PrintRTVPmenuItem"
                           IsEnabled="False"/>
@@ -77,14 +73,15 @@
                           x:Name="InsertToDBMenuItem" 
                           Click="InsertDistInfoToDatabase"/>
                 <MenuItem Header="_Filter by Location" 
-                          x:Name="FilterDatabaseByLocation" 
+                          x:Name="FilterDatabaseByLocation"
+                          Click="FillDataGridFromDB"
                           IsEnabled="False"
                           IsCheckable="True"
                           IsChecked="False"/>
                 <Separator />
                 <MenuItem Header="_Refresh" 
                           x:Name="RefreshDatabase" 
-                          Click="fillDataGridFromDB"/>
+                          Click="FillDataGridFromDB"/>
             </MenuItem>
         </Menu>
         <ToolBar Grid.Row="1" 
@@ -111,7 +108,7 @@
                     Tag="Refresh Database" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
-                    Click="fillDataGridFromDB"
+                    Click="FillDataGridFromDB"
                     IsEnabled="False">
                 <Image Source="Refresh_32x.png" />
             </Button>
