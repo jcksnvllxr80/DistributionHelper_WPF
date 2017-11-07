@@ -14,7 +14,9 @@ Class MainWindow
     Dim DistributionPrograms As New LinkedList(Of Object)
     Dim DistributionDataLoaded As Boolean = False
     Dim locationInfo As LocationData
-    Dim MainConnection = New SqlClient.SqlConnection("Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;Integrated Security=True;MultipleActiveResultSets=True")
+    Dim MainConnection = New SqlClient.SqlConnection(
+                            "Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;
+                            Integrated Security=True;MultipleActiveResultSets=True")
 
     Public Sub New()
 
@@ -24,6 +26,17 @@ Class MainWindow
         ' Add any initialization after the InitializeComponent() call.
 
     End Sub
+
+
+    Private Function GetConnectionOpen() As SqlClient.SqlConnection
+        Try
+            MainConnection.Open()
+            Return MainConnection
+        Catch
+            MsgBox("Server conection error.")
+            Close()
+        End Try
+    End Function
 
 
     Private Sub PrintLocationInfo()
@@ -87,8 +100,7 @@ Class MainWindow
 
 
     Private Sub InsertDistInfoToDatabase()
-        Dim connection = MainConnection
-        connection.Open()
+        Dim connection = GetConnectionOpen()
 
         Dim totalProgress = DistributionPrograms.Count
         Dim currentProgress = 1
@@ -152,8 +164,7 @@ Class MainWindow
 
         cmd.CommandText = "SELECT DISTINCT customer FROM Distributions"
         cmd.CommandType = CommandType.Text
-        cmd.Connection = MainConnection
-        cmd.Connection.Open()
+        cmd.Connection = GetConnectionOpen()
 
         CustomerComboBox.ItemsSource = Nothing
         reader = cmd.ExecuteReader()
@@ -178,8 +189,8 @@ Class MainWindow
 
         cmd.CommandText = "SELECT DISTINCT internalJobNum FROM Distributions"
         cmd.CommandType = CommandType.Text
-        cmd.Connection = MainConnection
-        cmd.Connection.Open()
+        cmd.Connection = GetConnectionOpen()
+
 
         InternalJobNumComboBox.ItemsSource = Nothing
         reader = cmd.ExecuteReader()
@@ -204,8 +215,7 @@ Class MainWindow
 
         cmd.CommandText = "SELECT DISTINCT customerJobNum FROM Distributions WHERE customerJobNum <> '';"
         cmd.CommandType = CommandType.Text
-        cmd.Connection = MainConnection
-        cmd.Connection.Open()
+        cmd.Connection = GetConnectionOpen()
 
         CustomerJobNumComboBox.InputBindings.Clear()
         reader = cmd.ExecuteReader()
