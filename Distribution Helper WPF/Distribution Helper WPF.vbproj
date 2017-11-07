@@ -68,7 +68,7 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico</ApplicationIcon>
+    <ApplicationIcon>resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>68FBDD8EC6A0274AB56CDC6C1263A1328B37C97A</ManifestCertificateThumbprint>
@@ -202,7 +202,7 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
     </EmbeddedResource>
-    <Content Include="Blank.label">
+    <Content Include="resources\Blank.label">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Distribution Helper WPF_TemporaryKey.pfx" />
@@ -227,34 +227,34 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Database_32x.png" />
+    <Resource Include="resources\Database_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Print_32x.png" />
+    <Resource Include="resources\Print_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Refresh_32x.png" />
+    <Resource Include="resources\Refresh_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Document_32x.png" />
+    <Resource Include="resources\Document_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Mail_32x.png" />
+    <Resource Include="resources\Mail_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Create_32x.png" />
+    <Resource Include="resources\Create_32x.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="MakeFile_32x.png" />
+    <Resource Include="resources\MakeFile_32x.png" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" />
+    <Resource Include="resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Folder_32x.png" />
+    <Resource Include="resources\Folder_32x.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

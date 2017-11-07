@@ -605,7 +605,7 @@ Class MainWindow
     Private Sub CreateLabels()
         Dim labelPath = FindOrCreateLabelsDirectory()
 
-        Dim doc As XDocument = XDocument.Load("Blank.label")
+        Dim doc As XDocument = XDocument.Load("resources\Blank.label")
         Dim labelnode = doc.Descendants("String")
         For Each prog In DistributionPrograms
             If Not prog Is Nothing Then

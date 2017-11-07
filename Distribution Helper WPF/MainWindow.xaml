@@ -20,7 +20,7 @@
         Width="600" 
         Opacity="0.951" 
         AllowsTransparency="True" 
-        Icon="Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
+        Icon="resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
         WindowStyle="None">
     <Controls:MetroWindow.Resources>
         <local:DistributionsDataSet x:Key="DistributionsDataSet"/>
@@ -92,7 +92,7 @@
                     Tag="Browse for Distribution Directory" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" >
-                <Image Source="Folder_32x.png" />
+                <Image Source="resources\Folder_32x.png" />
             </Button>
             <Button x:Name="InsertToDBToolBttn" 
                     ToolTip="Insert to DB" 
@@ -101,7 +101,7 @@
                     MouseLeave="Text_MouseLeave"
                     Click="InsertDistInfoToDatabase"
                     IsEnabled="False">
-                <Image Source="Database_32x.png" />
+                <Image Source="resources\Database_32x.png" />
             </Button>
             <Button x:Name="RefreshDBToolBttn" 
                     ToolTip="Refresh DB" 
@@ -110,7 +110,7 @@
                     MouseLeave="Text_MouseLeave" 
                     Click="FillDataGridFromDB"
                     IsEnabled="False">
-                <Image Source="Refresh_32x.png" />
+                <Image Source="resources\Refresh_32x.png" />
             </Button>
             <Button x:Name="PrintToolBttn" 
                     ToolTip="Print" 
@@ -119,7 +119,7 @@
                     MouseLeave="Text_MouseLeave" 
                     IsEnabled="False"
                     Click="PrintLocationInfo">
-                <Image Source="Print_32x.png" />
+                <Image Source="resources\Print_32x.png" />
             </Button>
             <Separator Background="Black"/>
             <Button x:Name="CreateEmailToolBttn" 
@@ -128,7 +128,7 @@
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
                     IsEnabled="False">
-                <Image Source="Mail_32x.png" />
+                <Image Source="resources\Mail_32x.png" />
             </Button>
             <Button x:Name="CreateLabelsToolBttn" 
                     ToolTip="Labels" 
@@ -136,7 +136,7 @@
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
                     IsEnabled="False">
-                <Image Source="MakeFile_32x.png" />
+                <Image Source="resources\MakeFile_32x.png" />
             </Button>
             <Button x:Name="CreateLetterToolBttn" 
                     ToolTip="Letter" 
@@ -144,7 +144,7 @@
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
                     IsEnabled="False">
-                <Image Source="Document_32x.png" />
+                <Image Source="resources\Document_32x.png" />
             </Button>
         </ToolBar>
         <TabControl Grid.Row="2" 
