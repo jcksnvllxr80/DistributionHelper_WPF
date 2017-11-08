@@ -1,11 +1,9 @@
 ﻿Imports MahApps.Metro.Controls
-'Imports Xceed.Wpf.Toolkit
 Imports System.Drawing
-Imports System.Drawing.Printing
 Imports System.IO
 Imports System.ComponentModel
-Imports System.Windows.Markup
-Imports System.Windows.Forms.VisualStyles
+Imports Microsoft.Office.Interop.Outlook
+
 
 Class MainWindow
     Inherits MetroWindow
@@ -96,6 +94,44 @@ Class MainWindow
 
     Private Sub Text_MouseLeave(sender As Object, e As MouseEventArgs)
         StatusLabel.Text = tempInfoString
+    End Sub
+
+
+    Private Sub CreateEmail()
+        Dim subjectStr = "– Program Books & Chips"
+        Dim Body As String = vbTab & vbTab & vbTab & vbCr & locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
+                    locationInfo.GetState & " / MP. " & locationInfo.GetMilePost & vbCr & locationInfo.GetDivision & " Division / " &
+                    locationInfo.GetSubdivision & " Subdivision" & vbCr & locationInfo.GetCustomerNumber & vbCr & locationInfo.GetInternalNumber &
+                    vbCr & vbCr & "I have sent " & locationInfo.GetLocationName & " {(}" & locationInfo.GetMilePost &
+                    "{)} program book{(}s{)} and EPROMs {(}executive and application{)} to the address above with FeDEx " &
+                    extraText.Text & " shipping." &
+                    vbCr & vbCr &
+                    DistributionAddressText.Text &
+                    vbCr & vbCr &
+                    vbTab & "Tracking Number:" & vbTab & vbTab & extraText.Text & vbCr &
+                    vbTab & "Invoice Number:" & vbTab & vbTab & extraText.Text & vbCr &
+                    vbTab & "Reference:" & vbTab & vbTab & "XORAIL CORP" & vbCr &
+                    vbTab & "Service type:" & vbTab & vbTab & extraText.Text & vbCr &
+                    vbTab & "Packaging type:" & vbTab & vbTab & "FedEx Box"
+        Dim TO_Recipients As String = ""
+        Dim CC_Recipients As String = "Miller, John <J.Miller@xorail.com>; Holmes, Daryl (D.Holmes@xorail.com); Jubin, Tom <T.Jubin@xorail.com>; Grote, Lucas <l.grote@xorail.com>"
+        Dim Subject As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " " & subjectStr
+
+        Dim otlApp = CreateObject("Outlook.Application")
+        Dim olMailItem As Object = Nothing
+        Dim otlNewMail = otlApp.CreateItem(olMailItem)
+        Dim WshShell = CreateObject("WScript.Shell")
+        With otlNewMail
+            .Subject = Subject
+            .Display
+            WshShell.AppActivate(Subject & " - Message (HTML)")
+            WshShell.SendKeys(Body)
+            .To = TO_Recipients
+            .CC = CC_Recipients
+        End With
+        WshShell = Nothing
+        otlNewMail = Nothing
+        otlApp = Nothing
     End Sub
 
 
@@ -675,9 +711,9 @@ Class MainWindow
         DatabaseMenu.IsEnabled = True
         DatabaseTab.Visibility = Visibility.Visible
 
-        CreateLabelsToolBttn.IsEnabled = True
+        CreateEmailToolBttn.IsEnabled = True
 
-        'DistEmailToolBttn.isEnabled = True
+        CreateLabelsToolBttn.IsEnabled = True
 
         'CreateLetterToolBttn.isEnabled = True
 
@@ -692,9 +728,9 @@ Class MainWindow
         DatabaseMenu.IsEnabled = False
         DatabaseTab.Visibility = Visibility.Hidden
 
-        CreateLabelsToolBttn.IsEnabled = False
+        CreateEmailToolBttn.IsEnabled = False
 
-        'DistEmailToolBttn.isEnabled = False
+        CreateLabelsToolBttn.IsEnabled = False
 
         'CreateLetterToolBttn.IsEnabled = False
 

@@ -127,7 +127,8 @@
                     Tag="Create Distribution Email" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
-                    IsEnabled="False">
+                    IsEnabled="False"
+                    Click="CreateEmail">
                 <Image Source="resources\Mail_32x.png" />
             </Button>
             <Button x:Name="CreateLabelsToolBttn" 
@@ -309,6 +310,8 @@
                              Grid.ColumnSpan="6" 
                              x:Name="DistributionAddressText" 
                              Text="" 
+                             FontSize="16"
+                             FontStyle="Normal"
                              MouseEnter="Text_MouseEnter" 
                              MouseLeave="Text_MouseLeave" 
                              Tag="Enter Distribution Address"/>
