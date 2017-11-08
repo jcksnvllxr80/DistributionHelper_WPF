@@ -2,7 +2,8 @@
 Imports System.Drawing
 Imports System.IO
 Imports System.ComponentModel
-Imports Microsoft.Office.Interop.Outlook
+Imports Xceed.Wpf.Toolkit
+'Imports Microsoft.Office.Interop.Outlook
 
 
 Class MainWindow
@@ -292,10 +293,10 @@ Class MainWindow
     End Function
 
 
-    Private Sub DistroPathText_KeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathText.KeyDown
-        If Int(e.Key) = 6 Then
+    Private Sub DistroPathText_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathText.PreviewKeyDown
+        If e.Key = Key.Enter Then
             If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
-                'Enter or TAB and path exists
+                'Enter and path exists
                 FindFilesAndCreateProgramSelectWindow()
                 tempInfoString = ""
                 StatusLabel.Text = tempInfoString
@@ -303,17 +304,21 @@ Class MainWindow
                 tempInfoString = "Invalid path"
             End If
             StatusLabel.Text = tempInfoString
+        Else
+            PopulatePathDropBox()
         End If
         'Console.Write("pressed " & Int(e.Key) & vbCrLf)
     End Sub
 
 
     Private Sub FindFilesAndCreateProgramSelectWindow()
-
         StatusLabel.Text = "Looking for software to distribute..."
         Dim j = 0
         Dim filesys = CreateObject("Scripting.FileSystemObject")
         If filesys.FolderExists(Me.DistroPathText.Text) Then
+            DistributionPrograms.Clear()
+            ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
+
             Dim Folder = filesys.getfolder(Me.DistroPathText.Text)
             For Each File In Folder.Files
                 Dim filetype = filesys.GetExtensionName(File)
@@ -393,7 +398,9 @@ Class MainWindow
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
         End If
 
-        DistributionPrograms.Clear()
+        'DistributionPrograms.Clear()
+        'ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
+
         For Each controlObj In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
             If controlObj.GetType() Is GetType(CheckBox) Then
                 If controlObj.IsChecked Then
@@ -743,5 +750,37 @@ Class MainWindow
 
     Private Sub DistroPathText_MouseDoubleClick(sender As Object, e As MouseButtonEventArgs) Handles DistroPathText.MouseDoubleClick
         SelectFolder()
+    End Sub
+
+
+    Private Sub PopulatePathDropBox()
+        Dim startDir = ""
+        Dim searchStr
+        Dim posOfSlash = DistroPathText.Text.LastIndexOf("\")
+        If posOfSlash > 0 Then
+            startDir = DistroPathText.Text.Substring(0, posOfSlash + 1)
+            If posOfSlash = DistroPathText.Text.Length - 1 Then
+                searchStr = ""
+            Else
+                searchStr = DistroPathText.Text.Substring(posOfSlash + 1)
+            End If
+        ElseIf DistroPathText.Text.Length = 2 Then
+            searchStr = DistroPathText.Text & "\"
+        ElseIf DistroPathText.Text.Length = 1 Then
+            searchStr = DistroPathText.Text & ":\"
+        Else
+            searchStr = ""
+        End If
+
+        Try
+            Dim contents = Directory.GetDirectories(startDir, searchStr & "*", SearchOption.TopDirectoryOnly)
+            Dim contentsList = contents.ToList
+            If contentsList IsNot Nothing Then
+                DistroPathText.IsDropDownOpen = True
+                DistroPathText.ItemsSource = contents.ToList
+            End If
+        Catch e As Exception
+            Console.WriteLine("cant find " & startDir & searchStr & " : {0}", e.ToString())
+        End Try
     End Sub
 End Class

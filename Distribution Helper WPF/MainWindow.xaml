@@ -43,7 +43,7 @@
                           x:Name="NewMenuItem"
                           IsEnabled="False"/>
                 <MenuItem Header="_Open" 
-                          x:Name="MenuItemOpen" 
+                          x:Name="OpenMenuItem" 
                           Click="SelectFolder"/>
                 <MenuItem Header="_Save" 
                           x:Name="SaveMenuItem"
@@ -194,14 +194,22 @@
                            x:Name="DistroPathLabel" 
                            HorizontalContentAlignment="Right" 
                            Content="Distribution Path" />
-                    <TextBox Grid.Row="1" 
-                             Grid.Column="2" 
-                             Grid.ColumnSpan="6" 
-                             x:Name="DistroPathText" 
-                             Text="" 
-                             MouseEnter="Text_MouseEnter" 
-                             MouseLeave="Text_MouseLeave" 
-                             Tag="Enter directory where distribution files reside"/>
+                    <Controls1:AutoCompleteBox Grid.Row="1" 
+                                               Grid.Column="2" 
+                                               Grid.ColumnSpan="6" 
+                                               x:Name="DistroPathText" 
+                                               Text="" 
+                                               MouseEnter="Text_MouseEnter" 
+                                               MouseLeave="Text_MouseLeave" 
+                                               Tag="Enter directory where distribution files reside"
+                                               Background="Transparent" 
+                                               Foreground="White"
+                                               IsTextCompletionEnabled="False"
+                                               >
+                        <Controls1:AutoCompleteBox.BindingGroup>
+                            <BindingGroup/>
+                        </Controls1:AutoCompleteBox.BindingGroup>
+                    </Controls1:AutoCompleteBox>
                     <Label Grid.Row="2" 
                            Grid.Column="1"
                            x:Name="DistributionDateLabel" 
