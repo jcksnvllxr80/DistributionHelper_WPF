@@ -100,12 +100,12 @@ Class MainWindow
 
 
     Private Sub CreateEmail()
-        Dim subjectStr = "– Program Books & Chips"
-        Dim Body As String = vbTab & vbTab & vbTab & vbCr & locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
+        Dim subjectSubstr = "– Program Books & Chips"
+        Dim bodyStr As String = vbTab & vbTab & vbTab & vbCr & locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
                     locationInfo.GetState & " / MP. " & locationInfo.GetMilePost & vbCr & locationInfo.GetDivision & " Division / " &
                     locationInfo.GetSubdivision & " Subdivision" & vbCr & locationInfo.GetCustomerNumber & vbCr & locationInfo.GetInternalNumber &
-                    vbCr & vbCr & "I have sent " & locationInfo.GetLocationName & " {(}" & locationInfo.GetMilePost &
-                    "{)} program book{(}s{)} and EPROMs {(}executive and application{)} to the address above with FeDEx " &
+                    vbCr & vbCr & "I have sent " & locationInfo.GetLocationName & " (" & locationInfo.GetMilePost &
+                    ") program book(s) and EPROMs (executive and application) to the address above with FeDEx " &
                     extraText.Text & " shipping." &
                     vbCr & vbCr &
                     DistributionAddressText.Text &
@@ -116,20 +116,22 @@ Class MainWindow
                     vbTab & "Service type:" & vbTab & vbTab & extraText.Text & vbCr &
                     vbTab & "Packaging type:" & vbTab & vbTab & "FedEx Box"
         Dim TO_Recipients As String = ""
-        Dim CC_Recipients As String = "Miller, John <J.Miller@xorail.com>; Holmes, Daryl (D.Holmes@xorail.com); Jubin, Tom <T.Jubin@xorail.com>; Grote, Lucas <l.grote@xorail.com>"
-        Dim Subject As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " " & subjectStr
+        Dim CC_Recipients As String = "Miller, John <J.Miller@xorail.com>; Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim subjectStr As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " " & subjectSubstr
 
         Dim otlApp = CreateObject("Outlook.Application")
         Dim olMailItem As Object = Nothing
         Dim otlNewMail = otlApp.CreateItem(olMailItem)
         Dim WshShell = CreateObject("WScript.Shell")
         With otlNewMail
-            .Subject = Subject
-            .Display
-            WshShell.AppActivate(Subject & " - Message (HTML)")
-            WshShell.SendKeys(Body)
+            .Subject = subjectStr
+            WshShell.AppActivate(subjectStr & " - Message (HTML)")
             .To = TO_Recipients
             .CC = CC_Recipients
+            .Display
+            Dim objDoc = otlApp.ActiveInspector.WordEditor
+            Dim objSel = objDoc.Windows(1).Selection
+            objSel.InsertBefore(bodyStr)
         End With
         WshShell = Nothing
         otlNewMail = Nothing
@@ -518,17 +520,18 @@ Class MainWindow
         Dim i = 0
         Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim objWord = CreateObject("Word.Application")
+        Dim DistributionFolder As String
         objWord.ChangeFileOpenDirectory(currentDir)
 
         With objWord.FileDialog(msoFileDialogOpen)
             .Title = instructionString
             .AllowMultiSelect = False
             .Filters.Clear
-            .AllowMultiSelect = False
-            .Filters.Clear
             '.Filters.Add("Log Files", "*.LOG")
 
             If .Show = -1 Then  'short form
+                objWord.Visible = True
+                objWord.Activate
                 For Each Folder In .SelectedItems  'short form
                     Dim objFile = fso.GetFolder(Folder)
                     FolderPath = objFile.Path
@@ -537,16 +540,17 @@ Class MainWindow
             End If
         End With
         If i = 0 Then
-            GetDistributionFolder = ""
+            DistributionFolder = ""
         Else
-            GetDistributionFolder = FolderPath
+            DistributionFolder = FolderPath
         End If
         objWord.Quit
         objWord = Nothing
+        Return DistributionFolder
     End Function
 
 
-    Private Function CreateDistributionDocument() As FlowDocument
+    Private Function CreateDistInfoDocument() As FlowDocument
         Dim DocFont As New Font("Arial", 12)
         Dim ProgInfoStr = ""
         If Not locationInfo Is Nothing Then
@@ -573,7 +577,7 @@ Class MainWindow
         'PrintLocInfoMenuItem.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
-        LocationInfoViewer.Document = CreateDistributionDocument()
+        LocationInfoViewer.Document = CreateDistInfoDocument()
 
         'SaveToolBttn.Enabled = True
         'SaveMenuItem.Enabled = True
@@ -606,7 +610,7 @@ Class MainWindow
 
         CreateLabelsToolBttn.IsEnabled = False
 
-        'DistEmailToolBttn.Enabled = False
+        CreateEmailToolBttn.IsEnabled = False
 
         'CreateLetterToolBttn.Enabled = False
     End Sub
