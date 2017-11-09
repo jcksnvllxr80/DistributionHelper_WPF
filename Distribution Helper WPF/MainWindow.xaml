@@ -204,10 +204,9 @@
                                                Tag="Enter directory where distribution files reside"
                                                Background="Transparent" 
                                                Foreground="White"
-                                               IsTextCompletionEnabled="False"
-                                               >
+                                               IsTextCompletionEnabled="False" >
                         <Controls1:AutoCompleteBox.BindingGroup>
-                            <BindingGroup/>
+                                <BindingGroup/>
                         </Controls1:AutoCompleteBox.BindingGroup>
                     </Controls1:AutoCompleteBox>
                     <Label Grid.Row="2" 

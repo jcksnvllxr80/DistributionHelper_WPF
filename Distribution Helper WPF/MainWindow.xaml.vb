@@ -6,6 +6,7 @@ Imports Xceed.Wpf.Toolkit
 'Imports Microsoft.Office.Interop.Outlook
 
 
+
 Class MainWindow
     Inherits MetroWindow
 
@@ -16,6 +17,7 @@ Class MainWindow
     Dim MainConnection = New SqlClient.SqlConnection(
                             "Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;
                             Integrated Security=True;MultipleActiveResultSets=True")
+    Dim AutoCompleteURLs
 
     Public Sub New()
 
@@ -50,7 +52,6 @@ Class MainWindow
             printer.PrintDocument(idocument.DocumentPaginator, Me.DistroPathText.Text & " Location Info")
         End If
     End Sub
-
 
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
         FillDataGridFromDB()
@@ -647,7 +648,6 @@ Class MainWindow
 
     Private Sub CreateLabels()
         Dim labelPath = FindOrCreateLabelsDirectory()
-
         Dim doc As XDocument = XDocument.Load("resources\Blank.label")
         Dim labelnode = doc.Descendants("String")
         For Each prog In DistributionPrograms
@@ -754,6 +754,7 @@ Class MainWindow
 
 
     Private Sub PopulatePathDropBox()
+
         Dim startDir = ""
         Dim searchStr
         Dim posOfSlash = DistroPathText.Text.LastIndexOf("\")
