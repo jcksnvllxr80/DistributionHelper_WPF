@@ -16,8 +16,8 @@
         GlowBrush="{DynamicResource AccentColorBrush}"
         mc:Ignorable="d"
         Title="Distribution Helper" 
-        Height="731" 
-        Width="600" 
+        Height="800" 
+        Width="1000" 
         Opacity="0.951" 
         AllowsTransparency="True" 
         Icon="resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
@@ -31,6 +31,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="33" />
             <RowDefinition Height="36" />
+            <RowDefinition Height="33" />
             <RowDefinition Height="*" />
             <RowDefinition Height="33" />
         </Grid.RowDefinitions>
@@ -148,8 +149,20 @@
                 <Image Source="resources\Document_32x.png" />
             </Button>
         </ToolBar>
-        <TabControl Grid.Row="2" 
-                    x:Name="Tabs" >
+        <TextBlock Grid.Row="2"
+                   x:Name="DistroPathText"
+                   FontSize="18"
+                   FontFamily="Arial"
+                   Foreground="CornflowerBlue"
+                   FontWeight="SemiBold"
+                   Text="Use folder icon or file > open to browse for location to distribute." 
+                   MouseEnter="Text_MouseEnter" 
+                   MouseLeave="Text_MouseLeave" 
+                   TextAlignment="Center"
+                   Tag="Location of Distribution Files"/>
+        <TabControl Grid.Row="3" 
+                    x:Name="Tabs" 
+                    Visibility="Hidden">
             <TabItem x:Name="DistributionTab" 
                      Header="Distribution" 
                      Tag="Enter Distribution Information" 
@@ -189,7 +202,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="10" />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Row="1" 
+                    <!--<Label Grid.Row="1" 
                            Grid.Column="1"
                            x:Name="DistroPathLabel" 
                            HorizontalContentAlignment="Right" 
@@ -208,7 +221,7 @@
                         <Controls1:AutoCompleteBox.BindingGroup>
                                 <BindingGroup/>
                         </Controls1:AutoCompleteBox.BindingGroup>
-                    </Controls1:AutoCompleteBox>
+                    </Controls1:AutoCompleteBox>-->
                     <Label Grid.Row="2" 
                            Grid.Column="1"
                            x:Name="DistributionDateLabel" 
@@ -362,7 +375,7 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="3" 
+        <StatusBar Grid.Row="4" 
                    x:Name="StatBar">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>

@@ -29,7 +29,7 @@ Class MainWindow
 
 
     Private Sub GetUser()
-        user = New UserOBject()
+        user = New UserObject()
         Distribution_Helper.Title &= " - (" & user.FullName & ")"
         System.Console.WriteLine(vbCrLf & "Welcome to the Distribution Helper, " & user.FirstName &
                                  "." & vbCrLf & "--------------------------------------------" &
@@ -135,11 +135,11 @@ Class MainWindow
         Dim otlNewMail = otlApp.CreateItem(olMailItem)
         Dim WshShell = CreateObject("WScript.Shell")
         With otlNewMail
+            .Display
             .Subject = subjectStr
             WshShell.AppActivate(subjectStr & " - Message (HTML)")
             .To = TO_Recipients
             .CC = CC_Recipients
-            .Display
             Dim objDoc = otlApp.ActiveInspector.WordEditor
             Dim objSel = objDoc.Windows(1).Selection
             objSel.InsertBefore(bodyStr)
@@ -307,24 +307,6 @@ Class MainWindow
     End Function
 
 
-    Private Sub DistroPathText_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathText.PreviewKeyDown
-        If e.Key = Key.Enter Then
-            If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
-                'Enter and path exists
-                FindFilesAndCreateProgramSelectWindow()
-                tempInfoString = ""
-                StatusLabel.Text = tempInfoString
-            Else
-                tempInfoString = "Invalid path"
-            End If
-            StatusLabel.Text = tempInfoString
-        Else
-            PopulatePathDropBox()
-        End If
-        'Console.Write("pressed " & Int(e.Key) & vbCrLf)
-    End Sub
-
-
     Private Sub FindFilesAndCreateProgramSelectWindow()
         StatusLabel.Text = "Looking for software to distribute..."
         Dim j = 0
@@ -481,7 +463,9 @@ Class MainWindow
 
     Private Sub SelectFolder()
         Dim StartDir As String
-        If Not Me.DistroPathText.Text = "" Then
+        If DistroPathText.Text = "Use folder icon or file menu -> open to browse for location to distribute." Then
+            StartDir = "P:\"
+        ElseIf Not Me.DistroPathText.Text = "" Then
             StartDir = Me.DistroPathText.Text
         Else
             StartDir = "P:\"
@@ -579,6 +563,7 @@ Class MainWindow
 
     Private Sub EnableDataViewFunctions()
         DistributionDataLoaded = True
+        Tabs.Visibility = Visibility.Visible
 
         PrintMenu.IsEnabled = True
         PrintToolBttn.IsEnabled = True
@@ -760,40 +745,54 @@ Class MainWindow
         Close()
     End Sub
 
-    Private Sub DistroPathText_MouseDoubleClick(sender As Object, e As MouseButtonEventArgs) Handles DistroPathText.MouseDoubleClick
-        SelectFolder()
-    End Sub
+
+    'Private Sub DistroPathText_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathText.PreviewKeyDown
+    '    If e.Key = Key.Enter Then
+    '        If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
+    '            'Enter and path exists
+    '            FindFilesAndCreateProgramSelectWindow()
+    '            tempInfoString = ""
+    '            StatusLabel.Text = tempInfoString
+    '        Else
+    '            tempInfoString = "Invalid path"
+    '        End If
+    '        StatusLabel.Text = tempInfoString
+    '    Else
+    '        PopulatePathDropBox()
+    '    End If
+    '    'Console.Write("pressed " & Int(e.Key) & vbCrLf)
+    'End Sub
 
 
-    Private Sub PopulatePathDropBox()
+    'Private Sub PopulatePathDropBox()
 
-        Dim startDir = ""
-        Dim searchStr
-        Dim posOfSlash = DistroPathText.Text.LastIndexOf("\")
-        If posOfSlash > 0 Then
-            startDir = DistroPathText.Text.Substring(0, posOfSlash + 1)
-            If posOfSlash = DistroPathText.Text.Length - 1 Then
-                searchStr = ""
-            Else
-                searchStr = DistroPathText.Text.Substring(posOfSlash + 1)
-            End If
-        ElseIf DistroPathText.Text.Length = 2 Then
-            searchStr = DistroPathText.Text & "\"
-        ElseIf DistroPathText.Text.Length = 1 Then
-            searchStr = DistroPathText.Text & ":\"
-        Else
-            searchStr = ""
-        End If
+    '    Dim startDir = ""
+    '    Dim searchStr
+    '    Dim posOfSlash = DistroPathText.Text.LastIndexOf("\")
+    '    If posOfSlash > 0 Then
+    '        startDir = DistroPathText.Text.Substring(0, posOfSlash + 1)
+    '        If posOfSlash = DistroPathText.Text.Length - 1 Then
+    '            searchStr = ""
+    '        Else
+    '            searchStr = DistroPathText.Text.Substring(posOfSlash + 1)
+    '        End If
+    '    ElseIf DistroPathText.Text.Length = 2 Then
+    '        searchStr = DistroPathText.Text & "\"
+    '    ElseIf DistroPathText.Text.Length = 1 Then
+    '        searchStr = DistroPathText.Text & ":\"
+    '    Else
+    '        searchStr = ""
+    '    End If
 
-        Try
-            Dim contents = Directory.GetDirectories(startDir, searchStr & "*", SearchOption.TopDirectoryOnly)
-            Dim contentsList = contents.ToList
-            If contentsList IsNot Nothing Then
-                DistroPathText.IsDropDownOpen = True
-                DistroPathText.ItemsSource = contents.ToList
-            End If
-        Catch e As Exception
-            Console.WriteLine("cant find " & startDir & searchStr & " : {0}", e.ToString())
-        End Try
-    End Sub
+    '    Try
+    '        Dim contents = Directory.GetDirectories(startDir, searchStr & "*", SearchOption.TopDirectoryOnly)
+    '        Dim contentsList = contents.ToList
+    '        If contentsList IsNot Nothing Then
+    '            DistroPathText.IsDropDownOpen = True
+    '            DistroPathText.ItemsSource = contents.ToList
+    '        End If
+    '    Catch e As Exception
+    '        Console.WriteLine("cant find " & startDir & searchStr & " : {0}", e.ToString())
+    '    End Try
+    'End Sub
 End Class
