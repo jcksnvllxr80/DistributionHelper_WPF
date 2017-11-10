@@ -2,8 +2,7 @@
 Imports System.Drawing
 Imports System.IO
 Imports System.ComponentModel
-Imports Xceed.Wpf.Toolkit
-'Imports Microsoft.Office.Interop.Outlook
+'Imports Xceed.Wpf.Toolkit
 
 
 
@@ -18,13 +17,23 @@ Class MainWindow
                             "Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;
                             Integrated Security=True;MultipleActiveResultSets=True")
     Dim AutoCompleteURLs
+    Dim user As UserObject
 
     Public Sub New()
 
         ' This call is required by the designer.
         InitializeComponent()
-
         ' Add any initialization after the InitializeComponent() call.
+
+    End Sub
+
+
+    Private Sub GetUser()
+        user = New UserOBject()
+        Distribution_Helper.Title &= " - (" & user.FullName & ")"
+        System.Console.WriteLine(vbCrLf & "Welcome to the Distribution Helper, " & user.FirstName &
+                                 "." & vbCrLf & "--------------------------------------------" &
+                                 vbCrLf & "Your credtials should be as shown below:" & vbCrLf & user.ToString)
 
     End Sub
 
@@ -55,6 +64,7 @@ Class MainWindow
 
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
         FillDataGridFromDB()
+        GetUser()
     End Sub
 
 
@@ -78,7 +88,8 @@ Class MainWindow
                 MsgBox("Location Name Field is empty.")
             End If
         Else
-            Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource = CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
+            Dim DistributionsViewSource As System.Windows.Data.CollectionViewSource =
+                CType(Me.FindResource("DistributionsViewSource"), System.Windows.Data.CollectionViewSource)
             DistributionsViewSource.View.MoveCurrentToFirst()
             DistributionsDataGrid.ItemsSource = DistributionsDataSet.Distributions.DefaultView
         End If
@@ -400,9 +411,6 @@ Class MainWindow
             Me.LocationNameText.Text = locationInfo.GetLocationName()
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
         End If
-
-        'DistributionPrograms.Clear()
-        'ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
 
         For Each controlObj In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
             If controlObj.GetType() Is GetType(CheckBox) Then

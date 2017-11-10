@@ -131,6 +131,7 @@
     <Compile Include="DistributionsDataSet.vb">
       <DependentUpon>DistributionsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="UserObject.vb" />
     <Compile Include="MainWindowData.vb" />
     <Compile Include="NonVitalHLC.vb" />
     <Compile Include="ProgramFile.vb" />
