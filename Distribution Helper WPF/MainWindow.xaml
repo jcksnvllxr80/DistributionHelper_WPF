@@ -171,18 +171,17 @@
         <WindowsFormsHost x:Name="MyHost"
                           Grid.Row="2"
                           Grid.Column="1"
-                          Grid.ColumnSpan="1"
+                          HorizontalAlignment="Left"
                           FontSize="17"
-                          FontFamily="Felix Titling"
-                          FontWeight="SemiBold"
-                          Background="Transparent"
+                          FontFamily="Palatino"
+                          FontWeight="Thin"
                           MouseEnter="Text_MouseEnter" 
                           MouseLeave="Text_MouseLeave" 
                           Tag="Directory Containing Distribution Files">
             <wf:TextBox x:Name="DistroPathText" 
                         Text="Type or paste the directory path here or click the folder icon" 
-                        BackColor="#252525"
-                        ForeColor="#147FAC"
+                        BackColor="#147FAC"
+                        ForeColor="White"
                         BorderStyle="None"/>
         </WindowsFormsHost>
         <TabControl Grid.Row="4"
