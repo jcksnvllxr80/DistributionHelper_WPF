@@ -13,10 +13,6 @@ Class MainWindow
     Dim DistributionPrograms As New LinkedList(Of Object)
     Dim DistributionDataLoaded As Boolean = False
     Dim locationInfo As LocationData
-    Dim MainConnection = New SqlClient.SqlConnection(
-                            "Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;
-                            Integrated Security=True;MultipleActiveResultSets=True")
-    Dim AutoCompleteURLs
     Dim user As UserObject
 
     Public Sub New()
@@ -39,6 +35,9 @@ Class MainWindow
 
 
     Private Function GetConnectionOpen() As SqlClient.SqlConnection
+        Dim MainConnection = New SqlClient.SqlConnection(
+                            "Data Source=XJALAP0569\SQLEXPRESS;Initial Catalog=Distributions;
+                            Integrated Security=True;MultipleActiveResultSets=True")
         Try
             MainConnection.Open()
             Return MainConnection
@@ -63,8 +62,19 @@ Class MainWindow
     End Sub
 
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
-        FillDataGridFromDB()
         GetUser()
+        DistroPathText.AutoCompleteMode = Forms.AutoCompleteMode.Suggest
+        DistroPathText.AutoCompleteSource = Forms.AutoCompleteSource.AllSystemSources
+        MyHost.Child = DistroPathText
+        ShippingMethodBox.Items.Add("Standard (3-5 Days)")
+        ShippingMethodBox.Items.Add("Express (1-2 Days)")
+        ShippingMethodBox.Items.Add("Overnight")
+        ShippingMethodBox.SelectedItem = "Standard (3-5 Days)"
+    End Sub
+
+
+    Private Sub GetDistroTextWidth()
+        DistroPathText.Width = Me.Width - Int(DistroPathText.Width / 20)
     End Sub
 
 
@@ -112,20 +122,19 @@ Class MainWindow
 
     Private Sub CreateEmail()
         Dim subjectSubstr = "– Program Books & Chips"
-        Dim bodyStr As String = vbTab & vbTab & vbTab & vbCr & locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
+        Dim bodyStr As String = locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
                     locationInfo.GetState & " / MP. " & locationInfo.GetMilePost & vbCr & locationInfo.GetDivision & " Division / " &
                     locationInfo.GetSubdivision & " Subdivision" & vbCr & locationInfo.GetCustomerNumber & vbCr & locationInfo.GetInternalNumber &
-                    vbCr & vbCr & "I have sent " & locationInfo.GetLocationName & " (" & locationInfo.GetMilePost &
+                    vbCr & vbCr & RecipientNameText.Text & vbCr & AddressStreetText.Text & vbCr &
+                    AddressCityText.Text & ", " & AddressStateBox.Text & " " & AddressZipCodeText.Text & vbCr & vbCr &
+                    "I have sent " & locationInfo.GetLocationName & " (" & locationInfo.GetMilePost &
                     ") program book(s) and EPROMs (executive and application) to the address above with FeDEx " &
-                    extraText.Text & " shipping." &
-                    vbCr & vbCr &
-                    DistributionAddressText.Text &
-                    vbCr & vbCr &
-                    vbTab & "Tracking Number:" & vbTab & vbTab & extraText.Text & vbCr &
-                    vbTab & "Invoice Number:" & vbTab & vbTab & extraText.Text & vbCr &
-                    vbTab & "Reference:" & vbTab & vbTab & "XORAIL CORP" & vbCr &
-                    vbTab & "Service type:" & vbTab & vbTab & extraText.Text & vbCr &
-                    vbTab & "Packaging type:" & vbTab & vbTab & "FedEx Box"
+                    ShippingMethodBox.SelectedItem & " shipping." & vbCr & vbCr &
+                    "    Tracking Number:" & vbTab & TrackingNumberText.Text & vbCr &
+                    "    Invoice Number:" & vbTab & InvoiceNumText.Text & vbCr &
+                    "    Reference:" & vbTab & vbTab & "XORAIL CORP" & vbCr &
+                    "    Service type:" & vbTab & vbTab & "FedEx " & ShippingMethodBox.Text & vbCr &
+                    "    Packaging type:" & vbTab & "FedEx Box"
         Dim TO_Recipients As String = ""
         Dim CC_Recipients As String = "Miller, John <J.Miller@xorail.com>; Holmes, Daryl (D.Holmes@xorail.com)"
         Dim subjectStr As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " " & subjectSubstr
@@ -312,6 +321,8 @@ Class MainWindow
         Dim j = 0
         Dim filesys = CreateObject("Scripting.FileSystemObject")
         If filesys.FolderExists(Me.DistroPathText.Text) Then
+            DistributionTab.Visibility = Visibility.Visible
+            DistributionTabGrid.Visibility = Visibility.Visible
             DistributionPrograms.Clear()
             ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
 
@@ -368,9 +379,11 @@ Class MainWindow
         If open Then
             ProgramSelectorLabel.Visibility = Visibility.Visible
             ProgramWrapPanel.Visibility = Visibility.Visible
+            ProgramSelectBorder.Visibility = Visibility.Visible
         Else
             ProgramSelectorLabel.Visibility = Visibility.Hidden
             ProgramWrapPanel.Visibility = Visibility.Hidden
+            ProgramSelectBorder.Visibility = Visibility.Hidden
             ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
         End If
     End Sub
@@ -391,6 +404,8 @@ Class MainWindow
             Me.CustomerJobNumComboBox.Text = locationInfo.GetCustomerNumber()
             Me.InternalJobNumComboBox.Text = locationInfo.GetInternalNumber()
             Me.LocationNameText.Text = locationInfo.GetLocationName()
+            Me.AddressStateBox.Text = locationInfo.GetState()
+            Me.AddressCityText.Text = locationInfo.GetCity()
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
         End If
 
@@ -463,7 +478,7 @@ Class MainWindow
 
     Private Sub SelectFolder()
         Dim StartDir As String
-        If DistroPathText.Text = "Use folder icon or file menu -> open to browse for location to distribute." Then
+        If DistroPathText.Text = "Type" Then
             StartDir = "P:\"
         ElseIf Not Me.DistroPathText.Text = "" Then
             StartDir = Me.DistroPathText.Text
@@ -563,7 +578,9 @@ Class MainWindow
 
     Private Sub EnableDataViewFunctions()
         DistributionDataLoaded = True
-        Tabs.Visibility = Visibility.Visible
+        'Tabs.Visibility = Visibility.Visible
+        DistributionTab.Visibility = Visibility.Visible
+        DistributionTabGrid.Visibility = Visibility.Visible
 
         PrintMenu.IsEnabled = True
         PrintToolBttn.IsEnabled = True
@@ -746,53 +763,31 @@ Class MainWindow
     End Sub
 
 
-    'Private Sub DistroPathText_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathText.PreviewKeyDown
-    '    If e.Key = Key.Enter Then
-    '        If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
-    '            'Enter and path exists
-    '            FindFilesAndCreateProgramSelectWindow()
-    '            tempInfoString = ""
-    '            StatusLabel.Text = tempInfoString
-    '        Else
-    '            tempInfoString = "Invalid path"
-    '        End If
-    '        StatusLabel.Text = tempInfoString
-    '    Else
-    '        PopulatePathDropBox()
-    '    End If
-    '    'Console.Write("pressed " & Int(e.Key) & vbCrLf)
-    'End Sub
+    Private Sub MyHost_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles MyHost.PreviewKeyDown
+        If e.Key = Key.Enter Then
+            If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
+                'Enter and path exists
+                FindFilesAndCreateProgramSelectWindow()
+                tempInfoString = ""
+                StatusLabel.Text = tempInfoString
+            Else
+                tempInfoString = "Invalid path"
+            End If
+            StatusLabel.Text = tempInfoString
+        End If
+        Console.Write("pressed " & Int(e.Key) & vbCrLf)
+    End Sub
 
+    Private Sub DistroPathText_Click(sender As Object, e As EventArgs) Handles DistroPathText.Click
+        If DistroPathText.Text = "Type or paste the directory path here or click the folder icon" Then
+            DistroPathText.Text = ""
+        End If
+    End Sub
 
-    'Private Sub PopulatePathDropBox()
-
-    '    Dim startDir = ""
-    '    Dim searchStr
-    '    Dim posOfSlash = DistroPathText.Text.LastIndexOf("\")
-    '    If posOfSlash > 0 Then
-    '        startDir = DistroPathText.Text.Substring(0, posOfSlash + 1)
-    '        If posOfSlash = DistroPathText.Text.Length - 1 Then
-    '            searchStr = ""
-    '        Else
-    '            searchStr = DistroPathText.Text.Substring(posOfSlash + 1)
-    '        End If
-    '    ElseIf DistroPathText.Text.Length = 2 Then
-    '        searchStr = DistroPathText.Text & "\"
-    '    ElseIf DistroPathText.Text.Length = 1 Then
-    '        searchStr = DistroPathText.Text & ":\"
-    '    Else
-    '        searchStr = ""
-    '    End If
-
-    '    Try
-    '        Dim contents = Directory.GetDirectories(startDir, searchStr & "*", SearchOption.TopDirectoryOnly)
-    '        Dim contentsList = contents.ToList
-    '        If contentsList IsNot Nothing Then
-    '            DistroPathText.IsDropDownOpen = True
-    '            DistroPathText.ItemsSource = contents.ToList
-    '        End If
-    '    Catch e As Exception
-    '        Console.WriteLine("cant find " & startDir & searchStr & " : {0}", e.ToString())
-    '    End Try
-    'End Sub
+    Private Sub DistroPathText_MouseLeave(sender As Object, e As EventArgs) Handles DistroPathText.MouseLeave
+        StatusLabel.Text = tempInfoString
+        If DistroPathText.Text.Trim = "" Then
+            DistroPathText.Text = "Type or paste the directory path here or click the folder icon"
+        End If
+    End Sub
 End Class

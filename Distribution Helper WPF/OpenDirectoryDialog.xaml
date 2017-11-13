@@ -1,0 +1,38 @@
+﻿<Controls:MetroWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+        xmlns:local="clr-namespace:Distribution_Helper_WPF"
+        xmlns:visualizationToolkit="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit" 
+        x:Class="OpenDirectoryDialog"
+        mc:Ignorable="d"
+        Title="OpenDirectoryDialog" 
+        Height="150" 
+        Width="400"
+        Loaded="Window_Loaded">
+    <Grid x:Name="grid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="15" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="15" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+        <WindowsFormsHost x:Name="MyHost"
+                          Grid.Row="1" 
+                          Grid.Column="1"  
+                          FontSize="16"
+                          FontFamily="Arial">
+            <wf:TextBox x:Name="DistributionPathACBox" />
+        </WindowsFormsHost>
+    </Grid>
+</Controls:MetroWindow>
