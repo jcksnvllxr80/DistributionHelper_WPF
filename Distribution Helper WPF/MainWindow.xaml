@@ -31,14 +31,17 @@
                          XPath="states/state"/>
         <local:DistributionsDataSet x:Key="DistributionsDataSet"/>
         <CollectionViewSource x:Key="DistributionsViewSource" 
-                              Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}"/>
+                              Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}">
+        </CollectionViewSource>
+        <SolidColorBrush x:Key="HeaderColor" Color="#147FAC" />
     </Controls:MetroWindow.Resources>
     <Grid x:Name="FormGrid" 
           Background="DarkGray">
         <Grid.RowDefinitions>
             <RowDefinition Height="33" />
             <RowDefinition Height="36" />
-            <RowDefinition Height="33" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="9" />
             <RowDefinition Height="*" />
             <RowDefinition Height="33" />
         </Grid.RowDefinitions>
@@ -168,27 +171,38 @@
         <WindowsFormsHost x:Name="MyHost"
                           Grid.Row="2"
                           Grid.Column="1"
+                          Grid.ColumnSpan="1"
                           FontSize="17"
                           FontFamily="Felix Titling"
                           FontWeight="SemiBold"
+                          Background="Transparent"
                           MouseEnter="Text_MouseEnter" 
                           MouseLeave="Text_MouseLeave" 
                           Tag="Directory Containing Distribution Files">
             <wf:TextBox x:Name="DistroPathText" 
                         Text="Type or paste the directory path here or click the folder icon" 
-                        BackColor="DarkGray"
-                        ForeColor="DarkSlateGray"
+                        BackColor="#252525"
+                        ForeColor="#147FAC"
                         BorderStyle="None"/>
         </WindowsFormsHost>
-        <TabControl Grid.Row="3"
+        <TabControl Grid.Row="4"
                     Grid.Column="0"
                     Grid.ColumnSpan="3"
-                    x:Name="Tabs" >
+                    TabStripPlacement="Top"
+                    x:Name="Tabs" 
+                    FlowDirection="RightToLeft">
+            <TabControl.Resources>
+                <Style TargetType="{x:Type TabPanel}">
+                    <Setter Property="Background" 
+                            Value="#252525"></Setter>
+                </Style>
+            </TabControl.Resources>
             <TabItem x:Name="DistributionTab" 
                      Header="Distribution" 
                      Tag="Enter Distribution Information" 
                      MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave"  
+                     MouseLeave="Text_MouseLeave"
+                     FlowDirection="LeftToRight"
                      Visibility="Hidden" >
                 <Grid x:Name="DistributionTabGrid"
                       Visibility="Hidden">
@@ -324,7 +338,7 @@
                     <Separator Grid.Row="7" 
                                Grid.Column="1"
                                Grid.ColumnSpan="7"
-                               BorderBrush="White"
+                               BorderBrush="{StaticResource HeaderColor}"
                                BorderThickness="1"/>
                     <!--<Border x:Name="DistributionFieldsBorder"
                             Grid.Row="9" 
@@ -409,7 +423,7 @@
                     <Separator Grid.Row="15" 
                                Grid.Column="1"
                                Grid.ColumnSpan="7"
-                               BorderBrush="White"
+                               BorderBrush="{StaticResource HeaderColor}"
                                BorderThickness="1"/>
                     <!--<Border x:Name="AddressFieldsBorder"
                             Grid.Row="17" 
@@ -515,7 +529,7 @@
                             Grid.Column="1"
                             Grid.ColumnSpan="7"
                             Background="#252525" 
-                            BorderBrush="White" 
+                            BorderBrush="{StaticResource HeaderColor}" 
                             BorderThickness="1" 
                             CornerRadius="7" 
                             Padding="25"
@@ -544,7 +558,8 @@
                      Header="Preview" 
                      Tag="View the data extracted from this location" 
                      MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave" 
+                     MouseLeave="Text_MouseLeave"
+                     FlowDirection="LeftToRight"
                      Visibility="Hidden">
                 <Grid x:Name="PrintPrevTabGrid">
                     <FlowDocumentReader x:Name="LocationInfoViewer" 
@@ -556,7 +571,8 @@
                      Tag="View all distributed software ever inserted to database" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
-                     Visibility="Hidden">
+                     Visibility="Hidden"
+                     FlowDirection="LeftToRight">
                 <Grid x:Name="DatabaseTabGrid">
                     <DataGrid x:Name="DistributionsDataGrid" 
                               IsReadOnly="True"   
@@ -564,7 +580,7 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="4"
+        <StatusBar Grid.Row="5"
                    Grid.Column="0"
                    Grid.ColumnSpan="3"
                    x:Name="StatBar">
