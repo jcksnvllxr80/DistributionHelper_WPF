@@ -182,7 +182,7 @@
                         Text="Type or paste the directory path here or click the folder icon" 
                         BackColor="#147FAC"
                         ForeColor="White"
-                        BorderStyle="None"/>
+                        BorderStyle="FixedSingle" />
         </WindowsFormsHost>
         <TabControl Grid.Row="4"
                     Grid.Column="0"

@@ -9,6 +9,7 @@ Imports System.ComponentModel
 Class MainWindow
     Inherits MetroWindow
 
+    Private backgroundWorker As BackgroundWorker = New BackgroundWorker()
     Dim tempInfoString = ""
     Dim DistributionPrograms As New LinkedList(Of Object)
     Dim DistributionDataLoaded As Boolean = False
@@ -66,10 +67,17 @@ Class MainWindow
         DistroPathText.AutoCompleteMode = Forms.AutoCompleteMode.Suggest
         DistroPathText.AutoCompleteSource = Forms.AutoCompleteSource.AllSystemSources
         MyHost.Child = DistroPathText
+
         ShippingMethodBox.Items.Add("Standard (3-5 Days)")
         ShippingMethodBox.Items.Add("Express (1-2 Days)")
         ShippingMethodBox.Items.Add("Overnight")
         ShippingMethodBox.SelectedItem = "Standard (3-5 Days)"
+
+        backgroundWorker.WorkerReportsProgress = True
+        'backgroundWorker.WorkerSupportsCancellation = True
+        AddHandler backgroundWorker.DoWork, AddressOf BackgroundWorker_DoWork
+        AddHandler backgroundWorker.ProgressChanged, AddressOf BackgroundWorker_ProgressChanged
+        AddHandler backgroundWorker.RunWorkerCompleted, AddressOf BackgroundWorker_RunWorkerCompleted
     End Sub
 
 
@@ -145,8 +153,8 @@ Class MainWindow
         Dim WshShell = CreateObject("WScript.Shell")
         With otlNewMail
             .Display
-            .Subject = subjectStr
             WshShell.AppActivate(subjectStr & " - Message (HTML)")
+            .Subject = subjectStr
             .To = TO_Recipients
             .CC = CC_Recipients
             Dim objDoc = otlApp.ActiveInspector.WordEditor
@@ -160,38 +168,57 @@ Class MainWindow
 
 
     Private Sub InsertDistInfoToDatabase()
-        Dim connection = GetConnectionOpen()
+        If locationInfo IsNot Nothing Then
+            Me.ProgressBar.Visibility = Visibility.Visible
+            Dim myDate As Date = Me.DistributionDatePicker.DisplayDate
+            backgroundWorker.RunWorkerAsync(myDate) ' this starts the background worker
+        Else
+            MsgBox("what to do when an attempt to add to the database is made but the fields were not properly filled at some point. this is know because locationInfo is = Nothing")
+        End If
+    End Sub
 
+
+    Private Sub BackgroundWorker_DoWork(sender As Object, e As DoWorkEventArgs)
+        'this sub is started when the run worker async is started
+        Dim connection = GetConnectionOpen()
         Dim totalProgress = DistributionPrograms.Count
-        Dim currentProgress = 1
-        Me.ProgressBar.Visibility = Visibility.Visible
+        Dim currentProgress = 0
+        Dim myDate As Date = e.Argument
 
         For Each Prog In DistributionPrograms
             If Prog Is Nothing Then
                 Exit For
             End If
             Dim nextPrimaryKey = GetNextPrimaryKey(connection)
-            Dim nextRevNumber = getNextRevisionNumber(connection, Prog.GetName)
-            Dim userFieldData As New MainWindowData(Me.LocationNameText.Text, Me.CustomerComboBox.Text,
-                                                    Me.CustomerJobNumComboBox.Text, Me.InternalJobNumComboBox.Text,
-                                                    Me.DistributionDatePicker.DisplayDate)
+            Dim nextRevNumber = GetNextRevisionNumber(connection, Prog.GetName, locationInfo.GetInternalNumber)
+            Dim userFieldData As New MainWindowData(locationInfo.GetLocationName, locationInfo.GetCustomer,
+                                                    locationInfo.GetCustomerNumber, locationInfo.GetInternalNumber,
+                                                    myDate)
             Prog.InsertDistributionToDB(connection, nextPrimaryKey, nextRevNumber, userFieldData)
             'Console.WriteLine("Primary Key: " & nextPrimaryKey & vbCrLf & "Revision Number: " & nextRevNumber & vbCrLf & vbCrLf)
             currentProgress += 1
-            Me.ProgressBar.Value = 100 * currentProgress / totalProgress
+            backgroundWorker.ReportProgress(100 * currentProgress / totalProgress)
         Next
 
-        Me.ProgressBar.Value = 100
-        StatusLabel.Text = "Distribution information was inserted successfully to the database"
-
         connection.Close()
+    End Sub
 
+
+    Private Sub BackgroundWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
+        'this runs when the background worker has completed its running thread
+        StatusLabel.Text = "Distribution information was inserted successfully to the database"
         LoadInternalJobNumComboBox()
         LoadCustomerComboBox()
         LoadCustomerJobNumComboBox()
         FillDataGridFromDB()
-
         Me.ProgressBar.Visibility = Visibility.Hidden
+        Me.ProgressBar.Value = 0
+    End Sub
+
+
+    Private Sub BackgroundWorker_ProgressChanged(ByVal sender As Object, ByVal e As ProgressChangedEventArgs)
+        'this is called when the background worker is told to report progress
+        Me.ProgressBar.Value = e.ProgressPercentage
     End Sub
 
 
@@ -220,7 +247,6 @@ Class MainWindow
     Private Sub LoadCustomerComboBox()
         Dim cmd As New SqlClient.SqlCommand
         Dim reader As SqlClient.SqlDataReader
-        Dim nextRev = 0
 
         cmd.CommandText = "SELECT DISTINCT customer FROM Distributions"
         cmd.CommandType = CommandType.Text
@@ -245,12 +271,10 @@ Class MainWindow
     Private Sub LoadInternalJobNumComboBox()
         Dim cmd As New SqlClient.SqlCommand
         Dim reader As SqlClient.SqlDataReader
-        Dim nextRev = 0
 
         cmd.CommandText = "SELECT DISTINCT internalJobNum FROM Distributions"
         cmd.CommandType = CommandType.Text
         cmd.Connection = GetConnectionOpen()
-
 
         InternalJobNumComboBox.ItemsSource = Nothing
         reader = cmd.ExecuteReader()
@@ -271,7 +295,6 @@ Class MainWindow
     Private Sub LoadCustomerJobNumComboBox()
         Dim cmd As New SqlClient.SqlCommand
         Dim reader As SqlClient.SqlDataReader
-        Dim nextRev = 0
 
         cmd.CommandText = "SELECT DISTINCT customerJobNum FROM Distributions WHERE customerJobNum <> '';"
         cmd.CommandType = CommandType.Text
@@ -293,12 +316,12 @@ Class MainWindow
     End Sub
 
 
-    Private Function getNextRevisionNumber(con As SqlClient.SqlConnection, programName As String) As Integer
+    Private Function GetNextRevisionNumber(con As SqlClient.SqlConnection, programName As String, internalJobNum As String) As Integer
         Dim cmd As New SqlClient.SqlCommand
         Dim reader As SqlClient.SqlDataReader
         Dim nextRev = 0
 
-        cmd.CommandText = "SELECT MAX(revision) FROM Distributions WHERE (programName = '" & programName & "' AND internalJobNum = '" & InternalJobNumComboBox.Text & "');"
+        cmd.CommandText = "SELECT MAX(revision) FROM Distributions WHERE (programName = '" & programName & "' AND internalJobNum = '" & internalJobNum & "');"
         cmd.CommandType = CommandType.Text
         cmd.Connection = con
 
@@ -349,8 +372,10 @@ Class MainWindow
                     End If
                 End If
             Next
-            Dim buttonPanel = New StackPanel
-            buttonPanel.Orientation = Orientation.Horizontal
+
+            Dim buttonPanel = New StackPanel With {
+                .Orientation = Orientation.Horizontal
+            }
             Me.ProgramWrapPanel.Children.Add(buttonPanel)
             If j > 0 Then
                 Dim OkButton As New Button()
