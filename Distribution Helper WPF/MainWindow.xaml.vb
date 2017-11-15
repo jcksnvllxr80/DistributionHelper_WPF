@@ -9,7 +9,8 @@ Imports System.ComponentModel
 Class MainWindow
     Inherits MetroWindow
 
-    Private backgroundWorker As BackgroundWorker = New BackgroundWorker()
+    Private InsertToDatabseBGWorker As BackgroundWorker = New BackgroundWorker()
+    Private MineLocationDataBGWorker As BackgroundWorker = New BackgroundWorker()
     Dim tempInfoString = ""
     Dim DistributionPrograms As New LinkedList(Of Object)
     Dim DistributionDataLoaded As Boolean = False
@@ -73,11 +74,17 @@ Class MainWindow
         ShippingMethodBox.Items.Add("Overnight")
         ShippingMethodBox.SelectedItem = "Standard (3-5 Days)"
 
-        backgroundWorker.WorkerReportsProgress = True
-        'backgroundWorker.WorkerSupportsCancellation = True
-        AddHandler backgroundWorker.DoWork, AddressOf BackgroundWorker_DoWork
-        AddHandler backgroundWorker.ProgressChanged, AddressOf BackgroundWorker_ProgressChanged
-        AddHandler backgroundWorker.RunWorkerCompleted, AddressOf BackgroundWorker_RunWorkerCompleted
+        MineLocationDataBGWorker.WorkerReportsProgress = True
+        'MineLocationDataBGWorker.WorkerSupportsCancellation = True
+        AddHandler MineLocationDataBGWorker.DoWork, AddressOf BackgroundWorker_MineLocationData
+        AddHandler MineLocationDataBGWorker.ProgressChanged, AddressOf BackgroundWorker_MiningProgressChanged
+        AddHandler MineLocationDataBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_MiningWorkerCompleted
+
+        InsertToDatabseBGWorker.WorkerReportsProgress = True
+        'InsertToDatabseBGWorker.WorkerSupportsCancellation = True
+        AddHandler InsertToDatabseBGWorker.DoWork, AddressOf BackgroundWorker_InsertToDB
+        AddHandler InsertToDatabseBGWorker.ProgressChanged, AddressOf BackgroundWorker_InsertionProgressChanged
+        AddHandler InsertToDatabseBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_InsertionWorkerCompleted
     End Sub
 
 
@@ -171,14 +178,14 @@ Class MainWindow
         If locationInfo IsNot Nothing Then
             Me.ProgressBar.Visibility = Visibility.Visible
             Dim myDate As Date = Me.DistributionDatePicker.DisplayDate
-            backgroundWorker.RunWorkerAsync(myDate) ' this starts the background worker
+            InsertToDatabseBGWorker.RunWorkerAsync(myDate) ' this starts the background worker
         Else
             MsgBox("what to do when an attempt to add to the database is made but the fields were not properly filled at some point. this is know because locationInfo is = Nothing")
         End If
     End Sub
 
 
-    Private Sub BackgroundWorker_DoWork(sender As Object, e As DoWorkEventArgs)
+    Private Sub BackgroundWorker_InsertToDB(sender As Object, e As DoWorkEventArgs)
         'this sub is started when the run worker async is started
         Dim connection = GetConnectionOpen()
         Dim totalProgress = DistributionPrograms.Count
@@ -197,14 +204,14 @@ Class MainWindow
             Prog.InsertDistributionToDB(connection, nextPrimaryKey, nextRevNumber, userFieldData)
             'Console.WriteLine("Primary Key: " & nextPrimaryKey & vbCrLf & "Revision Number: " & nextRevNumber & vbCrLf & vbCrLf)
             currentProgress += 1
-            backgroundWorker.ReportProgress(100 * currentProgress / totalProgress)
+            InsertToDatabseBGWorker.ReportProgress(100 * currentProgress / totalProgress)
         Next
 
         connection.Close()
     End Sub
 
 
-    Private Sub BackgroundWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
+    Private Sub BackgroundWorker_InsertionWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
         'this runs when the background worker has completed its running thread
         StatusLabel.Text = "Distribution information was inserted successfully to the database"
         LoadInternalJobNumComboBox()
@@ -216,7 +223,7 @@ Class MainWindow
     End Sub
 
 
-    Private Sub BackgroundWorker_ProgressChanged(ByVal sender As Object, ByVal e As ProgressChangedEventArgs)
+    Private Sub BackgroundWorker_InsertionProgressChanged(ByVal sender As Object, ByVal e As ProgressChangedEventArgs)
         'this is called when the background worker is told to report progress
         Me.ProgressBar.Value = e.ProgressPercentage
     End Sub
@@ -414,18 +421,21 @@ Class MainWindow
     End Sub
 
 
-    Private Sub OkButton_Click(sender As Object, e As EventArgs)
-        Dim dirPathComponents = Split(Me.DistroPathText.Text, "\")
-        If dirPathComponents.Length > 1 Then
-            Me.CustomerComboBox.Text = UCase(dirPathComponents(1))
+    Private Sub BackgroundWorker_MiningProgressChanged(sender As Object, e As ProgressChangedEventArgs)
+        Me.ProgressBar.Value = e.ProgressPercentage
+        If Me.ProgressBar.Value = 20 Then
+            Me.StatusLabel.Text = "Looking for info worksheet..."
+        ElseIf Me.ProgressBar.Value = 35 Then
+            Me.StatusLabel.Text = "Reading info worksheet..."
+        ElseIf Me.ProgressBar.Value = 50 Then
+            Me.StatusLabel.Text = "Mining location information..."
         End If
+    End Sub
 
-        'check for info worksheet in XRL folder
-        Dim infoFile = GetInfoFile()
 
-        If infoFile <> "" Then
-            StatusLabel.Text = "Reading info worksheet..."
-            locationInfo = New LocationData(infoFile)
+    Private Sub BackgroundWorker_MiningWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
+        Me.ProgressBar.Visibility = Visibility.Hidden
+        If locationInfo IsNot Nothing Then
             Me.CustomerJobNumComboBox.Text = locationInfo.GetCustomerNumber()
             Me.InternalJobNumComboBox.Text = locationInfo.GetInternalNumber()
             Me.LocationNameText.Text = locationInfo.GetLocationName()
@@ -434,19 +444,6 @@ Class MainWindow
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
         End If
 
-        For Each controlObj In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
-            If controlObj.GetType() Is GetType(CheckBox) Then
-                If controlObj.IsChecked Then
-                    controlObj.Content = controlObj.Content.Substring(1)
-                    If DistributionPrograms.First Is Nothing Then
-                        DistributionPrograms.AddFirst(DetermineProgramType(controlObj))
-                    Else
-                        DistributionPrograms.AddLast(DetermineProgramType(controlObj))
-                    End If
-
-                End If
-            End If
-        Next
         ShowProgramSelectorPanel(False)
         For Each Prog In DistributionPrograms
             If Not Prog Is Nothing Then
@@ -459,30 +456,80 @@ Class MainWindow
     End Sub
 
 
+    Private Sub OkButton_Click(sender As Object, e As EventArgs)
+        Me.ProgressBar.Visibility = Visibility.Visible
+        Me.ProgressBar.Value = 0
+        Dim StrArray(2) As String
+        Dim dirPathComponents = Split(Me.DistroPathText.Text, "\")
+        If dirPathComponents.Length > 1 Then
+            Me.CustomerComboBox.Text = UCase(dirPathComponents(1))
+        End If
+        Dim checkboxList As New List(Of Array)
+        For Each cb In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
+            If cb.GetType() Is GetType(CheckBox) Then
+                If cb.IsChecked Then
+                    cb.Content = cb.Content.Substring(1)
+                    StrArray = {cb.Content, cb.Tag}
+                    checkboxList.Add(StrArray)
+                End If
+            End If
+        Next
+        MineLocationDataBGWorker.RunWorkerAsync(checkboxList)
+    End Sub
+
+
+    Private Sub BackgroundWorker_MineLocationData(sender As Object, e As DoWorkEventArgs)
+        Dim checkboxList = e.Argument
+
+        MineLocationDataBGWorker.ReportProgress(20)
+        'check for info worksheet in XRL folder
+        Dim infoFile = GetInfoFile()
+
+        If infoFile <> "" Then
+            MineLocationDataBGWorker.ReportProgress(35)
+            locationInfo = New LocationData(infoFile)
+        End If
+
+        MineLocationDataBGWorker.ReportProgress(50)
+
+        Dim i As Short = 0
+        Dim length As Short = checkboxList.Count
+        For Each progStr In checkboxList
+            If DistributionPrograms.First Is Nothing Then
+                DistributionPrograms.AddFirst(DetermineProgramType(progStr))
+            Else
+                DistributionPrograms.AddLast(DetermineProgramType(progStr))
+            End If
+            i += 1
+            MineLocationDataBGWorker.ReportProgress(50 + (49 * (i / length)))
+        Next
+        MineLocationDataBGWorker.ReportProgress(100)
+    End Sub
+
+
     Private Sub CancelButton_Click(sender As Object, e As EventArgs)
         ShowProgramSelectorPanel(False)
     End Sub
 
 
-    Private Function DetermineProgramType(chkbox As CheckBox) As ProgramFile
-        Dim filetype = System.IO.Path.GetExtension(chkbox.Content)
-        Dim filename = System.IO.Path.GetFileNameWithoutExtension(chkbox.Content)
-        Dim filePath = chkbox.Tag
-
+    Private Function DetermineProgramType(programStr As String()) As ProgramFile
+        Dim filetype = System.IO.Path.GetExtension(programStr(0))
+        Dim filename = System.IO.Path.GetFileNameWithoutExtension(programStr(0))
         Dim typeStr = filetype.ToUpper
+        Dim filePath = programStr(1)
         Dim program
         'MsgBox(typeStr)
         Select Case typeStr
             Case ".CCF"
-                If System.IO.File.Exists(Me.DistroPathText.Text & "\" & filename & ".H30") Then
+                If System.IO.File.Exists(filePath & "\" & filename & ".H30") Then
                     program = New NonVitalHLC(filename, filePath, "ACE")
-                ElseIf System.IO.File.Exists(Me.DistroPathText.Text & "\" & filename & ".H14") Then
+                ElseIf System.IO.File.Exists(filePath & "\" & filename & ".H14") Then
                     program = New VitalHLC(filename, filePath, "ACE")
                 Else
                     program = New ElectroLogIXS(filename, filePath)
                 End If
             Case ".LOC"
-                If System.IO.File.Exists(Me.DistroPathText.Text & "\" & filename & ".H30") Then
+                If System.IO.File.Exists(filePath & "\" & filename & ".H30") Then
                     program = New NonVitalHLC(filename, filePath, "ALC")
                 Else
                     program = New VitalHLC(filename, filePath, "ALC")
@@ -520,7 +567,6 @@ Class MainWindow
 
 
     Private Function GetInfoFile() As String
-        StatusLabel.Text = "Looking for info worksheet..."
         Dim searchStr = "XRL"
         Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim f = fso.GetFolder(DistroPathText.Text)

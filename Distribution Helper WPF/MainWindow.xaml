@@ -578,6 +578,15 @@
                               ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}" />
                 </Grid>
             </TabItem>
+            <TabItem x:Name="PrintingTab" 
+                     Header="Printing" 
+                     Tag="Select and print reports/RTVPs" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Visible"
+                     FlowDirection="LeftToRight">
+                
+            </TabItem>
         </TabControl>
         <StatusBar Grid.Row="5"
                    Grid.Column="0"
@@ -608,9 +617,6 @@
                              Value="0" 
                              Height="28" 
                              Visibility="Hidden">
-                    <ProgressBar.Effect>
-                        <DropShadowEffect/>
-                    </ProgressBar.Effect>
                 </ProgressBar>
             </StatusBarItem>
         </StatusBar>
