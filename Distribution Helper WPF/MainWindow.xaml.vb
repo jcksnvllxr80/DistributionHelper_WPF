@@ -2,6 +2,7 @@
 Imports System.Drawing
 Imports System.IO
 Imports System.ComponentModel
+Imports Microsoft.Office.Interop
 'Imports Xceed.Wpf.Toolkit
 
 
@@ -658,6 +659,8 @@ Class MainWindow
         'PrintLocInfoMenuItem.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
+        ProgramRevisionsTab.Visibility = Visibility.Visible
+        PrintingTab.Visibility = Visibility.Visible
         LocationInfoViewer.Document = CreateDistInfoDocument()
 
         'SaveToolBttn.Enabled = True
@@ -673,6 +676,61 @@ Class MainWindow
     End Sub
 
 
+    Private Function GetNextReaderNum() As String
+        Return "1"
+    End Function
+
+
+    Private Sub CreateLetter()
+        'Creating Letter to place in box with deliverables
+        Dim ReaderFilesDir = "C:\MT\"
+        Dim readerFileName = locationInfo.GetCustomer & GetNextReaderNum()
+        Dim savePath = ReaderFilesDir & "\" & readerFileName & ".doc"
+        Dim objApp As Word.Application = New Word.Application
+        objApp.Visible = False
+        Dim distributionLetter As Word.Document = New Word.Document
+        distributionLetter = objApp.Documents.Add()
+        distributionLetter.Activate()
+        Dim objSelection = objApp.Selection
+        objApp.Selection.TypeText(Me.DistributionDatePicker.DisplayDate & vbTab & vbTab &
+                                  vbTab & "File: " & readerFileName)
+
+        objApp.Selection.TypeParagraph()
+        objApp.Selection.TypeText(Me.RecipientNameText.Text & vbCrLf &
+                                  Me.CustomerComboBox.Text & vbCrLf &
+                                  Me.AddressStreetText.Text & vbCrLf &
+                                  Me.AddressCityText.Text & ", " & Me.AddressStateBox.Text & Me.AddressZipCodeText.Text & vbCrLf)
+
+        objApp.Selection.TypeParagraph()
+        objApp.Selection.TypeText(Me.locationInfo.GetDivision & " Division / " &
+                                  Me.locationInfo.GetSubdivision & " Subdivision / " & Me.locationInfo.GetMilePost & vbCrLf)
+
+        objApp.Selection.TypeParagraph()
+        objApp.Selection.TypeText("A package for " & locationInfo.GetLocationName & " has been sent to you via FEDEX " &
+                                  Me.ShippingMethodBox.Text & "." & vbCrLf)
+        objApp.Selection.TypeText("Tracking Number: " & Me.TrackingNumberText.Text & vbCrLf)
+        objApp.Selection.TypeText("The Package contains: " & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
+                                  "Thank you," & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
+                                  user.FullName & vbCrLf &
+                                  "Xorail" & vbCrLf &
+                                  "Email: " & user.Email & vbCrLf &
+                                  "Phone: (904) 443-0083" & vbCrLf)
+
+        distributionLetter.Sections(1).Headers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).
+            Range.InlineShapes.AddPicture("resources\wabtecLogoForFiles.png")
+        Dim myFooterStr As String = "5011 GATE PARKWAY, BLDG. 100 SUITE 400, JACKSONVILLE, FLORIDA 32256   " &
+                                     "PHONE:  904-443-0083    FAX: 904-443-0089"
+        distributionLetter.Sections(1).Headers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).Range.Text = myFooterStr
+        distributionLetter.Paragraphs(3).Range.Bold = True
+        distributionLetter.SaveAs(savePath)
+        'Dispose the Word objects
+        distributionLetter.Close()
+        objApp.Quit()
+        distributionLetter = Nothing
+        objApp = Nothing
+    End Sub
+
+
     Private Sub DisableDataViewFunctions()
         DistributionDataLoaded = False
 
@@ -681,6 +739,8 @@ Class MainWindow
         'PrintLocInfoMenuItem.IsEnabled = False
 
         PrintPreviewTab.Visibility = Visibility.Hidden
+        ProgramRevisionsTab.Visibility = Visibility.Hidden
+        PrintingTab.Visibility = Visibility.Hidden
 
         'SaveToolBttn.Enabled = False
         'SaveMenuItem.Enabled = False
@@ -807,7 +867,7 @@ Class MainWindow
 
         CreateLabelsToolBttn.IsEnabled = True
 
-        'CreateLetterToolBttn.isEnabled = True
+        CreateLetterToolBttn.IsEnabled = True
 
     End Sub
 
@@ -824,7 +884,7 @@ Class MainWindow
 
         CreateLabelsToolBttn.IsEnabled = False
 
-        'CreateLetterToolBttn.IsEnabled = False
+        CreateLetterToolBttn.IsEnabled = False
 
     End Sub
 
@@ -860,5 +920,9 @@ Class MainWindow
         If DistroPathText.Text.Trim = "" Then
             DistroPathText.Text = "Type or paste the directory path here or click the folder icon"
         End If
+    End Sub
+
+    Private Sub CreateLetterToolBttn_Click(sender As Object, e As RoutedEventArgs) Handles CreateLetterToolBttn.Click
+        CreateLetter()
     End Sub
 End Class

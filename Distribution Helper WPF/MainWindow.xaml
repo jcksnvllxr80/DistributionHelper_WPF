@@ -583,9 +583,18 @@
                      Tag="Select and print reports/RTVPs" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
-                     Visibility="Visible"
+                     Visibility="Hidden"
                      FlowDirection="LeftToRight">
                 
+            </TabItem>
+            <TabItem x:Name="ProgramRevisionsTab" 
+                     Header="Revisions" 
+                     Tag="Create revision reports and/or backups" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Hidden"
+                     FlowDirection="LeftToRight">
+
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="5"
