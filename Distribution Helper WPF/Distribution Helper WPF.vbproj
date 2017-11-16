@@ -202,14 +202,17 @@
     <Content Include="resources\States.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="resources\wabtecLogoForFiles.png">
+    <EmbeddedResource Include="wabtecLogoForFiles.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
     </EmbeddedResource>
+    <Content Include="resources\BlankLetter.doc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="resources\diskdrive.png" />
     <Content Include="resources\Blank.label">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

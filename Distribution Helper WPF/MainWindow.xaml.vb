@@ -12,6 +12,7 @@ Class MainWindow
 
     Private InsertToDatabseBGWorker As BackgroundWorker = New BackgroundWorker()
     Private MineLocationDataBGWorker As BackgroundWorker = New BackgroundWorker()
+    Private createLetterBGWorker As BackgroundWorker = New BackgroundWorker()
     Dim tempInfoString = ""
     Dim DistributionPrograms As New LinkedList(Of Object)
     Dim DistributionDataLoaded As Boolean = False
@@ -86,6 +87,12 @@ Class MainWindow
         AddHandler InsertToDatabseBGWorker.DoWork, AddressOf BackgroundWorker_InsertToDB
         AddHandler InsertToDatabseBGWorker.ProgressChanged, AddressOf BackgroundWorker_InsertionProgressChanged
         AddHandler InsertToDatabseBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_InsertionWorkerCompleted
+
+        createLetterBGWorker.WorkerReportsProgress = True
+        'InsertToDatabseBGWorker.WorkerSupportsCancellation = True
+        AddHandler createLetterBGWorker.DoWork, AddressOf BackgroundWorker_CreateLetter
+        AddHandler createLetterBGWorker.ProgressChanged, AddressOf BackgroundWorker_LetterCreationProgressChanged
+        AddHandler createLetterBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_LetterCreationWorkerCompleted
     End Sub
 
 
@@ -681,25 +688,29 @@ Class MainWindow
     End Function
 
 
-    Private Sub CreateLetter()
+    Private Sub BackgroundWorker_CreateLetter(sender As Object, e As DoWorkEventArgs)
+        Dim GuiData As MainWindowData = e.Argument
         'Creating Letter to place in box with deliverables
         Dim ReaderFilesDir = "C:\MT\"
-        Dim readerFileName = locationInfo.GetCustomer & GetNextReaderNum()
+        Dim readerFileName = GuiData.GetCustomer & GetNextReaderNum()
         Dim savePath = ReaderFilesDir & "\" & readerFileName & ".doc"
+        createLetterBGWorker.ReportProgress(20)
         Dim objApp As Word.Application = New Word.Application
         objApp.Visible = False
         Dim distributionLetter As Word.Document = New Word.Document
-        distributionLetter = objApp.Documents.Add()
+        Dim filestr = IO.Path.GetFullPath("resources\BlankLetter.doc")
+        createLetterBGWorker.ReportProgress(50)
+        distributionLetter = objApp.Documents.Add(filestr)
         distributionLetter.Activate()
         Dim objSelection = objApp.Selection
-        objApp.Selection.TypeText(Me.DistributionDatePicker.DisplayDate & vbTab & vbTab &
+        objApp.Selection.TypeText(GuiData.GetDistributionDate & vbTab & vbTab & vbTab &
                                   vbTab & "File: " & readerFileName)
 
         objApp.Selection.TypeParagraph()
-        objApp.Selection.TypeText(Me.RecipientNameText.Text & vbCrLf &
-                                  Me.CustomerComboBox.Text & vbCrLf &
-                                  Me.AddressStreetText.Text & vbCrLf &
-                                  Me.AddressCityText.Text & ", " & Me.AddressStateBox.Text & Me.AddressZipCodeText.Text & vbCrLf)
+        objApp.Selection.TypeText(GuiData.GetRecipientName & vbCrLf &
+                                  GuiData.GetCustomer & vbCrLf &
+                                  GuiData.GetStreet & vbCrLf &
+                                  GuiData.GetCity & ", " & GuiData.GetState & " " & GuiData.GetZipCode & vbCrLf)
 
         objApp.Selection.TypeParagraph()
         objApp.Selection.TypeText(Me.locationInfo.GetDivision & " Division / " &
@@ -707,27 +718,56 @@ Class MainWindow
 
         objApp.Selection.TypeParagraph()
         objApp.Selection.TypeText("A package for " & locationInfo.GetLocationName & " has been sent to you via FEDEX " &
-                                  Me.ShippingMethodBox.Text & "." & vbCrLf)
-        objApp.Selection.TypeText("Tracking Number: " & Me.TrackingNumberText.Text & vbCrLf)
+                                  GuiData.GetShippingMethod & "." & vbCrLf)
+        objApp.Selection.TypeText("Tracking Number: " & GuiData.GetTrackingNumber & vbCrLf)
         objApp.Selection.TypeText("The Package contains: " & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
                                   "Thank you," & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
                                   user.FullName & vbCrLf &
                                   "Xorail" & vbCrLf &
                                   "Email: " & user.Email & vbCrLf &
                                   "Phone: (904) 443-0083" & vbCrLf)
-
-        distributionLetter.Sections(1).Headers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).
-            Range.InlineShapes.AddPicture("resources\wabtecLogoForFiles.png")
-        Dim myFooterStr As String = "5011 GATE PARKWAY, BLDG. 100 SUITE 400, JACKSONVILLE, FLORIDA 32256   " &
-                                     "PHONE:  904-443-0083    FAX: 904-443-0089"
-        distributionLetter.Sections(1).Headers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).Range.Text = myFooterStr
-        distributionLetter.Paragraphs(3).Range.Bold = True
+        createLetterBGWorker.ReportProgress(80)
+        'Dim logoStr = IO.Path.GetFullPath("wabtecLogoForFiles.png")
+        'distributionLetter.Sections(1).Headers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).Range.InlineShapes.AddPicture(logoStr)
+        'Dim myFooterStr As String = "5011 GATE PARKWAY, BLDG. 100 SUITE 400, JACKSONVILLE, FLORIDA 32256   " &
+        '                             "PHONE:  904-443-0083    FAX: 904-443-0089"
+        'With distributionLetter.Sections(1).Footers(Word.WdHeaderFooterIndex.wdHeaderFooterPrimary).Range
+        '    .Text = myFooterStr
+        '    .Font.Name = "corbel"
+        '    .Font.Size = 10
+        '    .ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter
+        'End With
+        distributionLetter.Paragraphs(6).Range.Bold = True
         distributionLetter.SaveAs(savePath)
         'Dispose the Word objects
         distributionLetter.Close()
         objApp.Quit()
         distributionLetter = Nothing
         objApp = Nothing
+        createLetterBGWorker.ReportProgress(100)
+    End Sub
+
+
+
+    Private Sub CreateLetter()
+        ProgressBar.Value = 0
+        ProgressBar.Visibility = Visibility.Visible
+        Dim currentGuiData As New MainWindowData(Me.LocationNameText.Text, Me.CustomerComboBox.Text, Me.CustomerJobNumComboBox.Text,
+                                                 Me.InternalJobNumComboBox.Text, Me.DistributionDatePicker.SelectedDate,
+                                                 Me.TrackingNumberText.Text, Me.InvoiceNumText.Text, Me.ShippingMethodBox.Text,
+                                                 Me.RecipientNameText.Text, Me.AddressStreetText.Text, Me.AddressCityText.Text,
+                                                 Me.AddressStateBox.Text, Me.AddressZipCodeText.Text)
+        createLetterBGWorker.RunWorkerAsync(currentGuiData)
+    End Sub
+
+
+    Private Sub BackgroundWorker_LetterCreationProgressChanged(sender As Object, e As ProgressChangedEventArgs)
+        ProgressBar.Value = e.ProgressPercentage
+    End Sub
+
+
+    Private Sub BackgroundWorker_LetterCreationWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
+        ProgressBar.Visibility = Visibility.Hidden
     End Sub
 
 
