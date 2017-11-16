@@ -703,8 +703,9 @@ Class MainWindow
         distributionLetter = objApp.Documents.Add(filestr)
         distributionLetter.Activate()
         Dim objSelection = objApp.Selection
-        objApp.Selection.TypeText(GuiData.GetDistributionDate & vbTab & vbTab & vbTab &
-                                  vbTab & "File: " & readerFileName)
+        objApp.Selection.Font.Bold = True
+        objApp.Selection.TypeText(vbCrLf & GuiData.GetDistributionDate & vbTab & "File: " & readerFileName & vbCrLf)
+        objApp.Selection.Font.Bold = False
 
         objApp.Selection.TypeParagraph()
         objApp.Selection.TypeText(GuiData.GetRecipientName & vbCrLf &
@@ -713,13 +714,15 @@ Class MainWindow
                                   GuiData.GetCity & ", " & GuiData.GetState & " " & GuiData.GetZipCode & vbCrLf)
 
         objApp.Selection.TypeParagraph()
-        objApp.Selection.TypeText(Me.locationInfo.GetDivision & " Division / " &
-                                  Me.locationInfo.GetSubdivision & " Subdivision / " & Me.locationInfo.GetMilePost & vbCrLf)
+        objApp.Selection.Font.Bold = True
+        objApp.Selection.TypeText(UCase(Me.locationInfo.GetDivision & " DIVISION / " &
+                                  Me.locationInfo.GetSubdivision & " SUBDIVISION / " & Me.locationInfo.GetMilePost & vbCrLf))
+        objApp.Selection.Font.Bold = False
 
         objApp.Selection.TypeParagraph()
-        objApp.Selection.TypeText("A package for " & locationInfo.GetLocationName & " has been sent to you via FEDEX " &
-                                  GuiData.GetShippingMethod & "." & vbCrLf)
-        objApp.Selection.TypeText("Tracking Number: " & GuiData.GetTrackingNumber & vbCrLf)
+        objApp.Selection.TypeText("A package for " & locationInfo.GetLocationName & " has been sent to you via FedEx " &
+                                  GuiData.GetShippingMethod & "." & vbCrLf & vbCrLf)
+        objApp.Selection.TypeText("Tracking Number: " & GuiData.GetTrackingNumber & vbCrLf & vbCrLf)
         objApp.Selection.TypeText("The Package contains: " & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
                                   "Thank you," & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf & vbCrLf &
                                   user.FullName & vbCrLf &
@@ -737,7 +740,6 @@ Class MainWindow
         '    .Font.Size = 10
         '    .ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter
         'End With
-        distributionLetter.Paragraphs(6).Range.Bold = True
         distributionLetter.SaveAs(savePath)
         'Dispose the Word objects
         distributionLetter.Close()
