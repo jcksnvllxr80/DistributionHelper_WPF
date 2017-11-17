@@ -18,6 +18,9 @@ Class MainWindow
     Dim DistributionDataLoaded As Boolean = False
     Dim locationInfo As LocationData
     Dim user As UserObject
+    Dim LocationDataFlowDoc As FlowDocument = Nothing
+    Dim LinkCompareFlowDoc As FlowDocument = Nothing
+    Dim startPoint As Object
 
     Public Sub New()
 
@@ -655,11 +658,21 @@ Class MainWindow
     End Function
 
 
+    Private Function CreateLinkCompareDocument() As FlowDocument
+        Dim DocFont As New Font("Arial", 12)
+        Dim ProgInfoStr = My.Computer.FileSystem.ReadAllText("C:\LinkCompare\201711021533  remoteComparisonOutputFile.txt")
+        Dim paragraph As New Paragraph
+        paragraph.Inlines.Add(ProgInfoStr)
+        Return New FlowDocument(paragraph)
+    End Function
+
+
     Private Sub EnableDataViewFunctions()
         DistributionDataLoaded = True
         'Tabs.Visibility = Visibility.Visible
         DistributionTab.Visibility = Visibility.Visible
         DistributionTabGrid.Visibility = Visibility.Visible
+        LinkCompareTab.Visibility = Visibility.Visible
 
         PrintMenu.IsEnabled = True
         PrintToolBttn.IsEnabled = True
@@ -668,8 +681,8 @@ Class MainWindow
         PrintPreviewTab.Visibility = Visibility.Visible
         ProgramRevisionsTab.Visibility = Visibility.Visible
         PrintingTab.Visibility = Visibility.Visible
-        LocationInfoViewer.Document = CreateDistInfoDocument()
-
+        LocationDataFlowDoc = CreateDistInfoDocument()
+        LocationInfoViewer.Document = LocationDataFlowDoc
         'SaveToolBttn.Enabled = True
         'SaveMenuItem.Enabled = True
         'SaveAsMenuItem.Enabled = True
@@ -783,6 +796,7 @@ Class MainWindow
         PrintPreviewTab.Visibility = Visibility.Hidden
         ProgramRevisionsTab.Visibility = Visibility.Hidden
         PrintingTab.Visibility = Visibility.Hidden
+        LinkCompareTab.Visibility = Visibility.Hidden
 
         'SaveToolBttn.Enabled = False
         'SaveMenuItem.Enabled = False
@@ -966,5 +980,43 @@ Class MainWindow
 
     Private Sub CreateLetterToolBttn_Click(sender As Object, e As RoutedEventArgs) Handles CreateLetterToolBttn.Click
         CreateLetter()
+    End Sub
+
+
+    Private Sub ValidatePreviewGroup(sender As Object, e As RoutedEventArgs)
+        If sender.IsChecked Then
+            If sender.Equals(LocationDataPreviewSource) Then
+                LinkComparePreviewSource.IsChecked = False
+                LocationInfoViewer.Document = LocationDataFlowDoc
+                LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.TwoPage
+            Else
+                LocationDataPreviewSource.IsChecked = False
+                LinkCompareFlowDoc = CreateLinkCompareDocument()
+                LocationInfoViewer.Document = LinkCompareFlowDoc
+                LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.Scroll
+            End If
+        Else
+            sender.IsChecked = True
+        End If
+    End Sub
+
+
+    Private Sub ItemListPreviewMouseMove(sender As Object, e As MouseEventArgs) Handles item1.PreviewMouseMove
+        If (e.LeftButton = MouseButtonState.Pressed) Then
+
+            Dim data As New DataObject()
+            data.SetData(DataFormats.StringFormat, e.OriginalSource.Text)
+
+            DragDrop.DoDragDrop(sender, data, DragDropEffects.Copy Or DragDropEffects.Move)
+        End If
+    End Sub
+
+    Private Sub DragAndDropStack_Drop(sender As Object, e As DragEventArgs) Handles MainChassisDropPanel.Drop
+        If (e.Data.GetDataPresent(DataFormats.StringFormat)) Then
+            Dim dataString As String = e.Data.GetData(DataFormats.StringFormat)
+            Console.WriteLine(dataString)
+        End If
+
+        e.Handled = True
     End Sub
 End Class

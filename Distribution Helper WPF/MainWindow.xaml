@@ -12,6 +12,7 @@
         xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit" 
         xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit" 
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:visualizationToolkit="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
         x:Name="Distribution_Helper" 
         x:Class="MainWindow"
         GlowBrush="{DynamicResource AccentColorBrush}"
@@ -31,8 +32,7 @@
                          XPath="states/state"/>
         <local:DistributionsDataSet x:Key="DistributionsDataSet"/>
         <CollectionViewSource x:Key="DistributionsViewSource" 
-                              Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}">
-        </CollectionViewSource>
+                              Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}"/>
         <SolidColorBrush x:Key="HeaderColor" Color="#147FAC" />
     </Controls:MetroWindow.Resources>
     <Grid x:Name="FormGrid" 
@@ -83,6 +83,20 @@
                 <MenuItem Header="_Location Files" 
                           x:Name="PrintLocFilesMenuItem"
                           IsEnabled="False"/>
+                <Separator />
+                <MenuItem Header="_Preview" 
+                          x:Name="PreviewSourceMenuItem" >
+                    <MenuItem Header="_Location Data" 
+                              x:Name="LocationDataPreviewSource"
+                              IsCheckable="True"
+                              Click="ValidatePreviewGroup" 
+                              IsChecked="True"/>
+                    <MenuItem Header="_Remote Comparison" 
+                              x:Name="LinkComparePreviewSource"
+                              IsCheckable="True"
+                              Click="ValidatePreviewGroup" 
+                              IsChecked="False"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Database"
                       x:Name="DatabaseMenu"
@@ -193,7 +207,7 @@
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="Background" 
-                            Value="#252525"></Setter>
+                            Value="#252525"/>
                 </Style>
             </TabControl.Resources>
             <TabItem x:Name="DistributionTab" 
@@ -419,8 +433,7 @@
                              FontStyle="Normal"
                              MouseEnter="Text_MouseEnter" 
                              MouseLeave="Text_MouseLeave" 
-                             Tag="Choose shipping method">
-                    </ComboBox>
+                             Tag="Choose shipping method"/>
                     <Separator Grid.Row="15" 
                                Grid.Column="1"
                                Grid.ColumnSpan="7"
@@ -551,8 +564,7 @@
                                Grid.ColumnSpan="6" 
                                Grid.RowSpan="4" 
                                Orientation="Vertical" 
-                               Visibility="Hidden">
-                    </WrapPanel>
+                               Visibility="Hidden"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="PrintPreviewTab" 
@@ -586,17 +598,95 @@
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
                      Visibility="Hidden"
-                     FlowDirection="LeftToRight">
-                
-            </TabItem>
+                     FlowDirection="LeftToRight"/>
             <TabItem x:Name="ProgramRevisionsTab" 
                      Header="Revisions" 
-                     Tag="Create revision reports and/or backups" 
+                     Tag="Create comparison reports, software revision reports, and/or zips (backups)" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
                      Visibility="Hidden"
+                     FlowDirection="LeftToRight"/>
+            <TabItem x:Name="LinkCompareTab" 
+                     Header="Links" 
+                     Tag="Use the link compare tool" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Visible"
+                     IsSelected="True"
                      FlowDirection="LeftToRight">
-
+                <Grid x:Name="LinksTabGrid"
+                      Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="90" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <ListView x:Name="ChassisListView"
+                              Grid.Row="1"
+                              Grid.RowSpan="10"
+                              Grid.Column="1"
+                              Grid.ColumnSpan="2"
+                              BorderBrush="{StaticResource HeaderColor}"
+                              BorderThickness="2"
+                              Background="{StaticResource HeaderColor}"
+                              Foreground="AntiqueWhite"
+                              FontFamily="Courier New"
+                              FontSize="16"
+                              Tag="Drag and drop these items to where they belong on the network map"
+                              MouseEnter="Text_MouseEnter"
+                              MouseLeave="Text_MouseLeave">
+                        <ListViewItem x:Name="item1"
+                                      PreviewMouseMove="ItemListPreviewMouseMove"
+                                      Background="Transparent">Item 1
+                        </ListViewItem>
+                        <ListViewItem x:Name="item2"
+                                      PreviewMouseMove="ItemListPreviewMouseMove"
+                                      Background="Transparent">Item 2
+                        </ListViewItem>
+                        <ListViewItem x:Name="item3"
+                                      PreviewMouseMove="ItemListPreviewMouseMove"
+                                      Background="Transparent">Item 3
+                        </ListViewItem>
+                        <ListViewItem x:Name="item4"
+                                      PreviewMouseMove="ItemListPreviewMouseMove"
+                                      Background="Transparent">Item 4
+                        </ListViewItem>
+                    </ListView>
+                    <StackPanel x:Name="MainChassisDropPanel"
+                                    Grid.Row="5"
+                                    Grid.Column="4"
+                                    Tag="Main House"
+                                    AllowDrop="True"
+                                    Drop="DragAndDropStack_Drop">
+                        <Image x:Name="MainHouseDropImage"
+                               Source="resources\orange-hub.png" 
+                               Stretch="UniformToFill"/>
+                    </StackPanel>
+                </Grid>
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="5"
@@ -629,8 +719,7 @@
                              Height="28" 
                              BorderThickness="1"
                              Background="WhiteSmoke"
-                             Visibility="Hidden">
-                </ProgressBar>
+                             Visibility="Hidden"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

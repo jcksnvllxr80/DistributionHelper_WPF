@@ -32,9 +32,9 @@
     End Function
 
 
-    Public Function SetCustomer(customer As String)
+    Public Sub SetCustomer(customer As String)
         Me.Customer = customer
-    End Function
+    End Sub
 
 
     Public Function GetCustomer() As String
