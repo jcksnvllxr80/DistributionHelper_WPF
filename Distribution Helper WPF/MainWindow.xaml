@@ -94,6 +94,7 @@
                     <MenuItem Header="_Remote Comparison" 
                               x:Name="LinkComparePreviewSource"
                               IsCheckable="True"
+                              IsEnabled="False"
                               Click="ValidatePreviewGroup" 
                               IsChecked="False"/>
                 </MenuItem>
@@ -216,6 +217,7 @@
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave"
                      FlowDirection="LeftToRight"
+                     IsSelected="True"
                      Visibility="Hidden" >
                 <Grid x:Name="DistributionTabGrid"
                       Visibility="Hidden">
@@ -569,7 +571,7 @@
             </TabItem>
             <TabItem x:Name="PrintPreviewTab" 
                      Header="Preview" 
-                     Tag="View the data extracted from this location" 
+                     Tag="View the data extracted from this location or the link conpare report" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave"
                      FlowDirection="LeftToRight"
@@ -611,18 +613,14 @@
                      Tag="Use the link compare tool" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
-                     Visibility="Visible"
-                     IsSelected="True"
+                     Visibility="Hidden"
                      FlowDirection="LeftToRight">
                 <Grid x:Name="LinksTabGrid"
-                      Visibility="Visible">
+                      Visibility="Hidden">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="90" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -647,45 +645,94 @@
                     </Grid.ColumnDefinitions>
                     <ListView x:Name="ChassisListView"
                               Grid.Row="1"
-                              Grid.RowSpan="10"
+                              Grid.RowSpan="7"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
                               BorderBrush="{StaticResource HeaderColor}"
                               BorderThickness="2"
                               Background="{StaticResource HeaderColor}"
-                              Foreground="AntiqueWhite"
+                              Foreground="White"
                               FontFamily="Courier New"
                               FontSize="16"
                               Tag="Drag and drop these items to where they belong on the network map"
                               MouseEnter="Text_MouseEnter"
                               MouseLeave="Text_MouseLeave">
-                        <ListViewItem x:Name="item1"
-                                      PreviewMouseMove="ItemListPreviewMouseMove"
-                                      Background="Transparent">Item 1
-                        </ListViewItem>
-                        <ListViewItem x:Name="item2"
-                                      PreviewMouseMove="ItemListPreviewMouseMove"
-                                      Background="Transparent">Item 2
-                        </ListViewItem>
-                        <ListViewItem x:Name="item3"
-                                      PreviewMouseMove="ItemListPreviewMouseMove"
-                                      Background="Transparent">Item 3
-                        </ListViewItem>
-                        <ListViewItem x:Name="item4"
-                                      PreviewMouseMove="ItemListPreviewMouseMove"
-                                      Background="Transparent">Item 4
-                        </ListViewItem>
                     </ListView>
+                    <Button x:Name="RefreshLinksButton"
+                            Grid.Row="7"
+                            Grid.Column="3"
+                            Width="70"
+                            Height="30"
+                            FontSize="12"
+                            Click="RefreshLinksList"
+                            VerticalAlignment="Bottom"
+                            Background="Firebrick"
+                            Content="Refresh"/>
+                    <Button x:Name="CompareLinksButton"
+                            Grid.Row="7"
+                            Grid.Column="4"
+                            Width="70"
+                            Height="30"
+                            FontSize="12"
+                            Click="CreateLinkCompareFile"
+                            VerticalAlignment="Bottom"
+                            Background="Firebrick"
+                            Content="Compare"/>
+                    <CheckBox x:Name="CombinedRptCheckBox"
+                              Grid.Row="7"
+                              Grid.Column="1"
+                              Grid.ColumnSpan="2"
+                              Width="Auto"
+                              Height="30"
+                              FontSize="12"
+                              IsChecked="True"
+                              VerticalAlignment="Bottom"
+                              HorizontalAlignment="Center"
+                              Content="Combined RPT"/>
+                              
                     <StackPanel x:Name="MainChassisDropPanel"
-                                    Grid.Row="5"
-                                    Grid.Column="4"
-                                    Tag="Main House"
-                                    AllowDrop="True"
-                                    Drop="DragAndDropStack_Drop">
+                                Grid.Row="2"
+                                Grid.Column="7"
+                                Tag="Main Chassis"
+                                AllowDrop="True"
+                                Drop="DragAndDropStack_Drop"
+                                DragOver="DropPanel_DragOver"
+                                DragLeave="DropPanel_DragLeave">
                         <Image x:Name="MainHouseDropImage"
-                               Source="resources\orange-hub.png" 
-                               Stretch="UniformToFill"/>
+                               Source="resources\red_house.png" 
+                               Stretch="Fill">
+                        </Image>
                     </StackPanel>
+                    <Label x:Name="MainHouseDropLabel"
+                           Tag="Main Chassis"
+                           Grid.Row="3"
+                           Grid.Column="7"
+                           FontSize="13"
+                           HorizontalContentAlignment="Center">
+                        <TextBlock Text="Main Chassis"/>
+                    </Label>
+                    <Grid x:Name="RemoteLinkGrid"
+                          Grid.Row="4"
+                          Grid.RowSpan="3"
+                          Grid.Column="3"
+                          Grid.ColumnSpan="9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                    </Grid>
                 </Grid>
             </TabItem>
         </TabControl>

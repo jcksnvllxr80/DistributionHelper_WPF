@@ -6,7 +6,6 @@ Imports Microsoft.Office.Interop
 'Imports Xceed.Wpf.Toolkit
 
 
-
 Class MainWindow
     Inherits MetroWindow
 
@@ -20,7 +19,7 @@ Class MainWindow
     Dim user As UserObject
     Dim LocationDataFlowDoc As FlowDocument = Nothing
     Dim LinkCompareFlowDoc As FlowDocument = Nothing
-    Dim startPoint As Object
+    Dim startPoint As Object 'for Drag and Drop purposes
 
     Public Sub New()
 
@@ -357,7 +356,68 @@ Class MainWindow
     End Function
 
 
-    Private Sub FindFilesAndCreateProgramSelectWindow()
+    Private Sub AddChassisToLinksTab()
+        ChassisListView.Items.Clear()
+        Dim currentChassis = DistributionPrograms.First
+        Do While currentChassis IsNot Nothing
+            'currentChassis.Value
+            Dim chassisListItem As New ListViewItem
+            chassisListItem.Content = currentChassis.Value.GetName()
+            chassisListItem.Background = Media.Brushes.Transparent
+            AddHandler chassisListItem.PreviewMouseMove, AddressOf ItemListPreviewMouseMove
+            ChassisListView.Items.Add(chassisListItem)
+            currentChassis = currentChassis.Next
+        Loop
+    End Sub
+
+
+    Private Sub AddDropPanelsForRemoteChassis(numberOfRemotes As Short)
+        Dim NumRemotesQuotient As Integer
+        If numberOfRemotes > 1 Then
+            NumRemotesQuotient = Int(8 / numberOfRemotes)
+        Else
+            NumRemotesQuotient = 5
+        End If
+
+        For i = 1 To numberOfRemotes
+            Dim myRemoteImage As New System.Windows.Controls.Image()
+            'myRemoteImage.Name = "RemoteHouseDropImage"
+            myRemoteImage.Source = New BitmapImage(New Uri("resources\blu_house.png", UriKind.Relative))
+            myRemoteImage.Stretch = Stretch.Fill
+
+            Dim remoteDropPanel As New StackPanel
+            remoteDropPanel.Name = "Remote" & i & "DropPanel"
+            remoteDropPanel.Tag = "Remote" & i
+            remoteDropPanel.AllowDrop = True
+            remoteDropPanel.Children.Add(myRemoteImage)
+            AddHandler remoteDropPanel.Drop, AddressOf DragAndDropStack_Drop
+            AddHandler remoteDropPanel.DragOver, AddressOf DropPanel_DragOver
+            AddHandler remoteDropPanel.DragLeave, AddressOf DropPanel_DragLeave
+
+            Dim myTextBlock As New TextBlock
+
+            Dim remoteLabel As New Label
+            remoteLabel.Tag = remoteDropPanel.Tag
+            remoteLabel.FontSize = 13
+            remoteLabel.HorizontalContentAlignment = HorizontalAlignment.Center
+            remoteLabel.Content = myTextBlock '"Remote " & i
+            remoteLabel.Content.Text = "Remote " & i
+
+            Dim ColumnLocation As Integer = NumRemotesQuotient + 2 * (i - 1) - 1
+            If ColumnLocation < 0 Then
+                ColumnLocation = 0
+            End If
+            RemoteLinkGrid.Children.Add(remoteDropPanel)
+            Grid.SetRow(remoteDropPanel, 1)
+            Grid.SetColumn(remoteDropPanel, ColumnLocation)
+            RemoteLinkGrid.Children.Add(remoteLabel)
+            Grid.SetRow(remoteLabel, 2)
+            Grid.SetColumn(remoteLabel, ColumnLocation)
+        Next
+    End Sub
+
+
+    Private Sub FindFilesAndCreateProgramSelectPanel()
         StatusLabel.Text = "Looking for software to distribute..."
         Dim j = 0
         Dim filesys = CreateObject("Scripting.FileSystemObject")
@@ -366,6 +426,8 @@ Class MainWindow
             DistributionTabGrid.Visibility = Visibility.Visible
             DistributionPrograms.Clear()
             ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
+            ChassisListView.Items.Clear()
+            RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
 
             Dim Folder = filesys.getfolder(Me.DistroPathText.Text)
             For Each File In Folder.Files
@@ -572,7 +634,7 @@ Class MainWindow
         StatusLabel.Text = tempInfoString
         If Not FilesDirectory = "" Then
             DistroPathText.Text = FilesDirectory
-            FindFilesAndCreateProgramSelectWindow()
+            FindFilesAndCreateProgramSelectPanel()
         End If
     End Sub
 
@@ -656,44 +718,6 @@ Class MainWindow
         paragraph.Inlines.Add(ProgInfoStr)
         Return New FlowDocument(paragraph)
     End Function
-
-
-    Private Function CreateLinkCompareDocument() As FlowDocument
-        Dim DocFont As New Font("Arial", 12)
-        Dim ProgInfoStr = My.Computer.FileSystem.ReadAllText("C:\LinkCompare\201711021533  remoteComparisonOutputFile.txt")
-        Dim paragraph As New Paragraph
-        paragraph.Inlines.Add(ProgInfoStr)
-        Return New FlowDocument(paragraph)
-    End Function
-
-
-    Private Sub EnableDataViewFunctions()
-        DistributionDataLoaded = True
-        'Tabs.Visibility = Visibility.Visible
-        DistributionTab.Visibility = Visibility.Visible
-        DistributionTabGrid.Visibility = Visibility.Visible
-        LinkCompareTab.Visibility = Visibility.Visible
-
-        PrintMenu.IsEnabled = True
-        PrintToolBttn.IsEnabled = True
-        'PrintLocInfoMenuItem.IsEnabled = True
-
-        PrintPreviewTab.Visibility = Visibility.Visible
-        ProgramRevisionsTab.Visibility = Visibility.Visible
-        PrintingTab.Visibility = Visibility.Visible
-        LocationDataFlowDoc = CreateDistInfoDocument()
-        LocationInfoViewer.Document = LocationDataFlowDoc
-        'SaveToolBttn.Enabled = True
-        'SaveMenuItem.Enabled = True
-        'SaveAsMenuItem.Enabled = True
-
-        If Me.CustomerComboBox.Text.Trim = "" Or Me.InternalJobNumComboBox.Text.Trim = "" Or Me.LocationNameText.Text.Trim = "" Then
-            tempInfoString = "Fill customer, internal job number, and location name fields."
-            StatusLabel.Text = tempInfoString
-        Else
-            EnableCreationControls()
-        End If
-    End Sub
 
 
     Private Function GetNextReaderNum() As String
@@ -786,6 +810,44 @@ Class MainWindow
     End Sub
 
 
+    Private Sub EnableDataViewFunctions()
+        DistributionDataLoaded = True
+        'Tabs.Visibility = Visibility.Visible
+        DistributionTab.Visibility = Visibility.Visible
+        DistributionTabGrid.Visibility = Visibility.Visible
+
+        LinkCompareTab.Visibility = Visibility.Visible
+        If DistributionPrograms.Count > 1 Then
+            LinksTabGrid.Visibility = Visibility.Visible
+            RemoteLinkGrid.Visibility = Visibility.Visible
+            AddChassisToLinksTab()
+        Else
+            LinksTabGrid.Visibility = Visibility.Hidden
+            RemoteLinkGrid.Visibility = Visibility.Hidden
+        End If
+
+        PrintMenu.IsEnabled = True
+        PrintToolBttn.IsEnabled = True
+        'PrintLocInfoMenuItem.IsEnabled = True
+
+        PrintPreviewTab.Visibility = Visibility.Visible
+        ProgramRevisionsTab.Visibility = Visibility.Visible
+        PrintingTab.Visibility = Visibility.Visible
+        LocationDataFlowDoc = CreateDistInfoDocument()
+        LocationInfoViewer.Document = LocationDataFlowDoc
+        'SaveToolBttn.Enabled = True
+        'SaveMenuItem.Enabled = True
+        'SaveAsMenuItem.Enabled = True
+
+        If Me.CustomerComboBox.Text.Trim = "" Or Me.InternalJobNumComboBox.Text.Trim = "" Or Me.LocationNameText.Text.Trim = "" Then
+            tempInfoString = "Fill customer, internal job number, and location name fields."
+            StatusLabel.Text = tempInfoString
+        Else
+            EnableCreationControls()
+        End If
+    End Sub
+
+
     Private Sub DisableDataViewFunctions()
         DistributionDataLoaded = False
 
@@ -796,7 +858,11 @@ Class MainWindow
         PrintPreviewTab.Visibility = Visibility.Hidden
         ProgramRevisionsTab.Visibility = Visibility.Hidden
         PrintingTab.Visibility = Visibility.Hidden
+
+        LinkComparePreviewSource.IsEnabled = False
         LinkCompareTab.Visibility = Visibility.Hidden
+        LinksTabGrid.Visibility = Visibility.Hidden
+        RemoteLinkGrid.Visibility = Visibility.Hidden
 
         'SaveToolBttn.Enabled = False
         'SaveMenuItem.Enabled = False
@@ -954,7 +1020,7 @@ Class MainWindow
         If e.Key = Key.Enter Then
             If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
                 'Enter and path exists
-                FindFilesAndCreateProgramSelectWindow()
+                FindFilesAndCreateProgramSelectPanel()
                 tempInfoString = ""
                 StatusLabel.Text = tempInfoString
             Else
@@ -991,7 +1057,6 @@ Class MainWindow
                 LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.TwoPage
             Else
                 LocationDataPreviewSource.IsChecked = False
-                LinkCompareFlowDoc = CreateLinkCompareDocument()
                 LocationInfoViewer.Document = LinkCompareFlowDoc
                 LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.Scroll
             End If
@@ -1001,9 +1066,8 @@ Class MainWindow
     End Sub
 
 
-    Private Sub ItemListPreviewMouseMove(sender As Object, e As MouseEventArgs) Handles item1.PreviewMouseMove
-        If (e.LeftButton = MouseButtonState.Pressed) Then
-
+    Private Sub ItemListPreviewMouseMove(sender As Object, e As MouseEventArgs)
+        If (e.LeftButton = MouseButtonState.Pressed And Not e.OriginalSource.GetType.ToString.Equals("System.Windows.Controls.Border")) Then
             Dim data As New DataObject()
             data.SetData(DataFormats.StringFormat, e.OriginalSource.Text)
 
@@ -1011,12 +1075,202 @@ Class MainWindow
         End If
     End Sub
 
-    Private Sub DragAndDropStack_Drop(sender As Object, e As DragEventArgs) Handles MainChassisDropPanel.Drop
+
+    Private Sub DragAndDropStack_Drop(sender As Object, e As DragEventArgs)
+        Dim myStackPanel As StackPanel = sender
+        myStackPanel.Effect = Nothing
         If (e.Data.GetDataPresent(DataFormats.StringFormat)) Then
             Dim dataString As String = e.Data.GetData(DataFormats.StringFormat)
-            Console.WriteLine(dataString)
+            Console.WriteLine(dataString & " dropped on " & myStackPanel.Name)
+            If myStackPanel.Equals(MainChassisDropPanel) Then
+                Dim currentChassis = DistributionPrograms.First
+                Do While currentChassis IsNot Nothing
+                    If currentChassis.Value.getName.Equals(dataString) Then
+                        Dim numOfRemoteChassis = currentChassis.Value.FindRemoteInformation(CombinedRptCheckBox.IsChecked)
+                        AddDropPanelsForRemoteChassis(numOfRemoteChassis)
+                        Exit Do ' found which item was dropped on main chassis, stop searching
+                    End If
+                    currentChassis = currentChassis.Next
+                Loop
+                MainHouseDropLabel.Content.Text = dataString
+            Else
+                Dim currentChassis = DistributionPrograms.First
+                Do While currentChassis IsNot Nothing
+                    If currentChassis.Value.getName.Equals(dataString) Then
+                        'myStackPanel.Tag.ToString.Substring(myStackPanel.Tag.ToString.Length - 1)
+                        currentChassis.Value.FindRemoteInformation(CombinedRptCheckBox.IsChecked, myStackPanel.Tag.ToString.Substring(myStackPanel.Tag.ToString.Length - 1))
+                        Exit Do ' found the label matching the drop panel, stop searching
+                    End If
+                    currentChassis = currentChassis.Next
+                Loop
+                For Each remoteLabel In RemoteLinkGrid.FindChildren(Of Label)
+                    If myStackPanel.Tag = remoteLabel.Tag Then
+                        remoteLabel.Content.Text = dataString
+                        Exit For ' found the label matching the drop panel, stop searching
+                    End If
+                Next
+            End If
+            For Each item In ChassisListView.Items
+                If item.Content.ToString.Equals(dataString.ToString) Then
+                    ChassisListView.Items.Remove(item)
+                    Exit For ' found the item to remove from chassis list view, stop searching
+                End If
+            Next
         End If
-
         e.Handled = True
+    End Sub
+
+
+    Private Sub RefreshLinksList()
+        ChassisListView.Items.Clear()
+        RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
+        AddChassisToLinksTab()
+        MainHouseDropLabel.Content.Text = "Main Chassis"
+    End Sub
+
+
+    Private Sub DropPanel_DragOver(sender As Object, e As DragEventArgs)
+        AddDropSpotBlurEffect(sender)
+    End Sub
+
+
+    Private Sub DropPanel_DragLeave(sender As Object, e As DragEventArgs)
+        Dim myStackPanel As StackPanel = sender
+        myStackPanel.Effect = Nothing
+    End Sub
+
+
+    Private Sub AddDropSpotBlurEffect(sender As Object)
+        Dim myStackPanel As StackPanel = sender
+
+        ' BLUR
+        Dim myEffect As New Effects.BlurEffect
+        myEffect.Radius = "2"
+        myEffect.KernelType = Effects.KernelType.Box
+
+        ' SHADOW
+        'Dim myEffect As New Effects.DropShadowEffect
+        'myEffect.BlurRadius = "3"
+        'myEffect.Color = Colors.Black
+
+        myStackPanel.Effect = myEffect
+    End Sub
+
+
+    Private Function GetTimeStamp()
+        Dim monthStr, dayStr, militaryHour, militaryMin As String
+        Dim militaryTime
+        If Len(Month(Now)) = 1 Then
+            monthStr = "0" & Month(Now)
+        Else
+            monthStr = Month(Now)
+        End If
+        If Len(Day(Now)) = 1 Then
+            dayStr = "0" & Day(Now)
+        Else
+            dayStr = Day(Now)
+        End If
+        militaryTime = Split(FormatDateTime(Now, vbShortTime), ":")
+        militaryHour = militaryTime(0)
+        If Len(militaryTime(0)) = 1 Then
+            militaryHour = "0" & militaryTime(0)
+        Else
+            militaryHour = militaryTime(0)
+        End If
+        If Len(militaryTime(1)) = 1 Then
+            militaryMin = "0" & militaryTime(1)
+        Else
+            militaryMin = militaryTime(1)
+        End If
+        Return Year(Now) & monthStr & dayStr & militaryHour & militaryMin & " "
+    End Function
+
+
+    Private Sub CreateLinkCompareFile()
+        Dim mainChassis As ElectroLogIXS = Nothing
+        For Each chassis In DistributionPrograms
+            If chassis.GetRemoteNum = 0 Then
+                mainChassis = chassis
+                Exit For 'found main chassis
+            End If
+        Next
+        If mainChassis IsNot Nothing Then
+            Dim myFilePath As String = "C:\MT\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Comparison Report.txt"
+            Using outputFile As StreamWriter = New StreamWriter(myFilePath, True)
+                For i = 0 To mainChassis.GetLinkUpStatus.Count - 1
+                    Dim mainLinkInfoArray = Split(mainChassis.GetLinkSetup(i), "       ")
+                    If UBound(mainLinkInfoArray) < 0 Then
+                        Exit For
+                    End If
+                    outputFile.WriteLine("Main Link " & i + 1 & " Information:")
+                    'Console.WriteLine("Main Link " & i + 1 & " Information:")
+                    For j = 0 To UBound(mainLinkInfoArray)
+                        outputFile.WriteLine(Trim(mainLinkInfoArray(j)))
+                        'Console.WriteLine(Trim(mainLinkInfoArray(j)))
+                    Next
+                    outputFile.WriteLine("")
+                    'Console.WriteLine("")
+
+                    Dim remoteChassis As ElectroLogIXS = Nothing
+                    For Each chassis In DistributionPrograms
+                        If chassis.GetRemoteNum = i + 1 Then
+                            remoteChassis = chassis
+                            Exit For 'found remote chassis
+                        End If
+                    Next
+                    Dim remoteLinkInfoArray = Split(remoteChassis.GetLinkSetup(0), "       ")
+                    outputFile.WriteLine("Remote " & i + 1 & " Link Information:")
+                    'Console.WriteLine("Remote " & i + 1 & " Link Information:")
+                    For j = 0 To UBound(remoteLinkInfoArray)
+                        outputFile.WriteLine(Trim(remoteLinkInfoArray(j)))
+                        'Console.WriteLine(Trim(remoteLinkInfoArray(j)))
+                    Next
+
+                    outputFile.WriteLine(vbCrLf & "Linkup Status: (Main) " & mainChassis.GetLinkUpStatus(i) & "   (Remote) " & remoteChassis.GetLinkUpStatus(0) & vbCrLf)
+                    'Console.WriteLine(vbCrLf & "Linkup Status: (Main) " & mainChassis.GetLinkUpStatus(i) & "   (Remote) " & remoteChassis.GetLinkUpStatus(0) & vbCrLf)
+                    Dim NumInputBits = mainChassis.GetNumInputWords(i) * 8
+                    outputFile.WriteLine(vbTab & "M Inputs" & vbTab & "R Outputs")
+                    outputFile.WriteLine("____________________________")
+                    'Console.WriteLine(vbTab & "M Inputs" & vbTab & "R Outputs")
+                    'Console.WriteLine("____________________________")
+                    For j = 1 To NumInputBits
+                        If Len(mainChassis.GetInputs(i)(j)) > 7 Then
+                            outputFile.WriteLine(j & ". " & vbTab & mainChassis.GetInputs(i)(j) & "  " & vbTab & remoteChassis.GetOutputs(0)(j))
+                            'Console.WriteLine(j & ". " & vbTab & mainChassis.GetInputs(i)(j) & "  " & vbTab & remoteChassis.GetOutputs(0)(j))
+                        Else
+                            outputFile.WriteLine(j & ". " & vbTab & mainChassis.GetInputs(i)(j) & vbTab & vbTab & remoteChassis.GetOutputs(0)(j))
+                            'Console.WriteLine(j & ". " & vbTab & mainChassis.GetInputs(i)(j) & vbTab & vbTab & remoteChassis.GetOutputs(0)(j))
+                        End If
+                    Next
+                    Dim NumOutputBits = mainChassis.GetNumOutputWords(i) * 8
+                    outputFile.WriteLine(vbCrLf & vbTab & "M Outputs" & vbTab & "R Inputs")
+                    outputFile.WriteLine("____________________________")
+                    'Console.WriteLine(vbCrLf & vbTab & "M Outputs" & vbTab & "R Inputs")
+                    'Console.WriteLine("____________________________")
+                    For j = 1 To NumOutputBits
+                        If Len(mainChassis.GetOutputs(i)(j)) > 7 Then
+                            outputFile.WriteLine(j & ". " & vbTab & mainChassis.GetOutputs(i)(j) & "  " & vbTab & remoteChassis.GetInputs(0)(j))
+                            'Console.WriteLine(j & ". " & vbTab & mainChassis.GetOutputs(i)(j) & "  " & vbTab & remoteChassis.GetInputs(0)(j))
+                        Else
+                            outputFile.WriteLine(j & ". " & vbTab & mainChassis.GetOutputs(i)(j) & vbTab & vbTab & remoteChassis.GetInputs(0)(j))
+                            'Console.WriteLine(j & ". " & vbTab & mainChassis.GetOutputs(i)(j) & vbTab & vbTab & remoteChassis.GetInputs(0)(j))
+                        End If
+                    Next
+                    outputFile.WriteLine(vbCrLf & vbCrLf)
+                    'Console.WriteLine(vbCrLf & vbCrLf)
+                Next
+
+                outputFile.Close()
+                'Dim DocFont As New Font("Arial", 12)
+                Dim ProgInfoStr = My.Computer.FileSystem.ReadAllText(myFilePath)
+                Dim paragraph As New Paragraph
+                paragraph.Inlines.Add(ProgInfoStr)
+                LinkCompareFlowDoc = New FlowDocument(paragraph)
+                LinkCompareFlowDoc.FontFamily = New System.Windows.Media.FontFamily("Consolas")
+                LinkCompareFlowDoc.FontSize = 14
+                LinkCompareFlowDoc.FontStyle = FontStyles.Normal
+                LinkComparePreviewSource.IsEnabled = True
+            End Using
+        End If
     End Sub
 End Class

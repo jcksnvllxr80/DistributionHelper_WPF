@@ -200,7 +200,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Resource Include="resources\orange-hub.png" />
+    <Resource Include="resources\red_house.png" />
+    <Resource Include="resources\blu_house.png" />
     <Content Include="resources\States.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

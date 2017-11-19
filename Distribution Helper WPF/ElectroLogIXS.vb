@@ -8,6 +8,13 @@
     Private NV_ValCrc As String
     Private ConsSum As String
     Private ConsCRC As String
+    Private rptPathAndName As String
+    Private combinedRPT As Boolean
+    Private remoteNum As Short
+    Private LinkUpStatus, Inputs, Outputs, linkSetup,
+        InternalNetID, ExternalNetID, NumInputWords,
+        NumOutputWords As New ArrayList
+
 
     Public Sub New(filename As String, path As String)
         MyBase.New(filename, path, "ElectroLogIXS")
@@ -15,6 +22,46 @@
         Me.ReadConsFile()
         Me.GetValidationCRCs()
     End Sub
+
+    Public Function GetLinkUpStatus() As ArrayList
+        Return Me.LinkUpStatus
+    End Function
+
+    Public Function GetInputs() As ArrayList
+        Return Me.Inputs
+    End Function
+
+    Public Function GetOutputs() As ArrayList
+        Return Me.Outputs
+    End Function
+
+    Public Function GetLinkSetup() As ArrayList
+        Return Me.linkSetup
+    End Function
+
+    Public Function GetInternalNetID() As ArrayList
+        Return Me.InternalNetID
+    End Function
+
+    Public Function GetExternalNetID() As ArrayList
+        Return Me.ExternalNetID
+    End Function
+
+    Public Function GetNumInputWords() As ArrayList
+        Return Me.NumInputWords
+    End Function
+
+    Public Function GetNumOutputWords() As ArrayList
+        Return Me.NumOutputWords
+    End Function
+
+    Public Function IsCombinedRPT() As String
+        Return Me.combinedRPT
+    End Function
+
+    Public Function GetRemoteNum() As Short
+        Return Me.remoteNum
+    End Function
 
     Public Sub SetNV_Checksum(chksum As String)
         Me.NV_Checksum = chksum
@@ -185,7 +232,168 @@
         Catch ex As Exception
             MsgBox("Error:" & vbCrLf & ex.Message)
         End Try
+    End Sub
 
+
+    Public Overloads Function FindRemoteInformation(combinedReport As Boolean) As Short
+        ClearRemoteProperties()
+        Dim fileEnding = ""
+        If Not combinedReport Then
+            fileEnding = "v"
+        End If
+        Me.rptPathAndName = Me.GetPath & "\" & Me.GetName & fileEnding & ".rpt"
+        Me.combinedRPT = combinedReport
+        Me.remoteNum = 0
+        FindVitalLinkInfo()
+        FindVitalLinkStatuses()
+        Return LinkUpStatus.Count
+    End Function
+
+
+    Public Overloads Sub FindRemoteInformation(combinedReport As Boolean, remoteNumber As Short)
+        ClearRemoteProperties()
+        Dim fileEnding = ""
+        If Not combinedReport Then
+            fileEnding = "v"
+        End If
+        Me.rptPathAndName = Me.GetPath & "\" & Me.GetName & fileEnding & ".rpt"
+        Me.combinedRPT = combinedReport
+        Me.remoteNum = remoteNumber
+        FindVitalLinkInfo()
+        FindVitalLinkStatuses()
+    End Sub
+
+
+    Private Sub ClearRemoteProperties()
+        remoteNum = Nothing
+        LinkUpStatus.Clear()
+        Inputs.Clear()
+        Outputs.Clear()
+        linkSetup.Clear()
+        InternalNetID.Clear()
+        ExternalNetID.Clear()
+        NumInputWords.Clear()
+        NumOutputWords.Clear()
+    End Sub
+
+
+    Private Sub FindVitalLinkInfo()
+        Dim fso = CreateObject("Scripting.FileSystemObject")
+        Dim rptFile = fso.OpenTextFile(rptPathAndName)
+        Do Until rptFile.AtEndOfStream
+            Dim nextLine = rptFile.ReadLine
+            If InStr(nextLine, "Port 3  Network ID: ") <> 0 Then
+                Do
+                    nextLine = rptFile.ReadLine
+                Loop While InStr(nextLine, "Mode: ") = 0
+                For i = 0 To 10
+                    Dim linkSetupStr = ""
+                    If InStr(nextLine, "Mode: ") <> 0 Then
+                        linkSetupStr = linkSetupStr & "  " & nextLine
+                    ElseIf InStr(nextLine, "Port ") <> 0 And InStr(nextLine, "Remote ") <> 0 Then
+                        Exit For
+                    ElseIf InStr(nextLine, "ACE Version:") <> 0 Then
+                        If combinedRPT Then
+                            Do
+                                nextLine = rptFile.ReadLine
+                            Loop While InStr(nextLine, "NV-EPT CHECKSUM ") = 0
+                        Else
+                            Do
+                                nextLine = rptFile.ReadLine
+                            Loop While InStr(nextLine, "V-EPT CHECKSUM ") = 0
+                        End If
+                    End If
+                    nextLine = rptFile.ReadLine
+                    Do
+                        If InStr(nextLine, "ACE Version:") <> 0 Then
+                            If combinedRPT Then
+                                Do
+                                    nextLine = rptFile.ReadLine
+                                Loop While InStr(nextLine, "NV-EPT CHECKSUM ") = 0
+                            Else
+                                Do
+                                    nextLine = rptFile.ReadLine
+                                Loop While InStr(nextLine, "V-EPT CHECKSUM ") = 0
+                            End If
+                        ElseIf InStr(nextLine, "Network ID Min: ") <> 0 Then
+                            linkSetupStr = linkSetupStr & nextLine
+                            Dim NetIDs = Split(Trim(nextLine), "Local", 2)
+                            ExternalNetID.Add(Trim(Mid(NetIDs(0), InStr(NetIDs(0), "Min: ") + 4, InStr(NetIDs(0), "Network ID Max: ") - InStr(NetIDs(0), "Min: ") - 4)))
+                            InternalNetID.Add(Trim(Mid(NetIDs(1), InStr(NetIDs(1), "Min: ") + 4, InStr(NetIDs(1), "Host ") - InStr(NetIDs(1), "Min: ") - 4)))
+                        ElseIf InStr(nextLine, "Number Input Bytes: ") <> 0 Then
+                            linkSetupStr = linkSetupStr & nextLine
+                            Dim NumOfLinkWords = Split(Trim(nextLine), " ")
+                            NumInputWords.Add(CInt(NumOfLinkWords(3)))
+                            NumOutputWords.Add(CInt(NumOfLinkWords(8)))
+                        Else
+                            linkSetupStr = linkSetupStr & nextLine
+                        End If
+
+                        nextLine = rptFile.ReadLine
+                    Loop While InStr(nextLine, "Mode: ") = 0 And InStr(nextLine, "Vital Timer Summary") = 0 And InStr(nextLine, "Rate Table Report") = 0 And
+                        Not (InStr(nextLine, "Port ") <> 0 And InStr(nextLine, "Remote ") <> 0)
+                    linkSetup.Add(linkSetupStr)
+                Next
+            End If
+        Loop
+        rptFile.Close
+    End Sub
+
+
+    Private Sub FindVitalLinkStatuses()
+        Dim fso = CreateObject("Scripting.FileSystemObject")
+        Dim rptFile = fso.OpenTextFile(rptPathAndName)
+        Do Until rptFile.AtEndOfStream
+            Dim nextLine = rptFile.ReadLine
+            If InStr(nextLine, "Port 3") <> 0 And InStr(nextLine, "Remote ") <> 0 Then
+                For i = 0 To 10
+                    Dim InBitList(250) As String
+                    Dim OutBitList(250) As String
+
+                    If InStr(nextLine, "Port 3") <> 0 And InStr(nextLine, "Remote ") <> 0 Then
+
+                    ElseIf InStr(nextLine, "Vital Timer Summary") <> 0 Or InStr(nextLine, "Rate Table Report") <> 0 Then
+                        Exit For
+                    End If
+
+                    nextLine = rptFile.ReadLine
+                    Do
+                        If InStr(nextLine, "ACE Version:") <> 0 Then
+                            If combinedRPT Then
+                                Do
+                                    nextLine = rptFile.ReadLine
+                                Loop While InStr(nextLine, "NV-EPT CHECKSUM ") = 0
+                            Else
+                                Do
+                                    nextLine = rptFile.ReadLine
+                                Loop While InStr(nextLine, "V-EPT CHECKSUM ") = 0
+                            End If
+                        ElseIf InStr(nextLine, "Link Up ") <> 0 Then
+                            Dim LinkUpLine = Split(Trim(nextLine), "                   ")
+                            Dim LinkUp = Split(Trim(LinkUpLine(1)), "    ")
+                            Me.LinkUpStatus.Add(Trim(LinkUp(0)))
+                        ElseIf InStr(nextLine, "Input ") <> 0 Then
+                            Dim InputLine = Split(Trim(nextLine), "                  ", 2)
+                            Dim InputNumberStr = Split(Trim(InputLine(0)), " ")
+                            Dim InputNum = CInt(Trim(InputNumberStr(1)))
+                            Dim InputBitStr = Split(Trim(InputLine(1)), "     ")
+                            InBitList(InputNum) = (Trim(InputBitStr(0)))
+                        ElseIf InStr(nextLine, "Output ") <> 0 Then
+                            Dim OutputLine = Split(Trim(nextLine), "                  ", 2)
+                            Dim OutputNumberStr = Split(Trim(OutputLine(0)), " ")
+                            Dim OutputNum = CInt(Trim(OutputNumberStr(1)))
+                            Dim OutputBitStr = Split(Trim(OutputLine(1)), "     ")
+                            OutBitList(OutputNum) = (Trim(OutputBitStr(0)))
+                        End If
+                        nextLine = rptFile.ReadLine
+                    Loop While InStr(nextLine, "Vital Timer Summary") = 0 And InStr(nextLine, "Rate Table Report") = 0 And
+                        Not (InStr(nextLine, "Port 3") <> 0 And InStr(nextLine, "Remote ") <> 0)
+                    Me.Inputs.Add(InBitList)
+                    Me.Outputs.Add(OutBitList)
+                Next
+            End If
+        Loop
+        rptFile.Close
     End Sub
 
 End Class
