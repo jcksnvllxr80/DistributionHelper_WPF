@@ -19,9 +19,11 @@
         mc:Ignorable="d"
         Title="Distribution Helper" 
         Height="775" 
+        MinHeight="500"
         Width="1000" 
+        MinWidth="950"
         Opacity="0.951" 
-        AllowsTransparency="False" 
+        AllowsTransparency="False"
         Left="300"
         Top="300"
         Icon="resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
@@ -620,27 +622,27 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="88" />
+                        <RowDefinition MinHeight="32" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="88"/>
+                        <RowDefinition MinHeight="32" />
+                        <RowDefinition Height="32"/>
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width ="62.5" />
+                        <ColumnDefinition Width ="62.5" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
+                        <ColumnDefinition MinWidth ="88" />
                         <ColumnDefinition Width="5" />
                     </Grid.ColumnDefinitions>
                     <ListView x:Name="ChassisListView"
@@ -669,8 +671,8 @@
                             Background="Firebrick"
                             Content="Refresh"/>
                     <Button x:Name="CompareLinksButton"
-                            Grid.Row="7"
-                            Grid.Column="4"
+                            Grid.Row="6"
+                            Grid.Column="3"
                             Width="70"
                             Height="30"
                             FontSize="12"
@@ -689,7 +691,6 @@
                               VerticalAlignment="Bottom"
                               HorizontalAlignment="Center"
                               Content="Combined RPT"/>
-                              
                     <StackPanel x:Name="MainChassisDropPanel"
                                 Grid.Row="2"
                                 Grid.Column="7"
@@ -699,15 +700,20 @@
                                 DragOver="DropPanel_DragOver"
                                 DragLeave="DropPanel_DragLeave">
                         <Image x:Name="MainHouseDropImage"
-                               Source="resources\red_house.png" 
-                               Stretch="Fill">
+                               Source="resources\red_house_88x.png" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               Width="88" 
+                               Height="88" >
                         </Image>
                     </StackPanel>
                     <Label x:Name="MainHouseDropLabel"
                            Tag="Main Chassis"
                            Grid.Row="3"
                            Grid.Column="7"
+                           Foreground="DarkOliveGreen"
                            FontSize="13"
+                           VerticalContentAlignment="Top"
                            HorizontalContentAlignment="Center">
                         <TextBlock Text="Main Chassis"/>
                     </Label>
@@ -718,18 +724,20 @@
                           Grid.ColumnSpan="9">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="88" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="88" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                     </Grid>

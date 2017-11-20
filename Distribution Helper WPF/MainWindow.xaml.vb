@@ -382,7 +382,7 @@ Class MainWindow
         For i = 1 To numberOfRemotes
             Dim myRemoteImage As New System.Windows.Controls.Image()
             'myRemoteImage.Name = "RemoteHouseDropImage"
-            myRemoteImage.Source = New BitmapImage(New Uri("resources\blu_house.png", UriKind.Relative))
+            myRemoteImage.Source = New BitmapImage(New Uri("resources\blu_house_88x.png", UriKind.Relative))
             myRemoteImage.Stretch = Stretch.Fill
 
             Dim remoteDropPanel As New StackPanel
@@ -398,12 +398,14 @@ Class MainWindow
 
             Dim remoteLabel As New Label
             remoteLabel.Tag = remoteDropPanel.Tag
+            remoteLabel.Foreground = System.Windows.Media.Brushes.DarkOliveGreen
             remoteLabel.FontSize = 13
+            remoteLabel.VerticalContentAlignment = VerticalAlignment.Top
             remoteLabel.HorizontalContentAlignment = HorizontalAlignment.Center
             remoteLabel.Content = myTextBlock '"Remote " & i
             remoteLabel.Content.Text = "Remote " & i
 
-            Dim ColumnLocation As Integer = NumRemotesQuotient + 2 * (i - 1) - 1
+            Dim ColumnLocation As Integer = NumRemotesQuotient + 2 * (i - 1)
             If ColumnLocation < 0 Then
                 ColumnLocation = 0
             End If
@@ -1093,6 +1095,9 @@ Class MainWindow
                     currentChassis = currentChassis.Next
                 Loop
                 MainHouseDropLabel.Content.Text = dataString
+                MainHouseDropLabel.Foreground = System.Windows.Media.Brushes.White
+                MainHouseDropLabel.FontWeight = FontWeights.Bold
+                MainHouseDropLabel.FontSize = 14
             Else
                 Dim currentChassis = DistributionPrograms.First
                 Do While currentChassis IsNot Nothing
@@ -1106,6 +1111,9 @@ Class MainWindow
                 For Each remoteLabel In RemoteLinkGrid.FindChildren(Of Label)
                     If myStackPanel.Tag = remoteLabel.Tag Then
                         remoteLabel.Content.Text = dataString
+                        remoteLabel.Foreground = System.Windows.Media.Brushes.White
+                        remoteLabel.FontWeight = FontWeights.Bold
+                        remoteLabel.FontSize = 14
                         Exit For ' found the label matching the drop panel, stop searching
                     End If
                 Next
@@ -1126,6 +1134,9 @@ Class MainWindow
         RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
         AddChassisToLinksTab()
         MainHouseDropLabel.Content.Text = "Main Chassis"
+        MainHouseDropLabel.Foreground = System.Windows.Media.Brushes.DarkOliveGreen
+        MainHouseDropLabel.FontSize = 13
+        MainHouseDropLabel.FontWeight = FontWeights.Normal
     End Sub
 
 
