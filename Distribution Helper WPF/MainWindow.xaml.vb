@@ -1215,7 +1215,7 @@ Class MainWindow
             If Not Directory.Exists(newfolderpath) Then
                 Directory.CreateDirectory(newfolderpath)
             End If
-            Dim myFilePath As String = newfolderpath & "\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Comparison Report.txt"
+            Dim myFilePath As String = newfolderpath & "\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Link Comparison.txt"
             Using outputFile As StreamWriter = New StreamWriter(myFilePath, True)
                 For i = 0 To mainChassis.GetLinkUpStatus.Count - 1
                     Dim mainLinkInfoArray = Split(mainChassis.GetLinkSetup(i), "       ")
