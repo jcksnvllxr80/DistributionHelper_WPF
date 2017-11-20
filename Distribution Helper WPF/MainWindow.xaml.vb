@@ -1124,6 +1124,10 @@ Class MainWindow
                     Exit For ' found the item to remove from chassis list view, stop searching
                 End If
             Next
+            If ChassisListView.Items.IsEmpty Then
+                CompareLinksButton.IsEnabled = True
+            End If
+            RefreshLinksButton.IsEnabled = True
         End If
         e.Handled = True
     End Sub
@@ -1137,6 +1141,8 @@ Class MainWindow
         MainHouseDropLabel.Foreground = System.Windows.Media.Brushes.DarkOliveGreen
         MainHouseDropLabel.FontSize = 13
         MainHouseDropLabel.FontWeight = FontWeights.Normal
+        CompareLinksButton.IsEnabled = False
+        RefreshLinksButton.IsEnabled = False
     End Sub
 
 
@@ -1198,6 +1204,7 @@ Class MainWindow
 
 
     Private Sub CreateLinkCompareFile()
+        CompareLinksButton.IsEnabled = False
         Dim mainChassis As ElectroLogIXS = Nothing
         For Each chassis In DistributionPrograms
             If chassis.GetRemoteNum = 0 Then
