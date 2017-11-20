@@ -50,6 +50,7 @@ Class MainWindow
         Catch
             MsgBox("Server conection error.")
             Close()
+            Return Nothing
         End Try
     End Function
 
@@ -422,8 +423,7 @@ Class MainWindow
     Private Sub FindFilesAndCreateProgramSelectPanel()
         StatusLabel.Text = "Looking for software to distribute..."
         Dim j = 0
-        Dim filesys = CreateObject("Scripting.FileSystemObject")
-        If filesys.FolderExists(Me.DistroPathText.Text) Then
+        If Directory.Exists(Me.DistroPathText.Text) Then
             DistributionTab.Visibility = Visibility.Visible
             DistributionTabGrid.Visibility = Visibility.Visible
             DistributionPrograms.Clear()
@@ -431,8 +431,8 @@ Class MainWindow
             ChassisListView.Items.Clear()
             RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
 
-            Dim Folder = filesys.getfolder(Me.DistroPathText.Text)
-            For Each File In Folder.Files
+            For Each File In Directory.GetFiles(Me.DistroPathText.Text)
+                Dim filesys = CreateObject("Scripting.FileSystemObject")
                 Dim filetype = filesys.GetExtensionName(File)
                 Dim filename = filesys.GetFileName(File)
 
@@ -596,15 +596,15 @@ Class MainWindow
         'MsgBox(typeStr)
         Select Case typeStr
             Case ".CCF"
-                If System.IO.File.Exists(filePath & "\" & filename & ".H30") Then
+                If File.Exists(filePath & "\" & filename & ".H30") Then
                     program = New NonVitalHLC(filename, filePath, "ACE")
-                ElseIf System.IO.File.Exists(filePath & "\" & filename & ".H14") Then
+                ElseIf File.Exists(filePath & "\" & filename & ".H14") Then
                     program = New VitalHLC(filename, filePath, "ACE")
                 Else
                     program = New ElectroLogIXS(filename, filePath)
                 End If
             Case ".LOC"
-                If System.IO.File.Exists(filePath & "\" & filename & ".H30") Then
+                If File.Exists(filePath & "\" & filename & ".H30") Then
                     program = New NonVitalHLC(filename, filePath, "ALC")
                 Else
                     program = New VitalHLC(filename, filePath, "ALC")
@@ -1020,7 +1020,7 @@ Class MainWindow
 
     Private Sub MyHost_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles MyHost.PreviewKeyDown
         If e.Key = Key.Enter Then
-            If System.IO.Directory.Exists(Me.DistroPathText.Text) Then
+            If Directory.Exists(Me.DistroPathText.Text) Then
                 'Enter and path exists
                 FindFilesAndCreateProgramSelectPanel()
                 tempInfoString = ""
@@ -1206,7 +1206,16 @@ Class MainWindow
             End If
         Next
         If mainChassis IsNot Nothing Then
-            Dim myFilePath As String = "C:\MT\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Comparison Report.txt"
+            Dim newfolderpath As String = ""
+            If Directory.Exists("C:\") Then
+                newfolderpath = "C:\LinkCompare"
+            Else
+                newfolderpath = "D:\LinkCompare"
+            End If
+            If Not Directory.Exists(newfolderpath) Then
+                Directory.CreateDirectory(newfolderpath)
+            End If
+            Dim myFilePath As String = newfolderpath & "\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Comparison Report.txt"
             Using outputFile As StreamWriter = New StreamWriter(myFilePath, True)
                 For i = 0 To mainChassis.GetLinkUpStatus.Count - 1
                     Dim mainLinkInfoArray = Split(mainChassis.GetLinkSetup(i), "       ")
