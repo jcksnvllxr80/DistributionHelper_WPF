@@ -37,6 +37,9 @@
                               Source="{Binding Distributions, Source={StaticResource DistributionsDataSet}}"/>
         <SolidColorBrush x:Key="HeaderColor" Color="#147FAC" />
     </Controls:MetroWindow.Resources>
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
     <Grid x:Name="FormGrid" 
           Background="DarkGray">
         <Grid.RowDefinitions>

@@ -188,6 +188,8 @@ Class MainWindow
     Private Sub InsertDistInfoToDatabase()
         If locationInfo IsNot Nothing Then
             Me.ProgressBar.Visibility = Visibility.Visible
+            TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.Normal
+
             Dim myDate As Date = Me.DistributionDatePicker.DisplayDate
             InsertToDatabseBGWorker.RunWorkerAsync(myDate) ' this starts the background worker
         Else
@@ -231,12 +233,15 @@ Class MainWindow
         FillDataGridFromDB()
         Me.ProgressBar.Visibility = Visibility.Hidden
         Me.ProgressBar.Value = 0
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
+
     End Sub
 
 
     Private Sub BackgroundWorker_InsertionProgressChanged(ByVal sender As Object, ByVal e As ProgressChangedEventArgs)
         'this is called when the background worker is told to report progress
         Me.ProgressBar.Value = e.ProgressPercentage
+        TaskbarItemInfo.ProgressValue = CDbl(e.ProgressPercentage) / 100
     End Sub
 
 
@@ -498,6 +503,7 @@ Class MainWindow
 
     Private Sub BackgroundWorker_MiningProgressChanged(sender As Object, e As ProgressChangedEventArgs)
         Me.ProgressBar.Value = e.ProgressPercentage
+        TaskbarItemInfo.ProgressValue = CDbl(e.ProgressPercentage) / 100
         If Me.ProgressBar.Value = 20 Then
             Me.StatusLabel.Text = "Looking for info worksheet..."
         ElseIf Me.ProgressBar.Value = 35 Then
@@ -510,6 +516,8 @@ Class MainWindow
 
     Private Sub BackgroundWorker_MiningWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
         Me.ProgressBar.Visibility = Visibility.Hidden
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
+
         If locationInfo IsNot Nothing Then
             Me.CustomerJobNumComboBox.Text = locationInfo.GetCustomerNumber()
             Me.InternalJobNumComboBox.Text = locationInfo.GetInternalNumber()
@@ -534,6 +542,8 @@ Class MainWindow
     Private Sub OkButton_Click(sender As Object, e As EventArgs)
         Me.ProgressBar.Visibility = Visibility.Visible
         Me.ProgressBar.Value = 0
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.Normal
+
         Dim StrArray(2) As String
         Dim dirPathComponents = Split(Me.DistroPathText.Text, "\")
         If dirPathComponents.Length > 1 Then
@@ -793,6 +803,8 @@ Class MainWindow
     Private Sub CreateLetter()
         ProgressBar.Value = 0
         ProgressBar.Visibility = Visibility.Visible
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.Normal
+
         Dim currentGuiData As New MainWindowData(Me.LocationNameText.Text, Me.CustomerComboBox.Text, Me.CustomerJobNumComboBox.Text,
                                                  Me.InternalJobNumComboBox.Text, Me.DistributionDatePicker.SelectedDate,
                                                  Me.TrackingNumberText.Text, Me.InvoiceNumText.Text, Me.ShippingMethodBox.Text,
@@ -809,6 +821,7 @@ Class MainWindow
 
     Private Sub BackgroundWorker_LetterCreationWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
         ProgressBar.Visibility = Visibility.Hidden
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
     End Sub
 
 
@@ -1085,6 +1098,7 @@ Class MainWindow
             Dim dataString As String = e.Data.GetData(DataFormats.StringFormat)
             Console.WriteLine(dataString & " dropped on " & myStackPanel.Name)
             If myStackPanel.Equals(MainChassisDropPanel) Then
+                RefreshLinksList()
                 Dim currentChassis = DistributionPrograms.First
                 Do While currentChassis IsNot Nothing
                     If currentChassis.Value.getName.Equals(dataString) Then
