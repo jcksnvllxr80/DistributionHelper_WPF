@@ -82,6 +82,9 @@
                 <MenuItem Header="_Location Info" 
                           x:Name="PrintLocInfoMenuItem" 
                           Click="PrintLocationInfo" />
+                <MenuItem Header="_Link Comparison" 
+                          x:Name="PrintLinkCompMenuItem" 
+                          Click="PrintLocationInfo" />
                 <MenuItem Header="_RTVP" 
                           x:Name="PrintRTVPmenuItem"
                           IsEnabled="False"/>
@@ -569,7 +572,7 @@
                                Grid.Row="26" 
                                Grid.Column="2" 
                                Grid.ColumnSpan="6" 
-                               Grid.RowSpan="4" 
+                               Grid.RowSpan="4"
                                Orientation="Vertical" 
                                Visibility="Hidden"/>
                 </Grid>

@@ -64,7 +64,11 @@ Class MainWindow
             CloneDoc.PageWidth = printer.PrintableAreaWidth
             CloneDoc.Foreground = System.Windows.Media.Brushes.Black
             Dim idocument As IDocumentPaginatorSource = CloneDoc
-            printer.PrintDocument(idocument.DocumentPaginator, Me.DistroPathText.Text & " Location Info")
+            If LinkComparePreviewSource.IsChecked Then
+                printer.PrintDocument(idocument.DocumentPaginator, locationInfo.GetLocationName & " Remote Link Comparison")
+            Else
+                printer.PrintDocument(idocument.DocumentPaginator, Me.DistroPathText.Text & " Location Info")
+            End If
         End If
     End Sub
 
@@ -449,32 +453,49 @@ Class MainWindow
                         ' Add checkbox to form
                         Me.ProgramWrapPanel.Children.Add(checkBox)
 
+                        Dim textBlock As New TextBlock
+                        textBlock.Text = filename
+
                         'Set size, position, ...
-                        checkBox.Content = "_" & filename
+                        checkBox.Content = textBlock
                         checkBox.Tag = Me.DistroPathText.Text
                         checkBox.Width = 150
+                        'checkBox.Height = 20
                         checkBox.FontSize = 14.0
                         checkBox.IsChecked = True
+                        Dim separator As New Separator()
+                        Me.ProgramWrapPanel.Children.Add(separator)
+                        separator.BorderThickness = New Thickness(3)
+                        separator.BorderBrush = System.Windows.Media.Brushes.Transparent
                         j = j + 1
                     End If
                 End If
             Next
 
             Dim buttonPanel = New StackPanel With {
-                .Orientation = Orientation.Horizontal
+                .Orientation = Orientation.Vertical
             }
+            buttonPanel.Height = 200
+            buttonPanel.Width = 100
             Me.ProgramWrapPanel.Children.Add(buttonPanel)
             If j > 0 Then
                 Dim OkButton As New Button()
                 buttonPanel.Children.Add(OkButton)
                 OkButton.Content = "OK"
+                OkButton.Height = 32
+                OkButton.Width = 90
                 AddHandler OkButton.Click, AddressOf OkButton_Click
 
+                Dim separator As New Separator()
+                buttonPanel.Children.Add(separator)
+                separator.BorderThickness = New Thickness(5)
+                separator.BorderBrush = System.Windows.Media.Brushes.Transparent
 
                 Dim CancelButton As New Button()
-
                 buttonPanel.Children.Add(CancelButton)
                 CancelButton.Content = "Cancel"
+                CancelButton.Height = 32
+                CancelButton.Width = 90
                 AddHandler CancelButton.Click, AddressOf CancelButton_Click
 
                 ShowProgramSelectorPanel(True)
@@ -553,8 +574,7 @@ Class MainWindow
         For Each cb In Me.ProgramWrapPanel.FindChildren(Of CheckBox)
             If cb.GetType() Is GetType(CheckBox) Then
                 If cb.IsChecked Then
-                    cb.Content = cb.Content.Substring(1)
-                    StrArray = {cb.Content, cb.Tag}
+                    StrArray = {cb.Content.Text, cb.Tag}
                     checkboxList.Add(StrArray)
                 End If
             End If
@@ -1311,6 +1331,10 @@ Class MainWindow
                 LinkCompareFlowDoc.FontSize = 14
                 LinkCompareFlowDoc.FontStyle = FontStyles.Normal
                 LinkComparePreviewSource.IsEnabled = True
+                LinkComparePreviewSource.IsChecked = True
+                LocationDataPreviewSource.IsChecked = False
+                LocationInfoViewer.Document = LinkCompareFlowDoc
+                LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.Scroll
             End Using
         End If
     End Sub
