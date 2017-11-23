@@ -5,7 +5,6 @@ Imports System.ComponentModel
 Imports Microsoft.Office.Interop
 'Imports Xceed.Wpf.Toolkit
 
-
 Class MainWindow
     Inherits MetroWindow
 
@@ -14,12 +13,11 @@ Class MainWindow
     Private createLetterBGWorker As BackgroundWorker = New BackgroundWorker()
     Dim tempInfoString = ""
     Dim DistributionPrograms As New LinkedList(Of Object)
-    Dim DistributionDataLoaded As Boolean = False
+    Dim DistributionDataLoaded As Boolean
     Dim locationInfo As LocationData
     Dim user As UserObject
     Dim LocationDataFlowDoc As FlowDocument = Nothing
     Dim LinkCompareFlowDoc As FlowDocument = Nothing
-    Dim startPoint As Object 'for Drag and Drop purposes
 
     Public Sub New()
 
@@ -35,8 +33,7 @@ Class MainWindow
         Distribution_Helper.Title &= " - (" & user.FullName & ")"
         System.Console.WriteLine(vbCrLf & "Welcome to the Distribution Helper, " & user.FirstName &
                                  "." & vbCrLf & "--------------------------------------------" &
-                                 vbCrLf & "Your credtials should be as shown below:" & vbCrLf & user.ToString)
-
+                                 vbCrLf & "Your credentials should be as shown below:" & vbCrLf & user.ToString)
     End Sub
 
 
@@ -55,7 +52,7 @@ Class MainWindow
     End Function
 
 
-    Private Sub PrintLocationInfo()
+    Private Sub PrintLocationInfo(sender As Object, e As RoutedEventArgs)
         Dim printer As New PrintDialog
         Dim result = printer.ShowDialog()
         If result Then
@@ -64,8 +61,11 @@ Class MainWindow
             CloneDoc.PageWidth = printer.PrintableAreaWidth
             CloneDoc.Foreground = System.Windows.Media.Brushes.Black
             Dim idocument As IDocumentPaginatorSource = CloneDoc
-            If LinkComparePreviewSource.IsChecked Then
-                printer.PrintDocument(idocument.DocumentPaginator, locationInfo.GetLocationName & " Remote Link Comparison")
+            Dim buttonPressed As Button = sender
+            If buttonPressed.Name.Equals("PrintLinkCompMenuItem") Then
+                If PrintLinkCompMenuItem.IsEnabled Then
+                    printer.PrintDocument(idocument.DocumentPaginator, locationInfo.GetLocationName & " Remote Link Comparison")
+                End If
             Else
                 printer.PrintDocument(idocument.DocumentPaginator, Me.DistroPathText.Text & " Location Info")
             End If
@@ -375,7 +375,12 @@ Class MainWindow
             chassisListItem.Content = currentChassis.Value.GetName()
             chassisListItem.Background = Media.Brushes.Transparent
             AddHandler chassisListItem.PreviewMouseMove, AddressOf ItemListPreviewMouseMove
-            ChassisListView.Items.Add(chassisListItem)
+            If currentChassis.Value.GetEquipType().Equals("ElectroLogIXS") Then
+                ChassisListView.Items.Add(chassisListItem)
+            Else
+                ChassisListView.Items.Clear()
+                LinkCompareInstructions.Text = "Link compare is only available for ElectroLogIXS locations"
+            End If
             currentChassis = currentChassis.Next
         Loop
     End Sub
@@ -439,6 +444,7 @@ Class MainWindow
             ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
             ChassisListView.Items.Clear()
             RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
+            PrintListView.Items.Clear()
 
             For Each File In Directory.GetFiles(Me.DistroPathText.Text)
                 Dim filesys = CreateObject("Scripting.FileSystemObject")
@@ -468,6 +474,15 @@ Class MainWindow
                         separator.BorderThickness = New Thickness(3)
                         separator.BorderBrush = System.Windows.Media.Brushes.Transparent
                         j = j + 1
+                    End If
+
+                    If New String() {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}.Contains(typeStr) And Not filename.ToString.Contains("_print_list_") Then
+                        ' Create a ListViewItem
+                        Dim printListItem As New ListViewItem()
+                        ' Add ListViewItem to form
+                        printListItem.Content = filename
+                        printListItem.Background = Media.Brushes.Transparent
+                        Me.PrintListView.Items.Add(printListItem)
                     End If
                 End If
             Next
@@ -546,6 +561,35 @@ Class MainWindow
             Me.AddressStateBox.Text = locationInfo.GetState()
             Me.AddressCityText.Text = locationInfo.GetCity()
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
+
+            Dim reducedTestDir As String = Nothing
+            If locationInfo.GetRTVPfolderNum IsNot Nothing Then
+                'Console.WriteLine("RTVP folder num is """ & locationInfo.GetRTVPfolderNum & """.")
+
+                Dim validationYearDir = "P:\Validation\" & locationInfo.GetRTVPyear & "\" & locationInfo.GetCustomer
+                reducedTestDir = FindSubfolderContaining(validationYearDir, locationInfo.GetRTVPfolderNum & "_", 0)
+
+                Dim reducedTestDistributionDir As String = Nothing
+                If reducedTestDir IsNot Nothing Then
+                    reducedTestDistributionDir = FindSubfolderContaining(reducedTestDir, "Distribution", 0)
+                End If
+
+                If reducedTestDistributionDir IsNot Nothing Then
+                    Dim fso = CreateObject("Scripting.FileSystemObject")
+                    For Each file In fso.GetFolder(reducedTestDistributionDir).Files
+                        If System.IO.Path.GetExtension(file.Name).ToUpper.Equals(".PDF") Then
+                            ' Create a ListViewItem
+                            Dim printListItem As New ListViewItem()
+                            ' Add ListViewItem to form
+                            printListItem.Content = file.Name
+                            printListItem.Background = Media.Brushes.Transparent
+                            Me.PrintListView.Items.Add(printListItem)
+                        End If
+                    Next
+                End If
+            End If
+
+            PrintListPanelColumn.Width = GridLength.Auto
         End If
 
         ShowProgramSelectorPanel(False)
@@ -558,6 +602,23 @@ Class MainWindow
             End If
         Next
     End Sub
+
+
+    Private Function FindSubfolderContaining(folderToIterate As String, searchStr As String, startPos As Short) As String
+        Dim fso = CreateObject("Scripting.FileSystemObject")
+        Dim match As String = Nothing
+        Dim folder = fso.GetFolder(folderToIterate)
+        For Each subF In folder.subFolders
+            If subF.Name.Length >= searchStr.Length Then
+                If UCase(subF.name.Substring(startPos, searchStr.Length).Equals(searchStr)) Then
+                    match = fso.GetAbsolutePathName(subF)
+                    Exit For 'found it, stop looking
+                End If
+            End If
+        Next
+        fso = Nothing
+        Return match
+    End Function
 
 
     Private Sub OkButton_Click(sender As Object, e As EventArgs)
@@ -586,13 +647,15 @@ Class MainWindow
     Private Sub BackgroundWorker_MineLocationData(sender As Object, e As DoWorkEventArgs)
         Dim checkboxList = e.Argument
 
-        MineLocationDataBGWorker.ReportProgress(20)
+        MineLocationDataBGWorker.ReportProgress(15)
         'check for info worksheet in XRL folder
         Dim infoFile = GetInfoFile()
 
+
         If infoFile <> "" Then
-            MineLocationDataBGWorker.ReportProgress(35)
+            MineLocationDataBGWorker.ReportProgress(25)
             locationInfo = New LocationData(infoFile)
+
         End If
 
         MineLocationDataBGWorker.ReportProgress(50)
@@ -675,8 +738,7 @@ Class MainWindow
         Dim searchStr = "XRL"
         Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim f = fso.GetFolder(DistroPathText.Text)
-        Dim subFldrs = f.SubFolders
-        For Each subF In subFldrs
+        For Each subF In f.SubFolders
             If subF.name.Length >= searchStr.Length Then
                 If (UCase(subF.name.Substring(0, 3)) = searchStr) Then
                     Dim infoPathStr = fso.GetAbsolutePathName(subF)
@@ -819,7 +881,6 @@ Class MainWindow
     End Sub
 
 
-
     Private Sub CreateLetter()
         ProgressBar.Value = 0
         ProgressBar.Visibility = Visibility.Visible
@@ -851,19 +912,21 @@ Class MainWindow
         DistributionTab.Visibility = Visibility.Visible
         DistributionTabGrid.Visibility = Visibility.Visible
 
-        LinkCompareTab.Visibility = Visibility.Visible
         If DistributionPrograms.Count > 1 Then
+            LinkCompareTab.Visibility = Visibility.Visible
             LinksTabGrid.Visibility = Visibility.Visible
             RemoteLinkGrid.Visibility = Visibility.Visible
             AddChassisToLinksTab()
         Else
+            LinkCompareTab.Visibility = Visibility.Collapsed
             LinksTabGrid.Visibility = Visibility.Hidden
             RemoteLinkGrid.Visibility = Visibility.Hidden
         End If
 
         PrintMenu.IsEnabled = True
         PrintToolBttn.IsEnabled = True
-        'PrintLocInfoMenuItem.IsEnabled = True
+        'PrintLinkCompMenuItem.IsEnabled = True
+        PrintLocInfoMenuItem.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
         ProgramRevisionsTab.Visibility = Visibility.Visible
@@ -888,16 +951,17 @@ Class MainWindow
 
         PrintMenu.IsEnabled = False
         PrintToolBttn.IsEnabled = False
-        'PrintLocInfoMenuItem.IsEnabled = False
+        PrintLinkCompMenuItem.IsEnabled = False
+        PrintLocInfoMenuItem.IsEnabled = False
 
-        PrintPreviewTab.Visibility = Visibility.Hidden
-        ProgramRevisionsTab.Visibility = Visibility.Hidden
-        PrintingTab.Visibility = Visibility.Hidden
+        PrintPreviewTab.Visibility = Visibility.Collapsed
+        ProgramRevisionsTab.Visibility = Visibility.Collapsed
+        PrintingTab.Visibility = Visibility.Collapsed
 
         LinkComparePreviewSource.IsEnabled = False
-        LinkCompareTab.Visibility = Visibility.Hidden
-        LinksTabGrid.Visibility = Visibility.Hidden
-        RemoteLinkGrid.Visibility = Visibility.Hidden
+        LinkCompareTab.Visibility = Visibility.Collapsed
+        LinksTabGrid.Visibility = Visibility.Collapsed
+        RemoteLinkGrid.Visibility = Visibility.Collapsed
 
         'SaveToolBttn.Enabled = False
         'SaveMenuItem.Enabled = False
@@ -969,38 +1033,19 @@ Class MainWindow
 
 
     Private Function FindOrCreateLabelsDirectory() As String
-        Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim distributionFldrPath As String = Nothing
         Dim labelsFldrPath As String = Nothing
         Dim searchStr As String
 
         searchStr = "Distribution"
-        Dim f = fso.GetFolder(DistroPathText.Text)
-        For Each subF In f.subFolders
-            If subF.Name.Length >= searchStr.Length Then
-                If (UCase(subF.name.Substring(0, 12)) = searchStr) Then
-                    distributionFldrPath = fso.GetAbsolutePathName(subF)
-                    Exit For
-                End If
-            End If
-        Next
-
+        distributionFldrPath = FindSubfolderContaining(DistroPathText.Text, searchStr, 0)
         If distributionFldrPath Is Nothing Then
             distributionFldrPath = DistroPathText.Text & "\" & searchStr
             System.IO.Directory.CreateDirectory(distributionFldrPath)
         End If
 
         searchStr = "Labels"
-        f = fso.GetFolder(distributionFldrPath)
-        For Each subF In f.subFolders
-            If subF.Name.Length >= searchStr.Length Then
-                If (UCase(subF.name.Substring(0, 6)) = searchStr) Then
-                    labelsFldrPath = fso.GetAbsolutePathName(subF)
-                    Exit For
-                End If
-            End If
-        Next
-
+        labelsFldrPath = FindSubfolderContaining(distributionFldrPath, searchStr, 0)
         If labelsFldrPath Is Nothing Then
             labelsFldrPath = distributionFldrPath & "\" & searchStr
             System.IO.Directory.CreateDirectory(labelsFldrPath)
@@ -1035,7 +1080,7 @@ Class MainWindow
         InsertToDBMenuItem.IsEnabled = False
         RefreshDBToolBttn.IsEnabled = False
         DatabaseMenu.IsEnabled = False
-        DatabaseTab.Visibility = Visibility.Hidden
+        DatabaseTab.Visibility = Visibility.Collapsed
 
         CreateEmailToolBttn.IsEnabled = False
 
@@ -1066,11 +1111,13 @@ Class MainWindow
         Console.Write("pressed " & Int(e.Key) & vbCrLf)
     End Sub
 
+
     Private Sub DistroPathText_Click(sender As Object, e As EventArgs) Handles DistroPathText.Click
         If DistroPathText.Text = "Type or paste the directory path here or click the folder icon" Then
             DistroPathText.Text = ""
         End If
     End Sub
+
 
     Private Sub DistroPathText_MouseLeave(sender As Object, e As EventArgs) Handles DistroPathText.MouseLeave
         StatusLabel.Text = tempInfoString
@@ -1078,6 +1125,7 @@ Class MainWindow
             DistroPathText.Text = "Type or paste the directory path here or click the folder icon"
         End If
     End Sub
+
 
     Private Sub CreateLetterToolBttn_Click(sender As Object, e As RoutedEventArgs) Handles CreateLetterToolBttn.Click
         CreateLetter()
@@ -1102,7 +1150,7 @@ Class MainWindow
 
 
     Private Sub ItemListPreviewMouseMove(sender As Object, e As MouseEventArgs)
-        If (e.LeftButton = MouseButtonState.Pressed And Not e.OriginalSource.GetType.ToString.Equals("System.Windows.Controls.Border")) Then
+        If (e.LeftButton = MouseButtonState.Pressed And Not e.OriginalSource.GetType.ToString.Equals("System.Windows.Controls.ListViewItem")) Then
             Dim data As New DataObject()
             data.SetData(DataFormats.StringFormat, e.OriginalSource.Text)
 
@@ -1124,6 +1172,7 @@ Class MainWindow
                     If currentChassis.Value.getName.Equals(dataString) Then
                         Dim numOfRemoteChassis = currentChassis.Value.FindRemoteInformation(CombinedRptCheckBox.IsChecked)
                         AddDropPanelsForRemoteChassis(numOfRemoteChassis)
+                        LinkCompareInstructions.Text = "Drag all remotes from the list onto thier respective remote number"
                         Exit Do ' found which item was dropped on main chassis, stop searching
                     End If
                     currentChassis = currentChassis.Next
@@ -1160,6 +1209,7 @@ Class MainWindow
             Next
             If ChassisListView.Items.IsEmpty Then
                 CompareLinksButton.IsEnabled = True
+                LinkCompareInstructions.Text = "Press the compare button to view the link comparison"
             End If
             RefreshLinksButton.IsEnabled = True
         End If
@@ -1177,6 +1227,7 @@ Class MainWindow
         MainHouseDropLabel.FontWeight = FontWeights.Normal
         CompareLinksButton.IsEnabled = False
         RefreshLinksButton.IsEnabled = False
+        LinkCompareInstructions.Text = "Drag main chassis from the list onto the ""Main Chassis"""
     End Sub
 
 
@@ -1238,6 +1289,7 @@ Class MainWindow
 
 
     Private Sub CreateLinkCompareFile()
+        LinkCompareInstructions.Text = "Use the ""Preview"" tab to view the link comparison"
         CompareLinksButton.IsEnabled = False
         Dim mainChassis As ElectroLogIXS = Nothing
         For Each chassis In DistributionPrograms
@@ -1335,7 +1387,47 @@ Class MainWindow
                 LocationDataPreviewSource.IsChecked = False
                 LocationInfoViewer.Document = LinkCompareFlowDoc
                 LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.Scroll
+                PrintLinkCompMenuItem.IsEnabled = True
             End Using
         End If
+    End Sub
+
+
+    Private Sub PrintListView_PreviewMouseMove(sender As Object, e As MouseEventArgs) Handles PrintListView.PreviewMouseMove
+        'Console.WriteLine(e.OriginalSource.GetType.ToString)
+        If (e.LeftButton = MouseButtonState.Pressed And e.OriginalSource.GetType.ToString.Equals("System.Windows.Controls.ListView")) Then
+            Dim data As New DataObject()
+            data.SetData(e.OriginalSource)
+
+            DragDrop.DoDragDrop(sender, data, DragDropEffects.Copy Or DragDropEffects.Move)
+        End If
+    End Sub
+
+
+    Private Sub PrintListView_Drop(sender As Object, e As DragEventArgs) Handles PrintListView.Drop
+        Dim myStackPanel As StackPanel = sender
+        myStackPanel.Effect = Nothing
+        If (e.Data.GetDataPresent("System.Windows.Controls.ListView")) Then
+            Dim dataObj As ListView = e.Data.GetData("System.Windows.Controls.ListView")
+
+            Dim myArrayList As New ArrayList
+            For Each item As ListViewItem In dataObj.SelectedItems
+                myArrayList.Add(item)
+            Next
+
+            Dim myArray = myArrayList.ToArray()
+            For Each item In myArray
+                Console.WriteLine(item.Content.ToString & " dropped on " & myStackPanel.Name)
+                'item.IsEnabled = False
+                'item.IsSelected = False
+                dataObj.Items.Remove(item)
+            Next
+
+            If PrintListView.Items.IsEmpty Then
+                Console.WriteLine("No more printable items!")
+            End If
+
+        End If
+        e.Handled = True
     End Sub
 End Class

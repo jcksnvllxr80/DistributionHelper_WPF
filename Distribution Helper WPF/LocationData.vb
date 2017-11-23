@@ -11,7 +11,7 @@
     Private City
     Private RTVP As Boolean
     Private RTVPyear As String
-    Private RTVPfolderNum As String
+    Private RTVPfolderNum As String = Nothing
     Private Filename As String
 
     Public Sub New(filename As String)
@@ -115,10 +115,12 @@
             If UCase(excelInput.Sheets("Sheet1").Range("B18").Value) = 1 Then
                 .RTVP = True
             End If
-            .RTVPyear = UCase(excelInput.Sheets("Sheet1").Range("D3").Value)
-            .RTVPfolderNum = UCase(excelInput.Sheets("Sheet1").Range("D4").Value)
-            If Len(.RTVPfolderNum) = 1 Then
-                .RTVPfolderNum = "0" & .RTVPfolderNum
+            Dim numStr = UCase(excelInput.Sheets("Sheet1").Range("D4").Value)
+            If Not numStr.Equals(vbNullChar) Then
+                If Len(.RTVPfolderNum) = 1 Then
+                    .RTVPfolderNum = "0" & .RTVPfolderNum
+                End If
+                .RTVPyear = UCase(excelInput.Sheets("Sheet1").Range("D3").Value)
             End If
         End With
         objExcel.Application.Quit

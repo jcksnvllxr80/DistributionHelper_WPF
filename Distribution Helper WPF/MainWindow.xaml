@@ -84,7 +84,8 @@
                           Click="PrintLocationInfo" />
                 <MenuItem Header="_Link Comparison" 
                           x:Name="PrintLinkCompMenuItem" 
-                          Click="PrintLocationInfo" />
+                          Click="PrintLocationInfo" 
+                          IsEnabled="False"/>
                 <MenuItem Header="_RTVP" 
                           x:Name="PrintRTVPmenuItem"
                           IsEnabled="False"/>
@@ -226,7 +227,7 @@
                      MouseLeave="Text_MouseLeave"
                      FlowDirection="LeftToRight"
                      IsSelected="True"
-                     Visibility="Hidden" >
+                     Visibility="Collapsed" >
                 <Grid x:Name="DistributionTabGrid"
                       Visibility="Hidden">
                     <Grid.RowDefinitions>
@@ -296,7 +297,7 @@
                            Grid.Column="1"
                            x:Name="CustomerLabel" 
                            HorizontalContentAlignment="Right" 
-                           Content="Customer Name" />
+                           Content="* Customer Name" />
                     <Controls1:AutoCompleteBox Grid.Row="3" 
                                                Grid.Column="2" 
                                                Grid.ColumnSpan="2" 
@@ -313,7 +314,7 @@
                            Grid.Column="4"
                            x:Name="LocationNameLabel" 
                            HorizontalContentAlignment="Right" 
-                           Content="Location Name" />
+                           Content="* Location Name" />
                     <TextBox Grid.Row="3" 
                              Grid.Column="5" 
                              Grid.ColumnSpan="3" 
@@ -328,7 +329,7 @@
                            Grid.Column="1"
                            x:Name="InternalJobNumLabel" 
                            HorizontalContentAlignment="Right" 
-                           Content="Internal Num" />
+                           Content="* Internal Num" />
                     <Controls1:AutoCompleteBox Grid.Row="5" 
                                                Grid.Column="2" 
                                                Grid.ColumnSpan="2" 
@@ -577,51 +578,12 @@
                                Visibility="Hidden"/>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="PrintPreviewTab" 
-                     Header="Preview" 
-                     Tag="View the data extracted from this location or the link conpare report" 
-                     MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave"
-                     FlowDirection="LeftToRight"
-                     Visibility="Hidden">
-                <Grid x:Name="PrintPrevTabGrid">
-                    <FlowDocumentReader x:Name="LocationInfoViewer" 
-                                        Background="Transparent"/>
-                </Grid>
-            </TabItem>
-            <TabItem x:Name="DatabaseTab" 
-                     Header="Database" 
-                     Tag="View all distributed software ever inserted to database" 
-                     MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave" 
-                     Visibility="Hidden"
-                     FlowDirection="LeftToRight">
-                <Grid x:Name="DatabaseTabGrid">
-                    <DataGrid x:Name="DistributionsDataGrid" 
-                              IsReadOnly="True"   
-                              ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}" />
-                </Grid>
-            </TabItem>
-            <TabItem x:Name="PrintingTab" 
-                     Header="Printing" 
-                     Tag="Select and print reports/RTVPs" 
-                     MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave" 
-                     Visibility="Hidden"
-                     FlowDirection="LeftToRight"/>
-            <TabItem x:Name="ProgramRevisionsTab" 
-                     Header="Revisions" 
-                     Tag="Create comparison reports, software revision reports, and/or zips (backups)" 
-                     MouseEnter="Text_MouseEnter" 
-                     MouseLeave="Text_MouseLeave" 
-                     Visibility="Hidden"
-                     FlowDirection="LeftToRight"/>
             <TabItem x:Name="LinkCompareTab" 
                      Header="Links" 
                      Tag="Use the link compare tool" 
                      MouseEnter="Text_MouseEnter" 
                      MouseLeave="Text_MouseLeave" 
-                     Visibility="Hidden"
+                     Visibility="Collapsed"
                      FlowDirection="LeftToRight">
                 <Grid x:Name="LinksTabGrid"
                       Visibility="Hidden">
@@ -656,6 +618,7 @@
                               Grid.RowSpan="7"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
+                              SelectionMode="Single"
                               BorderBrush="{StaticResource HeaderColor}"
                               BorderThickness="2"
                               Background="{StaticResource HeaderColor}"
@@ -666,6 +629,18 @@
                               MouseEnter="Text_MouseEnter"
                               MouseLeave="Text_MouseLeave">
                     </ListView>
+                    <TextBlock x:Name="LinkCompareInstructions" 
+                               Text='Drag main chassis from the list onto the &quot;Main Chassis&quot;'
+                               Grid.Row="1"
+                               Grid.Column="4"
+                               Grid.ColumnSpan="7"
+                               FontSize="15"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               FontWeight="thin"
+                               FontStyle="Normal"
+                               FontFamily="Courier New"
+                               Foreground="white"/>
                     <Button x:Name="RefreshLinksButton"
                             Grid.Row="7"
                             Grid.Column="3"
@@ -749,6 +724,105 @@
                             <RowDefinition MinHeight="32" />
                         </Grid.RowDefinitions>
                     </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="PrintPreviewTab" 
+                     Header="Preview" 
+                     Tag="View the data extracted from this location or the link conpare report" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave"
+                     FlowDirection="LeftToRight"
+                     Visibility="Collapsed">
+                <Grid x:Name="PrintPrevTabGrid">
+                    <FlowDocumentReader x:Name="LocationInfoViewer" 
+                                        Background="Transparent"/>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DatabaseTab" 
+                     Header="Database" 
+                     Tag="View all distributed software ever inserted to database" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Collapsed"
+                     FlowDirection="LeftToRight">
+                <Grid x:Name="DatabaseTabGrid">
+                    <DataGrid x:Name="DistributionsDataGrid" 
+                              IsReadOnly="True"   
+                              ItemsSource="{Binding Source={StaticResource DistributionsViewSource}}" />
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="PrintingTab" 
+                     Header="Print" 
+                     Tag="Print location reports/RTVPs" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Collapsed"
+                     FlowDirection="LeftToRight">
+                <Grid x:Name="PrintingTabGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition x:Name="PrintListPanelColumn"  MinWidth="250" MaxWidth="450"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="256"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="256"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="5"/>
+                    </Grid.RowDefinitions>
+                    <ListView x:Name="PrintListView"
+                              Grid.Row="1"
+                              Grid.RowSpan="3"
+                              Grid.Column="1"
+                              Grid.ColumnSpan="1"
+                              SelectionMode="Extended"
+                              BorderBrush="{StaticResource HeaderColor}"
+                              BorderThickness="2"
+                              Background="{StaticResource HeaderColor}"
+                              Foreground="White"
+                              FontFamily="Courier New"
+                              FontSize="16"
+                              Tag="Select files to print"
+                              MouseEnter="Text_MouseEnter"
+                              MouseLeave="Text_MouseLeave">
+                    </ListView>
+                    <StackPanel x:Name="PrintDropPanel"
+                                Grid.Row="2"
+                                Grid.Column="3"
+                                Tag="Drop Files Here"
+                                AllowDrop="True"
+                                Drop="PrintListView_Drop"
+                                DragOver="DropPanel_DragOver"
+                                DragLeave="DropPanel_DragLeave">
+                        <Image x:Name="PrintDropImage"
+                               Source="resources\Print_256x.ico" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               Width="256" 
+                               Height="256" >
+                        </Image>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="ProgramRevisionsTab" 
+                     Header="Revisions" 
+                     Tag="Create comparison reports, software revision reports, and/or zips (backups)" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Collapsed"
+                     FlowDirection="LeftToRight"/>
+            <TabItem x:Name="ReducedTestTab" 
+                     Header="RTVP" 
+                     Tag="Create an RTVP" 
+                     MouseEnter="Text_MouseEnter" 
+                     MouseLeave="Text_MouseLeave" 
+                     Visibility="Collapsed"
+                     FlowDirection="LeftToRight">
+                <Grid x:Name="ReducedTestTabGrid">
                 </Grid>
             </TabItem>
         </TabControl>

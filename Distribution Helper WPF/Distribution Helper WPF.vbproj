@@ -202,6 +202,7 @@
     </Compile>
     <Resource Include="resources\blu_house_88x.png" />
     <Resource Include="resources\red_house_88x.png" />
+    <Resource Include="resources\Print_256x.ico" />
     <Content Include="resources\States.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
