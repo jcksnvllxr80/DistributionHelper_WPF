@@ -1472,11 +1472,10 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
-        Dim app As New Acrobat.AcroApp
-        app.Show()
+
         Dim AvDoc As New Acrobat.AcroAVDoc
         AvDoc.Open(printFileStr, printFileStr)
-        Dim PDDoc = AvDoc.GetPDDoc
+        Dim PDDoc = AvDoc.GetPDDoc()
         Dim pages = PDDoc.GetNumPages - 1
 
         Dim prtDoc As New Printing.PrintDocument
@@ -1485,15 +1484,31 @@ Class MainWindow
         WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
         MsgBox("Can not print the following file: " & printFileStr & vbCrLf & "PDF file printing not supported yet.")
+
+
+        '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
         'AvDoc.PrintPagesSilent(0, pages, 2, 0, 0)
-        Thread.Sleep(1000)
+        'Thread.Sleep(1000)
+        '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
+
+
+        '''''''''''''''''''''''''tried to stream print''''''''''''''''''''''''''''''''
+        'Dim myFile = File.ReadAllBytes(printFileStr)
+        'Dim printQueue = LocalPrintServer.GetDefaultPrintQueue()
+        'Using job As PrintSystemJobInfo = printQueue.AddJob()
+        '    Using mystream As Stream = job.JobStream
+        '        mystream.Write(myFile, 0, myFile.Length)
+        '        mystream.Close()
+        '    End Using
+        'End Using
+        '''''''''''''''''''''''''tried to stream print''''''''''''''''''''''''''''''''
+
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
         Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
         WshNetwork = Nothing
-        app.Exit()
-        app = Nothing
+
         PDDoc.Close()
         AvDoc.Close(1)
         AvDoc = Nothing
