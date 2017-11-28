@@ -10,7 +10,6 @@ Imports System.Printing
 Class MainWindow
     Inherits MetroWindow
 
-    Dim printer As New PrintDialog
     Private InsertToDatabseBGWorker As New BackgroundWorker()
     Private MineLocationDataBGWorker As New BackgroundWorker()
     Private createLetterBGWorker As New BackgroundWorker()
@@ -1460,7 +1459,7 @@ Class MainWindow
 
 
     Private Function PrintMySelectedFiles(printFilesArray As Array) As Boolean
-        'Dim printer As New PrintDialog
+        Dim printer As New PrintDialog
         Dim result = printer.ShowDialog()
         If result Then
             ProgressBar.Visibility = Visibility.Visible
@@ -1473,25 +1472,30 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
+        Dim app As New Acrobat.AcroApp
+        app.Show()
         Dim AvDoc As New Acrobat.AcroAVDoc
-        AvDoc.Open(printFileStr, "This")
+        AvDoc.Open(printFileStr, printFileStr)
         Dim PDDoc = AvDoc.GetPDDoc
         Dim pages = PDDoc.GetNumPages - 1
 
-        Dim prtDoc As New System.Drawing.Printing.PrintDocument
+        Dim prtDoc As New Printing.PrintDocument
         Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
         Dim WshNetwork = CreateObject("WScript.Network")
-        WshNetwork.SetDefaultPrinter(RtvPrinter)
+        WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        AvDoc.PrintPagesSilent(0, pages, 2, False, False)
+        MsgBox("Can not print the following file: " & printFileStr & vbCrLf & "PDF file printing not supported yet.")
+        'AvDoc.PrintPagesSilent(0, pages, 2, 0, 0)
         Thread.Sleep(1000)
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
-
-        WshNetwork.SetDefaultPrinter(OldPrinter)
-        System.Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
+        WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
+        Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
         WshNetwork = Nothing
-        AvDoc.Close(0)
+        app.Exit()
+        app = Nothing
+        PDDoc.Close()
+        AvDoc.Close(1)
         AvDoc = Nothing
         PDDoc = Nothing
     End Sub
@@ -1555,9 +1559,11 @@ Class MainWindow
     Private Sub BackgroundWorker_PrintFiles(sender As Object, e As DoWorkEventArgs)
         Dim printFilesArray As Array = e.Argument
 
+        Dim tempFolderProgrammaticallyCreated As Boolean
         Dim tempDirectory As String = DistroPathText.Text & "\Temp"
         If Not Directory.Exists(tempDirectory) Then
             Directory.CreateDirectory(tempDirectory)
+            tempFolderProgrammaticallyCreated = True
         End If
 
         Dim i = 0
@@ -1582,6 +1588,11 @@ Class MainWindow
             End If
             i += 1
         Next
+
+        If tempFolderProgrammaticallyCreated Then
+            Directory.Delete(tempDirectory)
+        End If
+
         printFilesBGWorker.ReportProgress(100)
     End Sub
 End Class
