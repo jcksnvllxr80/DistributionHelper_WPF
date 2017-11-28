@@ -117,9 +117,10 @@
             End If
             Dim numStr = UCase(excelInput.Sheets("Sheet1").Range("D4").Value)
             If Not numStr.Equals(vbNullChar) Then
-                If Len(.RTVPfolderNum) = 1 Then
-                    .RTVPfolderNum = "0" & .RTVPfolderNum
+                If Len(numStr) = 1 Then
+                    numStr = "0" & numStr
                 End If
+                .RTVPfolderNum = numStr
                 .RTVPyear = UCase(excelInput.Sheets("Sheet1").Range("D3").Value)
             End If
         End With

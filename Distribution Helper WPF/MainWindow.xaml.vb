@@ -3,21 +3,26 @@ Imports System.Drawing
 Imports System.IO
 Imports System.ComponentModel
 Imports Microsoft.Office.Interop
+Imports System.Threading
+Imports System.Printing
 'Imports Xceed.Wpf.Toolkit
 
 Class MainWindow
     Inherits MetroWindow
 
-    Private InsertToDatabseBGWorker As BackgroundWorker = New BackgroundWorker()
-    Private MineLocationDataBGWorker As BackgroundWorker = New BackgroundWorker()
-    Private createLetterBGWorker As BackgroundWorker = New BackgroundWorker()
-    Dim tempInfoString = ""
-    Dim DistributionPrograms As New LinkedList(Of Object)
-    Dim DistributionDataLoaded As Boolean
-    Dim locationInfo As LocationData
-    Dim user As UserObject
-    Dim LocationDataFlowDoc As FlowDocument = Nothing
-    Dim LinkCompareFlowDoc As FlowDocument = Nothing
+    Dim printer As New PrintDialog
+    Private InsertToDatabseBGWorker As New BackgroundWorker()
+    Private MineLocationDataBGWorker As New BackgroundWorker()
+    Private createLetterBGWorker As New BackgroundWorker()
+    Private printFilesBGWorker As New BackgroundWorker()
+    Private tempInfoString = ""
+    Private DistributionPrograms As New LinkedList(Of Object)
+    Private DistributionDataLoaded As Boolean
+    Private locationInfo As LocationData
+    Private user As UserObject
+    Private LocationDataFlowDoc As FlowDocument = Nothing
+    Private LinkCompareFlowDoc As FlowDocument = Nothing
+    Private RtvPrinter As String = "\\XJASRV0001\XJAPRT0019 - 4th Floor East - Xerox WorkCentre 7970 PCL6"
 
     Public Sub New()
 
@@ -74,6 +79,7 @@ Class MainWindow
 
     Private Sub Distribution_Helper_Loaded(sender As Object, e As RoutedEventArgs) Handles MyBase.Loaded
         GetUser()
+
         DistroPathText.AutoCompleteMode = Forms.AutoCompleteMode.Suggest
         DistroPathText.AutoCompleteSource = Forms.AutoCompleteSource.AllSystemSources
         MyHost.Child = DistroPathText
@@ -100,6 +106,13 @@ Class MainWindow
         AddHandler createLetterBGWorker.DoWork, AddressOf BackgroundWorker_CreateLetter
         AddHandler createLetterBGWorker.ProgressChanged, AddressOf BackgroundWorker_LetterCreationProgressChanged
         AddHandler createLetterBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_LetterCreationWorkerCompleted
+
+        printFilesBGWorker.WorkerReportsProgress = True
+        'InsertToDatabseBGWorker.WorkerSupportsCancellation = True
+        AddHandler printFilesBGWorker.DoWork, AddressOf BackgroundWorker_PrintFiles
+        AddHandler printFilesBGWorker.ProgressChanged, AddressOf BackgroundWorker_FilePrintingProgressChanged
+        AddHandler printFilesBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_FilePrintWorkerCompleted
+
     End Sub
 
 
@@ -481,6 +494,7 @@ Class MainWindow
                         Dim printListItem As New ListViewItem()
                         ' Add ListViewItem to form
                         printListItem.Content = filename
+                        printListItem.Tag = File
                         printListItem.Background = Media.Brushes.Transparent
                         Me.PrintListView.Items.Add(printListItem)
                     End If
@@ -582,6 +596,7 @@ Class MainWindow
                             Dim printListItem As New ListViewItem()
                             ' Add ListViewItem to form
                             printListItem.Content = file.Name
+                            printListItem.Tag = file.Path
                             printListItem.Background = Media.Brushes.Transparent
                             Me.PrintListView.Items.Add(printListItem)
                         End If
@@ -1410,24 +1425,163 @@ Class MainWindow
         If (e.Data.GetDataPresent("System.Windows.Controls.ListView")) Then
             Dim dataObj As ListView = e.Data.GetData("System.Windows.Controls.ListView")
 
+            Dim myStrArrayList As New ArrayList
             Dim myArrayList As New ArrayList
             For Each item As ListViewItem In dataObj.SelectedItems
-                myArrayList.Add(item)
+                If item.IsEnabled Then
+                    myArrayList.Add(item)
+                    myStrArrayList.Add(item.Tag)
+                End If
             Next
 
-            Dim myArray = myArrayList.ToArray()
-            For Each item In myArray
+            Dim myItemArray = myArrayList.ToArray()
+            For Each item In myItemArray
                 Console.WriteLine(item.Content.ToString & " dropped on " & myStackPanel.Name)
-                'item.IsEnabled = False
-                'item.IsSelected = False
-                dataObj.Items.Remove(item)
+                item.IsEnabled = False 'disable the printed item but leave it visible in the listview
+                item.IsSelected = False 'unselect the disabled item that was printed
+                'dataObj.Items.Remove(item) 'remove the printed item from the list completely
             Next
 
-            If PrintListView.Items.IsEmpty Then
+            Dim myStrArray = myStrArrayList.ToArray()
+            Dim printCanceled = PrintMySelectedFiles(myStrArray)
+
+            If printCanceled Then ' print was canceled
+                For Each item In myItemArray
+                    item.IsEnabled = True
+                    item.IsSelected = True
+                Next
+            ElseIf PrintListView.Items.IsEmpty Then
                 Console.WriteLine("No more printable items!")
             End If
 
         End If
         e.Handled = True
+    End Sub
+
+
+    Private Function PrintMySelectedFiles(printFilesArray As Array) As Boolean
+        'Dim printer As New PrintDialog
+        Dim result = printer.ShowDialog()
+        If result Then
+            ProgressBar.Visibility = Visibility.Visible
+            TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.Normal
+            printFilesBGWorker.RunWorkerAsync(printFilesArray)
+        End If
+
+        Return Not result
+    End Function
+
+
+    Private Sub PrintPDF(printFileStr As String)
+        Dim AvDoc As New Acrobat.AcroAVDoc
+        AvDoc.Open(printFileStr, "This")
+        Dim PDDoc = AvDoc.GetPDDoc
+        Dim pages = PDDoc.GetNumPages - 1
+
+        Dim prtDoc As New System.Drawing.Printing.PrintDocument
+        Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
+        Dim WshNetwork = CreateObject("WScript.Network")
+        WshNetwork.SetDefaultPrinter(RtvPrinter)
+
+        AvDoc.PrintPagesSilent(0, pages, 2, False, False)
+        Thread.Sleep(1000)
+
+        Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
+
+        WshNetwork.SetDefaultPrinter(OldPrinter)
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
+        WshNetwork = Nothing
+        AvDoc.Close(0)
+        AvDoc = Nothing
+        PDDoc = Nothing
+    End Sub
+
+
+    Private Sub PrintDocs(myDocStr As String())
+        Dim docPath As String = myDocStr(0)
+        Dim tempFolderPath As String = myDocStr(1)
+
+        Dim tempFileName = docPath.Substring(docPath.LastIndexOf("\") + 1)
+        Dim tempFile As String = tempFolderPath & "\" & tempFileName
+        File.Copy(docPath, tempFile)
+
+        Dim wordObj As New Word.Application
+        wordObj.Visible = False
+        Dim doc As Word.Document = wordObj.Documents.Open(tempFile)
+        'set margins
+        doc.PageSetup.TopMargin = wordObj.InchesToPoints(0.5)
+        doc.PageSetup.BottomMargin = wordObj.InchesToPoints(0.5)
+        doc.PageSetup.LeftMargin = wordObj.InchesToPoints(0.5)
+        doc.PageSetup.RightMargin = wordObj.InchesToPoints(0.5)
+
+        Dim myXpsDoc = tempFile.Substring(0, tempFile.Length - 3) & "xps"
+        doc.SaveAs(myXpsDoc, Word.WdSaveFormat.wdFormatXPS)
+        doc.Close()
+        wordObj.Application.Quit()
+        wordObj = Nothing
+
+        Dim PrintsArray As String() = {myXpsDoc, tempFile}
+        Dim thread = New Thread(AddressOf PrintAndDelete)
+        thread.SetApartmentState(ApartmentState.STA)
+        thread.Start(PrintsArray)
+        thread.Join()
+        End Sub
+
+
+    Private Sub PrintAndDelete(myDocsAray As String())
+        Dim myXpsDoc As String = myDocsAray(0)
+        Dim tempFile As String = myDocsAray(1)
+
+        Dim defaultPrintQueue As System.Printing.PrintQueue = LocalPrintServer.GetDefaultPrintQueue
+        Dim xpsPrintJob = defaultPrintQueue.AddJob(myXpsDoc, myXpsDoc, False)
+
+        File.Delete(tempFile)
+        File.Delete(myXpsDoc)
+    End Sub
+
+
+    Private Sub BackgroundWorker_FilePrintWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
+        ProgressBar.Visibility = Visibility.Hidden
+        TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
+    End Sub
+
+
+    Private Sub BackgroundWorker_FilePrintingProgressChanged(sender As Object, e As ProgressChangedEventArgs)
+        ProgressBar.Value = e.ProgressPercentage
+        TaskbarItemInfo.ProgressValue = e.ProgressPercentage / 100
+    End Sub
+
+
+    Private Sub BackgroundWorker_PrintFiles(sender As Object, e As DoWorkEventArgs)
+        Dim printFilesArray As Array = e.Argument
+
+        Dim tempDirectory As String = DistroPathText.Text & "\Temp"
+        If Not Directory.Exists(tempDirectory) Then
+            Directory.CreateDirectory(tempDirectory)
+        End If
+
+        Dim i = 0
+        For Each fileToPrint As String In printFilesArray
+            printFilesBGWorker.ReportProgress(100 * i / printFilesArray.Length)
+            Dim searchStr = "PDF"
+            If fileToPrint.Substring(fileToPrint.Length - searchStr.Length).ToUpper.Equals(searchStr) Then
+                Console.WriteLine("print PDF: " & fileToPrint)
+                Try
+                    PrintPDF(fileToPrint)
+                Catch ex As Exception
+                    Console.WriteLine(ex)
+                End Try
+            Else
+                Console.WriteLine("print DOC: " & fileToPrint)
+                Dim PrintDocArray As String() = {fileToPrint, tempDirectory}
+
+                Dim thread = New Thread(AddressOf PrintDocs)
+                thread.SetApartmentState(ApartmentState.MTA)
+                thread.Start(PrintDocArray)
+                thread.Join()
+            End If
+            i += 1
+        Next
+        printFilesBGWorker.ReportProgress(100)
     End Sub
 End Class
