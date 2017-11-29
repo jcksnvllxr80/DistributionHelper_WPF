@@ -1472,23 +1472,44 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
+        '''''''''''''''''''''''''tried to print print another way''''''''''''''''''''''''''''
+        'Dim app = CreateObject("AcroExch.App")
+        'Dim avdoc As Acrobat.CAcroAVDoc = CreateObject("AcroExch.AVDoc")
+        'Dim pddoc As Acrobat.CAcroPDDoc = CreateObject("AcroExch.PDDoc")
+        'Dim docIsOpen = avdoc.Open(printFileStr, "")
+        'Dim pages As Short = 0
+        'If docIsOpen Then
+        '    pddoc = avdoc.GetPDDoc
+        '    pages = pddoc.GetNumPages - 1
+        'End If
 
-        Dim AvDoc As New Acrobat.AcroAVDoc
-        AvDoc.Open(printFileStr, printFileStr)
-        Dim PDDoc = AvDoc.GetPDDoc()
-        Dim pages = PDDoc.GetNumPages - 1
+        'avdoc.PrintPages(0, pages, 2, 0, 0)
+        'pddoc.Close()
+        'avdoc.Close(1)
+        'avdoc = Nothing
+        'pddoc = Nothing
+        '''''''''''''''''''''''''tried to print another way'''''''''''''''''''''''''''
+
 
         Dim prtDoc As New Printing.PrintDocument
         Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
         Dim WshNetwork = CreateObject("WScript.Network")
         WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        MsgBox("Can not print the following file: " & printFileStr & vbCrLf & "PDF file printing not supported yet.")
+        MsgBox("Can not print the following file: " & vbCrLf & printFileStr & vbCrLf & "PDF file printing not implemented yet.")
 
 
         '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
+        'Dim AvDoc As New Acrobat.AcroAVDoc
+        'AvDoc.Open(printFileStr, printFileStr)
+        'Dim PDDoc = AvDoc.GetPDDoc()
+        'Dim pages = PDDoc.GetNumPages - 1
         'AvDoc.PrintPagesSilent(0, pages, 2, 0, 0)
         'Thread.Sleep(1000)
+        'PDDoc.Close()
+        'AvDoc.Close(1)
+        'AvDoc = Nothing
+        'PDDoc = Nothing
         '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
 
 
@@ -1508,50 +1529,14 @@ Class MainWindow
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
         Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
         WshNetwork = Nothing
-
-        PDDoc.Close()
-        AvDoc.Close(1)
-        AvDoc = Nothing
-        PDDoc = Nothing
     End Sub
-
-
-    Private Sub PrintDocs(myDocStr As String())
-        Dim docPath As String = myDocStr(0)
-        Dim tempFolderPath As String = myDocStr(1)
-
-        Dim tempFileName = docPath.Substring(docPath.LastIndexOf("\") + 1)
-        Dim tempFile As String = tempFolderPath & "\" & tempFileName
-        File.Copy(docPath, tempFile)
-
-        Dim wordObj As New Word.Application
-        wordObj.Visible = False
-        Dim doc As Word.Document = wordObj.Documents.Open(tempFile)
-        'set margins
-        doc.PageSetup.TopMargin = wordObj.InchesToPoints(0.5)
-        doc.PageSetup.BottomMargin = wordObj.InchesToPoints(0.5)
-        doc.PageSetup.LeftMargin = wordObj.InchesToPoints(0.5)
-        doc.PageSetup.RightMargin = wordObj.InchesToPoints(0.5)
-
-        Dim myXpsDoc = tempFile.Substring(0, tempFile.Length - 3) & "xps"
-        doc.SaveAs(myXpsDoc, Word.WdSaveFormat.wdFormatXPS)
-        doc.Close()
-        wordObj.Application.Quit()
-        wordObj = Nothing
-
-        Dim PrintsArray As String() = {myXpsDoc, tempFile}
-        Dim thread = New Thread(AddressOf PrintAndDelete)
-        thread.SetApartmentState(ApartmentState.STA)
-        thread.Start(PrintsArray)
-        thread.Join()
-        End Sub
 
 
     Private Sub PrintAndDelete(myDocsAray As String())
         Dim myXpsDoc As String = myDocsAray(0)
         Dim tempFile As String = myDocsAray(1)
 
-        Dim defaultPrintQueue As System.Printing.PrintQueue = LocalPrintServer.GetDefaultPrintQueue
+        Dim defaultPrintQueue As PrintQueue = LocalPrintServer.GetDefaultPrintQueue
         Dim xpsPrintJob = defaultPrintQueue.AddJob(myXpsDoc, myXpsDoc, False)
 
         File.Delete(tempFile)
@@ -1583,23 +1568,71 @@ Class MainWindow
 
         Dim i = 0
         For Each fileToPrint As String In printFilesArray
-            printFilesBGWorker.ReportProgress(100 * i / printFilesArray.Length)
+            Dim j = 0.0
+            printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
             Dim searchStr = "PDF"
             If fileToPrint.Substring(fileToPrint.Length - searchStr.Length).ToUpper.Equals(searchStr) Then
                 Console.WriteLine("print PDF: " & fileToPrint)
+
+                j = 0.3
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
                 Try
                     PrintPDF(fileToPrint)
                 Catch ex As Exception
                     Console.WriteLine(ex)
                 End Try
+
+                j = 0.7
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
             Else
                 Console.WriteLine("print DOC: " & fileToPrint)
-                Dim PrintDocArray As String() = {fileToPrint, tempDirectory}
 
-                Dim thread = New Thread(AddressOf PrintDocs)
-                thread.SetApartmentState(ApartmentState.MTA)
-                thread.Start(PrintDocArray)
+                Dim tempFileName = fileToPrint.Substring(fileToPrint.LastIndexOf("\") + 1)
+                Dim tempFile As String = tempDirectory & "\" & tempFileName
+                File.Copy(fileToPrint, tempFile)
+
+                j = 0.2
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
+                Dim wordObj As New Word.Application
+                wordObj.Visible = False
+
+                j = 0.3
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
+                Dim doc As Word.Document = wordObj.Documents.Open(tempFile)
+
+                j = 0.4
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
+                'set margins
+                doc.PageSetup.TopMargin = wordObj.InchesToPoints(0.5)
+                doc.PageSetup.BottomMargin = wordObj.InchesToPoints(0.5)
+                doc.PageSetup.LeftMargin = wordObj.InchesToPoints(0.5)
+                doc.PageSetup.RightMargin = wordObj.InchesToPoints(0.5)
+
+                j = 0.6
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
+                Dim myXpsDoc = tempFile.Substring(0, tempFile.Length - 3) & "xps"
+                doc.SaveAs(myXpsDoc, Word.WdSaveFormat.wdFormatXPS)
+                doc.Close()
+                wordObj.Application.Quit()
+                wordObj = Nothing
+
+                j = 0.8
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
+
+                Dim PrintsArray As String() = {myXpsDoc, tempFile}
+                Dim thread = New Thread(AddressOf PrintAndDelete)
+                thread.SetApartmentState(ApartmentState.STA)
+                thread.Start(PrintsArray)
                 thread.Join()
+
+                j = 0.9
+                printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
             End If
             i += 1
         Next

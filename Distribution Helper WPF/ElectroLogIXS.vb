@@ -284,7 +284,14 @@
             Dim nextLine = rptFile.ReadLine
             If InStr(nextLine, "Port 3  Network ID: ") <> 0 Then
                 Do
-                    nextLine = rptFile.ReadLine
+                    Try
+                        nextLine = rptFile.ReadLine
+                    Catch e As Exception
+                        rptFile.Close
+                        fso = Nothing
+                        MsgBox("Encountered an issue. Possibly no ethernet remotes at this location.")
+                        Exit Sub
+                    End Try
                 Loop While InStr(nextLine, "Mode: ") = 0
                 For i = 0 To 10
                     Dim linkSetupStr = ""
@@ -337,6 +344,7 @@
             End If
         Loop
         rptFile.Close
+        fso = Nothing
     End Sub
 
 
