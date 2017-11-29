@@ -5,6 +5,8 @@ Imports System.ComponentModel
 Imports Microsoft.Office.Interop
 Imports System.Threading
 Imports System.Printing
+Imports System.Drawing.Printing
+Imports PdfSharp.Pdf.Printing
 'Imports Xceed.Wpf.Toolkit
 
 Class MainWindow
@@ -1472,58 +1474,24 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
-        '''''''''''''''''''''''''tried to print print another way''''''''''''''''''''''''''''
-        'Dim app = CreateObject("AcroExch.App")
-        'Dim avdoc As Acrobat.CAcroAVDoc = CreateObject("AcroExch.AVDoc")
-        'Dim pddoc As Acrobat.CAcroPDDoc = CreateObject("AcroExch.PDDoc")
-        'Dim docIsOpen = avdoc.Open(printFileStr, "")
-        'Dim pages As Short = 0
-        'If docIsOpen Then
-        '    pddoc = avdoc.GetPDDoc
-        '    pages = pddoc.GetNumPages - 1
-        'End If
-
-        'avdoc.PrintPages(0, pages, 2, 0, 0)
-        'pddoc.Close()
-        'avdoc.Close(1)
-        'avdoc = Nothing
-        'pddoc = Nothing
-        '''''''''''''''''''''''''tried to print another way'''''''''''''''''''''''''''
-
-
         Dim prtDoc As New Printing.PrintDocument
         Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
         Dim WshNetwork = CreateObject("WScript.Network")
         WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        MsgBox("Can not print the following file: " & vbCrLf & printFileStr & vbCrLf & "PDF file printing not implemented yet.")
+        Dim AcroRd32Path As String = "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
+        If File.Exists(AcroRd32Path) Then
+            PdfFilePrinter.AdobeReaderPath = AcroRd32Path
+            Dim printer As New PdfFilePrinter(printFileStr, RtvPrinter)
+            Try
+                printer.Print()
+            Catch e As Exception
 
-
-        '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
-        'Dim AvDoc As New Acrobat.AcroAVDoc
-        'AvDoc.Open(printFileStr, printFileStr)
-        'Dim PDDoc = AvDoc.GetPDDoc()
-        'Dim pages = PDDoc.GetNumPages - 1
-        'AvDoc.PrintPagesSilent(0, pages, 2, 0, 0)
-        'Thread.Sleep(1000)
-        'PDDoc.Close()
-        'AvDoc.Close(1)
-        'AvDoc = Nothing
-        'PDDoc = Nothing
-        '''''''''''''''''''''''''tried to print via acrobat'''''''''''''''''''''''''''
-
-
-        '''''''''''''''''''''''''tried to stream print''''''''''''''''''''''''''''''''
-        'Dim myFile = File.ReadAllBytes(printFileStr)
-        'Dim printQueue = LocalPrintServer.GetDefaultPrintQueue()
-        'Using job As PrintSystemJobInfo = printQueue.AddJob()
-        '    Using mystream As Stream = job.JobStream
-        '        mystream.Write(myFile, 0, myFile.Length)
-        '        mystream.Close()
-        '    End Using
-        'End Using
-        '''''''''''''''''''''''''tried to stream print''''''''''''''''''''''''''''''''
-
+                MsgBox("Error: " + e.Message)
+            End Try
+        Else
+            MsgBox("Error: Need the free Adobe Reader installed.")
+        End If
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
