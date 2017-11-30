@@ -1479,19 +1479,22 @@ Class MainWindow
         Dim WshNetwork = CreateObject("WScript.Network")
         WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        Dim AcroRd32Path As String = "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
-        If File.Exists(AcroRd32Path) Then
-            PdfFilePrinter.AdobeReaderPath = AcroRd32Path
-            Dim printer As New PdfFilePrinter(printFileStr, RtvPrinter)
-            Try
-                printer.Print()
-            Catch e As Exception
+        Dim myprocess As New Process
+        myprocess.StartInfo.UseShellExecute = True
+        myprocess.StartInfo.WindowStyle = ProcessWindowStyle.Normal
+        myprocess.StartInfo.FileName = printFileStr
 
-                MsgBox("Error: " + e.Message)
-            End Try
-        Else
-            MsgBox("Error: Need the free Adobe Reader installed.")
-        End If
+        'myprocess.StartInfo.Arguments = RtvPrinter
+        'For Each item In myprocess.StartInfo.Verbs
+        '    If item.ToLower.Equals("printto") Then
+        '        myprocess.StartInfo.Verb = item 'this line breaks the code
+        '        Exit For
+        '    End If
+        'Next
+
+        myprocess.Start()
+        'Thread.Sleep(10000)
+        'myprocess.Kill()
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
