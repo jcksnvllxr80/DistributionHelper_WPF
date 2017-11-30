@@ -1486,15 +1486,19 @@ Class MainWindow
 
         'myprocess.StartInfo.Arguments = RtvPrinter
         'For Each item In myprocess.StartInfo.Verbs
-        '    If item.ToLower.Equals("printto") Then
+        '    If item.ToLower.Equals("print") Then
         '        myprocess.StartInfo.Verb = item 'this line breaks the code
         '        Exit For
         '    End If
         'Next
 
         myprocess.Start()
-        'Thread.Sleep(10000)
-        'myprocess.Kill()
+        Thread.Sleep(3000)
+        Forms.SendKeys.SendWait("^p")
+        Thread.Sleep(500)
+        Forms.SendKeys.SendWait("{ENTER}")
+        Thread.Sleep(60000)
+        myprocess.Kill()
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
