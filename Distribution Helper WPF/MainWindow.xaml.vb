@@ -1479,26 +1479,37 @@ Class MainWindow
         Dim WshNetwork = CreateObject("WScript.Network")
         WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        Dim myprocess As New Process
-        myprocess.StartInfo.UseShellExecute = True
-        myprocess.StartInfo.WindowStyle = ProcessWindowStyle.Normal
-        myprocess.StartInfo.FileName = printFileStr
+        '---------------------FIND APPLICATION PATH TO ADOBE ACROBAT OR READER-----------------------
+        Dim AcrobatPath As String = ""
+        Try
+            AcrobatPath = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").
+                OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").
+                OpenSubKey("App Paths").OpenSubKey("Acrobat.exe").GetValue("")
+        Catch e1 As Exception
+            Try
+                AcrobatPath = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").
+                OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").
+                OpenSubKey("App Paths").OpenSubKey("AcroRd32.exe").GetValue("")
+            Catch e2 As Exception
+                MsgBox("Neither Adobe Acrobat or Adobe Reader are insalled. Please install 
+                    one or the other and try to print a pdf again." & vbCrLf &
+                    "Path to Adobe Reader is: """ & AcrobatPath & """" & vbCrLf &
+                    vbCrLf & e2.ToString)
+            End Try
+            MsgBox("Path to Adobe Acrobat is: """ & AcrobatPath & """" & vbCrLf &
+                   vbCrLf & e1.ToString)
+        End Try
 
-        'myprocess.StartInfo.Arguments = RtvPrinter
-        'For Each item In myprocess.StartInfo.Verbs
-        '    If item.ToLower.Equals("print") Then
-        '        myprocess.StartInfo.Verb = item 'this line breaks the code
-        '        Exit For
-        '    End If
-        'Next
+        '---------------------Run Adobe Process to print file-----------------------
+        Dim processArgs = "/t " & printFileStr & " " & RtvPrinter
+        Process.Start(AcrobatPath, processArgs)
+        Thread.Sleep(15000)
 
-        myprocess.Start()
-        Thread.Sleep(3000)
-        Forms.SendKeys.SendWait("^p")
-        Thread.Sleep(500)
-        Forms.SendKeys.SendWait("{ENTER}")
-        Thread.Sleep(60000)
-        myprocess.Kill()
+        Dim procsToKill As Process() = Process.GetProcessesByName("Acrobat")
+        For Each proc In procsToKill
+            proc.Kill()
+            Exit For
+        Next
 
         Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
         WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
