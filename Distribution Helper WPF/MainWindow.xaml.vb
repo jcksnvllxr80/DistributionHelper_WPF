@@ -6,7 +6,6 @@ Imports Microsoft.Office.Interop
 Imports System.Threading
 Imports System.Printing
 Imports System.Drawing.Printing
-Imports PdfSharp.Pdf.Printing
 'Imports Xceed.Wpf.Toolkit
 
 Class MainWindow
@@ -1474,47 +1473,17 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
-        Dim prtDoc As New Printing.PrintDocument
-        Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
-        Dim WshNetwork = CreateObject("WScript.Network")
-        WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
+        'Dim prtDoc As New Printing.PrintDocument
+        'Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
+        'Dim WshNetwork = CreateObject("WScript.Network")
+        'WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
 
-        '---------------------FIND APPLICATION PATH TO ADOBE ACROBAT OR READER-----------------------
-        Dim AcrobatPath As String = ""
-        Try
-            AcrobatPath = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").
-                OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").
-                OpenSubKey("App Paths").OpenSubKey("Acrobat.exe").GetValue("")
-        Catch e1 As Exception
-            Try
-                AcrobatPath = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").
-                OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").
-                OpenSubKey("App Paths").OpenSubKey("AcroRd32.exe").GetValue("")
-            Catch e2 As Exception
-                MsgBox("Neither Adobe Acrobat or Adobe Reader are insalled. Please install 
-                    one or the other and try to print a pdf again." & vbCrLf &
-                    "Path to Adobe Reader is: """ & AcrobatPath & """" & vbCrLf &
-                    vbCrLf & e2.ToString)
-            End Try
-            MsgBox("Path to Adobe Acrobat is: """ & AcrobatPath & """" & vbCrLf &
-                   vbCrLf & e1.ToString)
-        End Try
+        RawPrinterHelper.SendFileToPrinter(RtvPrinter, printFileStr)
 
-        '---------------------Run Adobe Process to print file-----------------------
-        Dim processArgs = "/t " & printFileStr & " " & RtvPrinter
-        Process.Start(AcrobatPath, processArgs)
-        Thread.Sleep(15000)
-
-        Dim procsToKill As Process() = Process.GetProcessesByName("Acrobat")
-        For Each proc In procsToKill
-            proc.Kill()
-            Exit For
-        Next
-
-        Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
-        WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
-        Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
-        WshNetwork = Nothing
+        'Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
+        'WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
+        'Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
+        'WshNetwork = Nothing
     End Sub
 
 
