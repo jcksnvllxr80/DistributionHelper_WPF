@@ -769,7 +769,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*" MinHeight="24"/>
                         <RowDefinition Height="256"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="5"/>
@@ -806,6 +806,17 @@
                                Height="256" >
                         </Image>
                     </StackPanel>
+                    <CheckBox x:Name="TwoSidedPrintsCheckbox"
+                              Grid.Row="1"
+                              Grid.Column="2"
+                              IsChecked="True"
+                              Content="Print on both sides"
+                              Foreground="White"
+                              FontFamily="Courier New"
+                              Margin="3"
+                              FontSize="16"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="ProgramRevisionsTab" 

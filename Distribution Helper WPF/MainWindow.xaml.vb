@@ -1442,7 +1442,7 @@ Class MainWindow
                 'dataObj.Items.Remove(item) 'remove the printed item from the list completely
             Next
 
-            Dim myStrArray = myStrArrayList.ToArray()
+            Dim myStrArray As Array = myStrArrayList.ToArray()
             Dim printCanceled = PrintMySelectedFiles(myStrArray)
 
             If printCanceled Then ' print was canceled
@@ -1463,9 +1463,10 @@ Class MainWindow
         Dim printer As New PrintDialog
         Dim result = printer.ShowDialog()
         If result Then
+            Dim printJobInfo As New PrintJobInfo(printFilesArray, TwoSidedPrintsCheckbox.IsChecked)
             ProgressBar.Visibility = Visibility.Visible
             TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.Normal
-            printFilesBGWorker.RunWorkerAsync(printFilesArray)
+            printFilesBGWorker.RunWorkerAsync(printJobInfo)
         End If
 
         Return Not result
@@ -1473,26 +1474,24 @@ Class MainWindow
 
 
     Private Sub PrintPDF(printFileStr As String)
-        'Dim prtDoc As New Printing.PrintDocument
-        'Dim OldPrinter = prtDoc.PrinterSettings.PrinterName
-        'Dim WshNetwork = CreateObject("WScript.Network")
-        'WshNetwork.SetDefaultPrinter(RtvPrinter) 'set printer for RTVP to color printer (east 4th floor)
-
         RawPrinterHelper.SendFileToPrinter(RtvPrinter, printFileStr)
-
-        'Console.WriteLine("Printing Printer: " & RtvPrinter & vbCrLf & "Default Printer: " & OldPrinter)
-        'WshNetwork.SetDefaultPrinter(OldPrinter) 'return to original printer
-        'Runtime.InteropServices.Marshal.ReleaseComObject(WshNetwork)
-        'WshNetwork = Nothing
     End Sub
 
 
     Private Sub PrintAndDelete(myDocsAray As String())
         Dim myXpsDoc As String = myDocsAray(0)
         Dim tempFile As String = myDocsAray(1)
+        Dim twoSidedPrints As Boolean = myDocsAray(2)
 
-        Dim defaultPrintQueue As PrintQueue = LocalPrintServer.GetDefaultPrintQueue
-        Dim xpsPrintJob = defaultPrintQueue.AddJob(myXpsDoc, myXpsDoc, False)
+        Dim thisPrintQueue As PrintQueue = LocalPrintServer.GetDefaultPrintQueue
+        If twoSidedPrints Then
+            thisPrintQueue.CurrentJobSettings.CurrentPrintTicket.Duplexing = Duplexing.TwoSidedLongEdge
+        Else
+            thisPrintQueue.CurrentJobSettings.CurrentPrintTicket.Duplexing = Duplexing.OneSided
+        End If
+        thisPrintQueue.CurrentJobSettings.CurrentPrintTicket.Duplexing = Duplexing.TwoSidedLongEdge
+        Dim xpsPrintJob = thisPrintQueue.AddJob(myXpsDoc, myXpsDoc, False)
+        Console.WriteLine(xpsPrintJob.PropertiesCollection.ToString)
 
         File.Delete(tempFile)
         File.Delete(myXpsDoc)
@@ -1512,7 +1511,9 @@ Class MainWindow
 
 
     Private Sub BackgroundWorker_PrintFiles(sender As Object, e As DoWorkEventArgs)
-        Dim printFilesArray As Array = e.Argument
+        Dim printJobInfo As PrintJobInfo = e.Argument
+        Dim printFilesArray As Array = printJobInfo.FilesToPrint
+        Dim twoSided As Boolean = printJobInfo.TwoSidedPrinting
 
         Dim tempFolderProgrammaticallyCreated As Boolean
         Dim tempDirectory As String = DistroPathText.Text & "\Temp"
@@ -1580,7 +1581,7 @@ Class MainWindow
                 j = 0.8
                 printFilesBGWorker.ReportProgress((i * 100 / printFilesArray.Length) + (j * 100 / printFilesArray.Length))
 
-                Dim PrintsArray As String() = {myXpsDoc, tempFile}
+                Dim PrintsArray As String() = {myXpsDoc, tempFile, twoSided}
                 Dim thread = New Thread(AddressOf PrintAndDelete)
                 thread.SetApartmentState(ApartmentState.STA)
                 thread.Start(PrintsArray)
