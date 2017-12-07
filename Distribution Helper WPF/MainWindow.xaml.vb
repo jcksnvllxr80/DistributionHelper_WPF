@@ -941,6 +941,7 @@ Class MainWindow
         PrintMenu.IsEnabled = True
         PrintToolBttn.IsEnabled = True
         'PrintLinkCompMenuItem.IsEnabled = True
+        ExportMenuItem.IsEnabled = True
         PrintLocInfoMenuItem.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
@@ -967,6 +968,8 @@ Class MainWindow
         PrintMenu.IsEnabled = False
         PrintToolBttn.IsEnabled = False
         PrintLinkCompMenuItem.IsEnabled = False
+        ExportMenuItem.IsEnabled = False
+        ExportRemoteComparisonMenuItem.IsEnabled = False
         PrintLocInfoMenuItem.IsEnabled = False
 
         PrintPreviewTab.Visibility = Visibility.Collapsed
@@ -1167,7 +1170,7 @@ Class MainWindow
     Private Sub ItemListPreviewMouseMove(sender As Object, e As MouseEventArgs)
         If (e.LeftButton = MouseButtonState.Pressed And Not e.OriginalSource.GetType.ToString.Equals("System.Windows.Controls.ListViewItem")) Then
             Dim data As New DataObject()
-            data.SetData(DataFormats.StringFormat, e.OriginalSource.Text)
+            data.SetData(DataFormats.StringFormat, e.Source.Content)
 
             DragDrop.DoDragDrop(sender, data, DragDropEffects.Copy Or DragDropEffects.Move)
         End If
@@ -1180,45 +1183,59 @@ Class MainWindow
         If (e.Data.GetDataPresent(DataFormats.StringFormat)) Then
             Dim dataString As String = e.Data.GetData(DataFormats.StringFormat)
             Console.WriteLine(dataString & " dropped on " & myStackPanel.Name)
+            Dim removeChassis As Boolean
             If myStackPanel.Equals(MainChassisDropPanel) Then
                 RefreshLinksList()
                 Dim currentChassis = DistributionPrograms.First
                 Do While currentChassis IsNot Nothing
                     If currentChassis.Value.getName.Equals(dataString) Then
                         Dim numOfRemoteChassis = currentChassis.Value.FindRemoteInformation(CombinedRptCheckBox.IsChecked)
-                        AddDropPanelsForRemoteChassis(numOfRemoteChassis)
-                        LinkCompareInstructions.Text = "Drag all remotes from the list onto thier respective remote number"
+                        If numOfRemoteChassis > 0 Then
+                            AddDropPanelsForRemoteChassis(numOfRemoteChassis)
+                            MainHouseDropLabel.Content.Text = dataString
+                            MainHouseDropLabel.Foreground = System.Windows.Media.Brushes.White
+                            MainHouseDropLabel.FontWeight = FontWeights.Bold
+                            MainHouseDropLabel.FontSize = 14
+                            RefreshLinksButton.IsEnabled = True
+                            removeChassis = True
+                        End If
                         Exit Do ' found which item was dropped on main chassis, stop searching
                     End If
                     currentChassis = currentChassis.Next
                 Loop
-                MainHouseDropLabel.Content.Text = dataString
-                MainHouseDropLabel.Foreground = System.Windows.Media.Brushes.White
-                MainHouseDropLabel.FontWeight = FontWeights.Bold
-                MainHouseDropLabel.FontSize = 14
             Else
                 Dim currentChassis = DistributionPrograms.First
                 Do While currentChassis IsNot Nothing
                     If currentChassis.Value.getName.Equals(dataString) Then
                         'myStackPanel.Tag.ToString.Substring(myStackPanel.Tag.ToString.Length - 1)
                         currentChassis.Value.FindRemoteInformation(CombinedRptCheckBox.IsChecked, myStackPanel.Tag.ToString.Substring(myStackPanel.Tag.ToString.Length - 1))
+                        If currentChassis.Value.GetLinkUpStatus.Count > 0 Then
+                            removeChassis = True
+                        End If
                         Exit Do ' found the label matching the drop panel, stop searching
                     End If
                     currentChassis = currentChassis.Next
                 Loop
                 For Each remoteLabel In RemoteLinkGrid.FindChildren(Of Label)
                     If myStackPanel.Tag = remoteLabel.Tag Then
-                        remoteLabel.Content.Text = dataString
-                        remoteLabel.Foreground = System.Windows.Media.Brushes.White
-                        remoteLabel.FontWeight = FontWeights.Bold
-                        remoteLabel.FontSize = 14
+                        If removeChassis Then
+                            remoteLabel.Content.Text = dataString
+                            remoteLabel.Foreground = System.Windows.Media.Brushes.White
+                            remoteLabel.FontWeight = FontWeights.Bold
+                            remoteLabel.FontSize = 14
+                        End If
                         Exit For ' found the label matching the drop panel, stop searching
                     End If
                 Next
             End If
             For Each item In ChassisListView.Items
                 If item.Content.ToString.Equals(dataString.ToString) Then
-                    ChassisListView.Items.Remove(item)
+                    If removeChassis Then
+                        ChassisListView.Items.Remove(item)
+                        LinkCompareInstructions.Text = "Drag all remotes from the list onto thier respective remote number"
+                    Else
+                        LinkCompareInstructions.Text = "Cannot find "".rpt"" with remote info for the chosen chassis"
+                    End If
                     Exit For ' found the item to remove from chassis list view, stop searching
                 End If
             Next
@@ -1226,7 +1243,6 @@ Class MainWindow
                 CompareLinksButton.IsEnabled = True
                 LinkCompareInstructions.Text = "Press the compare button to view the link comparison"
             End If
-            RefreshLinksButton.IsEnabled = True
         End If
         e.Handled = True
     End Sub
@@ -1403,6 +1419,7 @@ Class MainWindow
                 LocationInfoViewer.Document = LinkCompareFlowDoc
                 LocationInfoViewer.ViewingMode = FlowDocumentReaderViewingMode.Scroll
                 PrintLinkCompMenuItem.IsEnabled = True
+                ExportRemoteComparisonMenuItem.IsEnabled = True
             End Using
         End If
     End Sub
@@ -1599,4 +1616,30 @@ Class MainWindow
 
         printFilesBGWorker.ReportProgress(100)
     End Sub
+
+
+    Private Sub ExportToFileMenuItem_Click(sender As Object, e As RoutedEventArgs)
+        Dim fileContent As New FlowDocument
+
+        Dim mySaveAsDialog As New Microsoft.Win32.SaveFileDialog()
+        mySaveAsDialog.InitialDirectory = Me.DistroPathText.Text
+        mySaveAsDialog.DefaultExt = ".txt" ' Default file extension
+        mySaveAsDialog.Filter = "Text documents (.txt)|*.txt" ' Filter files by extension
+        If e.Source.Name.Equals("ExportLocationInfoMenuItem") Then
+            mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Location Information File" ' Default file name
+            fileContent = LocationDataFlowDoc
+        Else
+            mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Remote Link Comparison"
+            fileContent = LinkCompareFlowDoc
+        End If
+        If mySaveAsDialog.ShowDialog Then
+            Console.WriteLine(mySaveAsDialog.FileName)
+            File.WriteAllText(mySaveAsDialog.FileName, New TextRange(fileContent.ContentStart, fileContent.ContentEnd).Text)
+            'Dim filename As String = mySaveAsDialog.FileName
+        End If
+    End Sub
 End Class
+
+
+
+

@@ -71,6 +71,17 @@
                 <MenuItem Header="_Save" 
                           x:Name="SaveMenuItem"
                           IsEnabled="False"/>
+                <MenuItem Header="_Export"
+                          x:Name="ExportMenuItem"
+                          IsEnabled="False">
+                    <MenuItem Header="_Location Info" 
+                              x:Name="ExportLocationInfoMenuItem" 
+                              Click="ExportToFileMenuItem_Click"/>
+                    <MenuItem Header="_Remote Comparison" 
+                              x:Name="ExportRemoteComparisonMenuItem" 
+                              Click="ExportToFileMenuItem_Click"
+                              IsEnabled="False"/>
+                </MenuItem>
                 <Separator />
                 <MenuItem Header="_Close" 
                           x:Name="MenuItemClose" 
@@ -769,9 +780,9 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5"/>
-                        <RowDefinition Height="*" MinHeight="24"/>
-                        <RowDefinition Height="256"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="256"/>
+                        <RowDefinition Height="*" MinHeight="24"/>
                         <RowDefinition Height="5"/>
                     </Grid.RowDefinitions>
                     <ListView x:Name="PrintListView"
@@ -807,16 +818,16 @@
                         </Image>
                     </StackPanel>
                     <CheckBox x:Name="TwoSidedPrintsCheckbox"
-                              Grid.Row="1"
+                              Grid.Row="3"
                               Grid.Column="2"
                               IsChecked="True"
                               Content="Print on both sides"
                               Foreground="White"
                               FontFamily="Courier New"
-                              Margin="3"
+                              Margin="8,0,0,0"
                               FontSize="16"
                               HorizontalAlignment="Left"
-                              VerticalAlignment="Top"/>
+                              VerticalAlignment="Bottom"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="ProgramRevisionsTab" 

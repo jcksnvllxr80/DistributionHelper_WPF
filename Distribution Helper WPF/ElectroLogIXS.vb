@@ -1,4 +1,6 @@
-﻿Public Class ElectroLogIXS
+﻿Imports System.IO
+
+Public Class ElectroLogIXS
     Inherits ProgramFile
     Private V_Checksum As String
     Private V_CRC As String
@@ -141,7 +143,7 @@
         Dim g
         Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim consFile = Me.GetPath & "\" & Me.GetName & "_cons.txt"
-        If System.IO.File.Exists(consFile) Then
+        If File.Exists(consFile) Then
             Dim f = fso.OpenTextFile(consFile)
             Do Until f.AtEndOfStream
                 Dim nextLine = f.ReadLine
@@ -197,14 +199,14 @@
 
     Public Sub GetValidationCRCs()
         Dim vLog = Me.GetPath & "\" & Me.GetName & "v.log"
-        If System.IO.File.Exists(vLog) Then
+        If File.Exists(vLog) Then
             Me.V_ValCrc = Me.FindValidationCRC(vLog)
         Else
             MsgBox("Vital log file """ & vLog & """ does not exist.")
         End If
 
         Dim nvLog = Me.GetPath & "\" & Me.GetName & "nv.log"
-        If System.IO.File.Exists(nvLog) Then
+        If File.Exists(nvLog) Then
             Me.NV_ValCrc = Me.FindValidationCRC(nvLog)
         Else
             MsgBox("Non-vital log file """ & nvLog & """ does not exist.")
@@ -242,10 +244,12 @@
             fileEnding = "v"
         End If
         Me.rptPathAndName = Me.GetPath & "\" & Me.GetName & fileEnding & ".rpt"
-        Me.combinedRPT = combinedReport
-        Me.remoteNum = 0
-        FindVitalLinkInfo()
-        FindVitalLinkStatuses()
+        If File.Exists(Me.rptPathAndName) Then
+            Me.combinedRPT = combinedReport
+            Me.remoteNum = 0
+            FindVitalLinkInfo()
+            FindVitalLinkStatuses()
+        End If
         Return LinkUpStatus.Count
     End Function
 
@@ -257,10 +261,12 @@
             fileEnding = "v"
         End If
         Me.rptPathAndName = Me.GetPath & "\" & Me.GetName & fileEnding & ".rpt"
-        Me.combinedRPT = combinedReport
-        Me.remoteNum = remoteNumber
-        FindVitalLinkInfo()
-        FindVitalLinkStatuses()
+        If File.Exists(Me.rptPathAndName) Then
+            Me.combinedRPT = combinedReport
+            Me.remoteNum = remoteNumber
+            FindVitalLinkInfo()
+            FindVitalLinkStatuses()
+        End If
     End Sub
 
 
