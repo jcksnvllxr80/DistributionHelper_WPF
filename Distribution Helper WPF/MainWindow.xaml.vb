@@ -155,6 +155,7 @@ Class MainWindow
 
 
     Private Sub Text_MouseEnter(sender As Object, e As MouseEventArgs)
+        'Console.WriteLine(e.Source.Tag)
         StatusLabel.Text = sender.Tag
     End Sub
 
@@ -474,6 +475,9 @@ Class MainWindow
 
                         Dim textBlock As New TextBlock
                         textBlock.Text = filename
+                        textBlock.Tag = "Select " & textBlock.Text & " for Distribution"
+                        AddHandler textBlock.MouseEnter, AddressOf Text_MouseEnter
+                        AddHandler textBlock.MouseLeave, AddressOf Text_MouseLeave
 
                         'Set size, position, ...
                         checkBox.Content = textBlock
@@ -513,6 +517,9 @@ Class MainWindow
                 OkButton.Content = "OK"
                 OkButton.Height = 32
                 OkButton.Width = 90
+                OkButton.Tag = "Accept and mine the checked software"
+                AddHandler OkButton.MouseEnter, AddressOf Text_MouseEnter
+                AddHandler OkButton.MouseLeave, AddressOf Text_MouseLeave
                 AddHandler OkButton.Click, AddressOf OkButton_Click
 
                 Dim separator As New Separator()
@@ -525,6 +532,9 @@ Class MainWindow
                 CancelButton.Content = "Cancel"
                 CancelButton.Height = 32
                 CancelButton.Width = 90
+                CancelButton.Tag = "Cancel selecting/mining software"
+                AddHandler CancelButton.MouseEnter, AddressOf Text_MouseEnter
+                AddHandler CancelButton.MouseLeave, AddressOf Text_MouseLeave
                 AddHandler CancelButton.Click, AddressOf CancelButton_Click
 
                 ShowProgramSelectorPanel(True)
