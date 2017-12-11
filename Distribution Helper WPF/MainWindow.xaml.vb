@@ -113,6 +113,7 @@ Class MainWindow
         AddHandler printFilesBGWorker.ProgressChanged, AddressOf BackgroundWorker_FilePrintingProgressChanged
         AddHandler printFilesBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_FilePrintWorkerCompleted
 
+        AddHandler PrintListFilterComboBox.SelectionChanged, AddressOf PopulatePrintList
     End Sub
 
 
@@ -458,7 +459,6 @@ Class MainWindow
             ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
             ChassisListView.Items.Clear()
             RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
-            PrintListView.Items.Clear()
 
             For Each File In Directory.GetFiles(Me.DistroPathText.Text)
                 Dim filesys = CreateObject("Scripting.FileSystemObject")
@@ -492,18 +492,10 @@ Class MainWindow
                         separator.BorderBrush = System.Windows.Media.Brushes.Transparent
                         j = j + 1
                     End If
-
-                    If New String() {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}.Contains(typeStr) And Not filename.ToString.Contains("_print_list_") Then
-                        ' Create a ListViewItem
-                        Dim printListItem As New ListViewItem()
-                        ' Add ListViewItem to form
-                        printListItem.Content = filename
-                        printListItem.Tag = File
-                        printListItem.Background = Media.Brushes.Transparent
-                        Me.PrintListView.Items.Add(printListItem)
-                    End If
                 End If
             Next
+
+            'PopulatePrintList()
 
             Dim buttonPanel = New StackPanel With {
                 .Orientation = Orientation.Vertical
@@ -547,6 +539,54 @@ Class MainWindow
     End Sub
 
 
+    Private Sub PopulatePrintList()
+        PrintListView.Items.Clear()
+        Dim RtvpBelongsInPrintList As Boolean = True
+
+        For Each File In Directory.GetFiles(Me.DistroPathText.Text)
+            Dim filesys = CreateObject("Scripting.FileSystemObject")
+            Dim filetype = filesys.GetExtensionName(File)
+            Dim filename = filesys.GetFileName(File)
+
+            Dim FileFilterStringArray As String() = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+            Select Case PrintListFilterComboBox.SelectedValue.Name
+                Case "ALL"
+                    FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+                Case "ELGX"
+                    FileFilterStringArray = {"RPT", "LER"}
+                Case "ML2"
+                    FileFilterStringArray = {"ML2", "DOC", "DOCX"}
+                    RtvpBelongsInPrintList = False
+                Case "EC4"
+                    FileFilterStringArray = {"DOC", "DOCX"}
+                    RtvpBelongsInPrintList = False
+                Case "VHLC"
+                    FileFilterStringArray = {"ALL"}
+                Case "Final"
+                    FileFilterStringArray = {"LOG", "VDR", "VAL"}
+                    RtvpBelongsInPrintList = False
+                Case "RTVP"
+                    FileFilterStringArray = {}
+            End Select
+
+            If InStr(filename, "~") = 0 And Not filetype Is Nothing Then 'dont use system files
+                If FileFilterStringArray.Contains(filetype.ToUpper) And Not filename.ToString.Contains("_print_list_") Then
+                    ' Create a ListViewItem
+                    Dim printListItem As New ListViewItem()
+                    ' Add ListViewItem to form
+                    printListItem.Content = filename
+                    printListItem.Tag = File
+                    printListItem.Background = Media.Brushes.Transparent
+                    Me.PrintListView.Items.Add(printListItem)
+                End If
+            End If
+        Next
+        If locationInfo IsNot Nothing And RtvpBelongsInPrintList Then
+            AddRtvpToPrintList()
+        End If
+    End Sub
+
+
     Private Sub ShowProgramSelectorPanel(open As Boolean)
         If open Then
             ProgramSelectorLabel.Visibility = Visibility.Visible
@@ -578,6 +618,8 @@ Class MainWindow
         Me.ProgressBar.Visibility = Visibility.Hidden
         TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
 
+        PopulatePrintList()
+
         If locationInfo IsNot Nothing Then
             Me.CustomerJobNumComboBox.Text = locationInfo.GetCustomerNumber()
             Me.InternalJobNumComboBox.Text = locationInfo.GetInternalNumber()
@@ -586,34 +628,8 @@ Class MainWindow
             Me.AddressCityText.Text = locationInfo.GetCity()
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
 
-            Dim reducedTestDir As String = Nothing
-            If locationInfo.GetRTVPfolderNum IsNot Nothing Then
-                'Console.WriteLine("RTVP folder num is """ & locationInfo.GetRTVPfolderNum & """.")
-
-                Dim validationYearDir = "P:\Validation\" & locationInfo.GetRTVPyear & "\" & locationInfo.GetCustomer
-                reducedTestDir = FindSubfolderContaining(validationYearDir, locationInfo.GetRTVPfolderNum & "_", 0)
-
-                Dim reducedTestDistributionDir As String = Nothing
-                If reducedTestDir IsNot Nothing Then
-                    reducedTestDistributionDir = FindSubfolderContaining(reducedTestDir, "Distribution", 0)
-                End If
-
-                If reducedTestDistributionDir IsNot Nothing Then
-                    Dim fso = CreateObject("Scripting.FileSystemObject")
-                    For Each file In fso.GetFolder(reducedTestDistributionDir).Files
-                        If System.IO.Path.GetExtension(file.Name).ToUpper.Equals(".PDF") Then
-                            ' Create a ListViewItem
-                            Dim printListItem As New ListViewItem()
-                            ' Add ListViewItem to form
-                            printListItem.Content = file.Name
-                            printListItem.Tag = file.Path
-                            printListItem.Background = Media.Brushes.Transparent
-                            Me.PrintListView.Items.Add(printListItem)
-                        End If
-                    Next
-                End If
-            End If
-
+            AddRtvpToPrintList()
+        Else
             PrintListPanelColumn.Width = GridLength.Auto
         End If
 
@@ -626,6 +642,38 @@ Class MainWindow
                 DisableDataViewFunctions()
             End If
         Next
+    End Sub
+
+
+    Sub AddRtvpToPrintList()
+        Dim reducedTestDir As String = Nothing
+        If locationInfo.GetRTVPfolderNum IsNot Nothing Then
+            'Console.WriteLine("RTVP folder num is """ & locationInfo.GetRTVPfolderNum & """.")
+
+            Dim validationYearDir = "P:\Validation\" & locationInfo.GetRTVPyear & "\" & locationInfo.GetCustomer
+            reducedTestDir = FindSubfolderContaining(validationYearDir, locationInfo.GetRTVPfolderNum & "_", 0)
+
+            Dim reducedTestDistributionDir As String = Nothing
+            If reducedTestDir IsNot Nothing Then
+                reducedTestDistributionDir = FindSubfolderContaining(reducedTestDir, "Distribution", 0)
+            End If
+
+            If reducedTestDistributionDir IsNot Nothing Then
+                Dim fso = CreateObject("Scripting.FileSystemObject")
+                For Each file In fso.GetFolder(reducedTestDistributionDir).Files
+                    If System.IO.Path.GetExtension(file.Name).ToUpper.Equals(".PDF") Then
+                        ' Create a ListViewItem
+                        Dim printListItem As New ListViewItem()
+                        ' Add ListViewItem to form
+                        printListItem.Content = file.Name
+                        printListItem.Tag = file.Path
+                        printListItem.Background = Media.Brushes.Transparent
+                        Me.PrintListView.Items.Add(printListItem)
+                    End If
+                Next
+            End If
+        End If
+        PrintListPanelColumn.Width = GridLength.Auto
     End Sub
 
 

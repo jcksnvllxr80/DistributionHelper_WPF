@@ -19,7 +19,7 @@
         mc:Ignorable="d"
         Title="Distribution Helper" 
         Height="775" 
-        MinHeight="520"
+        MinHeight="600"
         Width="1000" 
         MinWidth="950"
         Opacity="0.951" 
@@ -803,7 +803,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition x:Name="PrintListPanelColumn"  MinWidth="250" MaxWidth="450"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition MinWidth="215"/>
                         <ColumnDefinition Width="256"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="5"/>
@@ -812,7 +812,7 @@
                         <RowDefinition Height="5"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="256"/>
-                        <RowDefinition Height="*" MinHeight="24"/>
+                        <RowDefinition Height="*" MinHeight="55"/>
                         <RowDefinition Height="5"/>
                     </Grid.RowDefinitions>
                     <ListView x:Name="PrintListView"
@@ -849,20 +849,38 @@
                         Height="256" >
                         </Image>
                     </StackPanel>
-                    <CheckBox x:Name="TwoSidedPrintsCheckbox"
-                        Grid.Row="3"
-                        Grid.Column="2"
-                        IsChecked="True"
-                        Content="Print on both sides"
-                        Foreground="White"
-                        FontFamily="Courier New"
-                        Margin="8,0,0,0"
-                        FontSize="16"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom"
-                        Tag="Select for two-sided prints" 
-                        MouseEnter="Text_MouseEnter" 
-                        MouseLeave="Text_MouseLeave"/>
+                    <StackPanel x:Name="PrintOptionsPanel" 
+                                Grid.Row="3"
+                                Grid.Column="2" 
+                                VerticalAlignment="Bottom">
+                        <CheckBox x:Name="TwoSidedPrintsCheckbox"
+                                  IsChecked="True"
+                                  Content="Print on both sides"
+                                  Foreground="White"
+                                  FontFamily="Courier New"
+                                  Margin="8,0,0,8"
+                                  FontSize="16"
+                                  HorizontalAlignment="Left"
+                                  Tag="Select for two-sided prints" 
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave"/>
+                        <ComboBox x:Name="PrintListFilterComboBox" 
+                                  VerticalAlignment="Bottom"
+                                  HorizontalAlignment="Left"
+                                  Margin="8,0,0,0"
+                                  Width="205"
+                                  Tag="Select print list filter"
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave" >
+                            <ComboBoxItem x:Name="ALL" Content="All Chassis Files" IsSelected="True"/>
+                            <ComboBoxItem x:Name="ELGX" Content="ElectroLogIXS Program Files"/>
+                            <ComboBoxItem x:Name="ML2" Content="Microlok II Program Files"/>
+                            <ComboBoxItem x:Name="VHLC" Content="VHLC Program Files"/>
+                            <ComboBoxItem x:Name="EC4" Content="EC4 Program Files"/>
+                            <ComboBoxItem x:Name="Final" Content="Final Check Files"/>
+                            <ComboBoxItem x:Name="RTVP" Content="Reduced Test Document"/>
+                        </ComboBox>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem x:Name="ProgramRevisionsTab" 
