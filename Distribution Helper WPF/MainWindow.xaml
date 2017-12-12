@@ -24,8 +24,8 @@
         MinWidth="950"
         Opacity="0.951" 
         AllowsTransparency="False"
-        Left="300"
-        Top="300"
+        Left="400"
+        Top="100"
         Icon="resources\Dakirby309-Windows-8-Metro-Other-Mail-alt-Metro.ico" 
         WindowStyle="None">
     <Controls:MetroWindow.Resources>
@@ -453,20 +453,20 @@
                                     HorizontalContentAlignment="Right" 
                                     Content="Shipping Method" />
                         <ComboBox Grid.Row="13" 
-                                        Grid.Column="5" 
-                                        Grid.ColumnSpan="3" 
-                                        x:Name="ShippingMethodBox" 
-                                        Text="" 
-                                        FontSize="16"
-                                        FontStyle="Normal"
-                                        MouseEnter="Text_MouseEnter" 
-                                        MouseLeave="Text_MouseLeave" 
-                                        Tag="Choose shipping method"/>
+                                  Grid.Column="5" 
+                                  Grid.ColumnSpan="3" 
+                                  x:Name="ShippingMethodBox" 
+                                  Text="" 
+                                  FontSize="16"
+                                  FontStyle="Normal"
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave" 
+                                  Tag="Choose shipping method"/>
                         <Separator Grid.Row="15" 
-                                        Grid.Column="1"
-                                        Grid.ColumnSpan="7"
-                                        BorderBrush="{StaticResource HeaderColor}"
-                                        BorderThickness="1"/>
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="7"
+                                   BorderBrush="{StaticResource HeaderColor}"
+                                   BorderThickness="1"/>
                         <!--<Border x:Name="AddressFieldsBorder"
                                     Grid.Row="17" 
                                     Grid.RowSpan="7"
@@ -872,7 +872,8 @@
                                   Tag="Select print list filter"
                                   MouseEnter="Text_MouseEnter" 
                                   MouseLeave="Text_MouseLeave" >
-                            <ComboBoxItem x:Name="ALL" Content="All Chassis Files" IsSelected="True"/>
+                            <ComboBoxItem x:Name="ALL" Content="Pertinent Location Files" IsSelected="True"/>
+                            <ComboBoxItem x:Name="Software" Content="Only Software Files"/>
                             <ComboBoxItem x:Name="ELGX" Content="ElectroLogIXS Program Files"/>
                             <ComboBoxItem x:Name="ML2" Content="Microlok II Program Files"/>
                             <ComboBoxItem x:Name="VHLC" Content="VHLC Program Files"/>

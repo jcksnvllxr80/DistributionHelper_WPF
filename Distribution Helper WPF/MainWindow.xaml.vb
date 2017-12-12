@@ -449,16 +449,43 @@ Class MainWindow
     End Sub
 
 
+    Private Sub RestoreDefaults()
+        DistributionTab.IsSelected = True
+        DisableCreationControls()
+        DisableDataViewFunctions()
+        LocationNameText.Text = Nothing
+        CustomerJobNumComboBox.Text = Nothing
+        InternalJobNumComboBox.Text = Nothing
+        CustomerComboBox.Text = Nothing
+        TrackingNumberText.Text = Nothing
+        InvoiceNumText.Text = Nothing
+        ShippingMethodBox.SelectedItem = "Standard (3-5 Days)"
+        DistributionDatePicker.SelectedDate = DateTime.Now
+        RecipientNameText.Text = Nothing
+        AddressStreetText.Text = Nothing
+        AddressCityText.Text = Nothing
+        AddressPhoneNumberText.Text = Nothing
+        AddressStateBox.SelectedValue = "AL"
+        AddressZipCodeText.Text = Nothing
+        AddressPhoneNumberText.Text = Nothing
+
+
+        DistributionTab.Visibility = Visibility.Visible
+        DistributionTabGrid.Visibility = Visibility.Visible
+        DistributionPrograms.Clear()
+        ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
+        ChassisListView.Items.Clear()
+        RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
+        PrintListView.Items.Clear()
+    End Sub
+
+
     Private Sub FindFilesAndCreateProgramSelectPanel()
-        StatusLabel.Text = "Looking for software to distribute..."
-        Dim j = 0
         If Directory.Exists(Me.DistroPathText.Text) Then
-            DistributionTab.Visibility = Visibility.Visible
-            DistributionTabGrid.Visibility = Visibility.Visible
-            DistributionPrograms.Clear()
-            ProgramWrapPanel.Children.RemoveRange(0, ProgramWrapPanel.Children.Count)
-            ChassisListView.Items.Clear()
-            RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
+            StatusLabel.Text = "Looking for software to distribute..."
+            Dim j = 0
+
+            RestoreDefaults()
 
             For Each File In Directory.GetFiles(Me.DistroPathText.Text)
                 Dim filesys = CreateObject("Scripting.FileSystemObject")
@@ -494,8 +521,6 @@ Class MainWindow
                     End If
                 End If
             Next
-
-            'PopulatePrintList()
 
             Dim buttonPanel = New StackPanel With {
                 .Orientation = Orientation.Vertical
@@ -541,46 +566,55 @@ Class MainWindow
 
     Private Sub PopulatePrintList()
         PrintListView.Items.Clear()
+
         Dim RtvpBelongsInPrintList As Boolean = True
+        Dim FileFilterStringArray As String() = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+        Select Case PrintListFilterComboBox.SelectedValue.Name
+            Case "ALL"
+                FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+            Case "Software"
+                FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+                RtvpBelongsInPrintList = False
+            Case "ELGX"
+                FileFilterStringArray = {"RPT", "LER"}
+            Case "ML2"
+                FileFilterStringArray = {"ML2", "GN2", "DOC", "DOCX"}
+                RtvpBelongsInPrintList = False
+            Case "VHLC"
+                FileFilterStringArray = {"ALL"}
+            Case "EC4"
+                FileFilterStringArray = {"DOC", "DOCX"}
+                RtvpBelongsInPrintList = False
+            Case "Final"
+                FileFilterStringArray = {"LOG", "VDR", "VAL"}
+                RtvpBelongsInPrintList = False
+            Case "RTVP"
+                FileFilterStringArray = {}
+        End Select
 
-        For Each File In Directory.GetFiles(Me.DistroPathText.Text)
-            Dim filesys = CreateObject("Scripting.FileSystemObject")
-            Dim filetype = filesys.GetExtensionName(File)
-            Dim filename = filesys.GetFileName(File)
+        If Not PrintListFilterComboBox.SelectedValue.Name.Equals("RTVP") Then
+            For Each file In Directory.GetFiles(Me.DistroPathText.Text)
+                Dim filesys = CreateObject("Scripting.FileSystemObject")
+                Dim filetype = filesys.GetExtensionName(file)
+                Dim filename = filesys.GetFileName(file)
 
-            Dim FileFilterStringArray As String() = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
-            Select Case PrintListFilterComboBox.SelectedValue.Name
-                Case "ALL"
-                    FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
-                Case "ELGX"
-                    FileFilterStringArray = {"RPT", "LER"}
-                Case "ML2"
-                    FileFilterStringArray = {"ML2", "DOC", "DOCX"}
-                    RtvpBelongsInPrintList = False
-                Case "EC4"
-                    FileFilterStringArray = {"DOC", "DOCX"}
-                    RtvpBelongsInPrintList = False
-                Case "VHLC"
-                    FileFilterStringArray = {"ALL"}
-                Case "Final"
-                    FileFilterStringArray = {"LOG", "VDR", "VAL"}
-                    RtvpBelongsInPrintList = False
-                Case "RTVP"
-                    FileFilterStringArray = {}
-            End Select
-
-            If InStr(filename, "~") = 0 And Not filetype Is Nothing Then 'dont use system files
-                If FileFilterStringArray.Contains(filetype.ToUpper) And Not filename.ToString.Contains("_print_list_") Then
-                    ' Create a ListViewItem
-                    Dim printListItem As New ListViewItem()
-                    ' Add ListViewItem to form
-                    printListItem.Content = filename
-                    printListItem.Tag = File
-                    printListItem.Background = Media.Brushes.Transparent
-                    Me.PrintListView.Items.Add(printListItem)
+                If InStr(filename, "~") = 0 And Not filetype Is Nothing Then 'dont use system files
+                    If FileFilterStringArray.Contains(filetype.ToUpper) Then
+                        If filetype.ToUpper.Equals("LER") And System.IO.File.Exists(file.Substring(0, file.Length - 3) & "LOC") Or filename.ToString.Contains("_print_list_") Then
+                        Else
+                            ' Create a ListViewItem
+                            Dim printListItem As New ListViewItem()
+                            ' Add ListViewItem to form
+                            printListItem.Content = filename
+                            printListItem.Tag = file
+                            printListItem.Background = Media.Brushes.Transparent
+                            Me.PrintListView.Items.Add(printListItem)
+                        End If
+                    End If
                 End If
-            End If
-        Next
+            Next
+        End If
+
         If locationInfo IsNot Nothing And RtvpBelongsInPrintList Then
             AddRtvpToPrintList()
         End If
