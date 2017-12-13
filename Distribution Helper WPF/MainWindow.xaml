@@ -203,7 +203,7 @@
                 <Image Source="resources\Document_32x.png" />
             </Button>
         </ToolBar>
-        <WindowsFormsHost x:Name="MyHost"
+        <WindowsFormsHost x:Name="DistroPathFormHost"
                           Grid.Row="2"
                           Grid.Column="1"
                           HorizontalAlignment="Left"
@@ -301,6 +301,34 @@
                                     BorderThickness="1" 
                                     CornerRadius="0" 
                                     Padding="25"/>-->
+                        <Border x:Name="ProgramSelectBorder"
+                                Grid.Row="1" 
+                                Grid.RowSpan="10"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="9"
+                                Background="#252525" 
+                                BorderBrush="{StaticResource HeaderColor}" 
+                                BorderThickness="1" 
+                                CornerRadius="7" 
+                                Padding="25"
+                                Visibility="Hidden"/>
+                        <Label Grid.Row="1" 
+                                Grid.Column="1" 
+                                Grid.ColumnSpan="2" 
+                                x:Name="ProgramSelectorLabel" 
+                                HorizontalContentAlignment="Left"
+                                FontWeight="Heavy"
+                                FontSize="18"
+                                Foreground="yellow"
+                                Content="Software" 
+                                Visibility="Hidden"/>
+                        <WrapPanel x:Name="ProgramWrapPanel" 
+                                    Grid.Row="2" 
+                                    Grid.Column="2" 
+                                    Grid.ColumnSpan="6" 
+                                    Grid.RowSpan="8"
+                                    Orientation="Vertical" 
+                                    Visibility="Hidden"/>
                         <Label Grid.Row="1" 
                                     Grid.Column="1"
                                     Grid.ColumnSpan="2"
@@ -376,7 +404,8 @@
                                                         Tag="Enter customer job number" 
                                                         Background="Transparent" 
                                                         Foreground="White"/>
-                        <Separator Grid.Row="7" 
+                        <Separator x:Name="LocationDistributionSeparator"
+                                        Grid.Row="7" 
                                         Grid.Column="1"
                                         Grid.ColumnSpan="7"
                                         BorderBrush="{StaticResource HeaderColor}"
@@ -462,7 +491,8 @@
                                   MouseEnter="Text_MouseEnter" 
                                   MouseLeave="Text_MouseLeave" 
                                   Tag="Choose shipping method"/>
-                        <Separator Grid.Row="15" 
+                        <Separator x:Name="DistributionAddressSeparator"
+                                   Grid.Row="15" 
                                    Grid.Column="1"
                                    Grid.ColumnSpan="7"
                                    BorderBrush="{StaticResource HeaderColor}"
@@ -581,34 +611,6 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter the recipient's phone number" />
-                        <Border x:Name="ProgramSelectBorder"
-                                    Grid.Row="27" 
-                                    Grid.RowSpan="5"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="7"
-                                    Background="#252525" 
-                                    BorderBrush="{StaticResource HeaderColor}" 
-                                    BorderThickness="1" 
-                                    CornerRadius="7" 
-                                    Padding="25"
-                                    Visibility="Hidden"/>
-                        <Label Grid.Row="27" 
-                                    Grid.Column="1" 
-                                    Grid.ColumnSpan="2" 
-                                    x:Name="ProgramSelectorLabel" 
-                                    HorizontalContentAlignment="Left"
-                                    FontWeight="Heavy"
-                                    FontSize="18"
-                                    Foreground="yellow"
-                                    Content="Software" 
-                                    Visibility="Hidden"/>
-                        <WrapPanel x:Name="ProgramWrapPanel" 
-                                        Grid.Row="28" 
-                                        Grid.Column="2" 
-                                        Grid.ColumnSpan="6" 
-                                        Grid.RowSpan="4"
-                                        Orientation="Vertical" 
-                                        Visibility="Hidden"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>

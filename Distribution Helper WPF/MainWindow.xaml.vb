@@ -82,7 +82,7 @@ Class MainWindow
 
         DistroPathText.AutoCompleteMode = Forms.AutoCompleteMode.Suggest
         DistroPathText.AutoCompleteSource = Forms.AutoCompleteSource.AllSystemSources
-        MyHost.Child = DistroPathText
+        DistroPathFormHost.Child = DistroPathText
 
         ShippingMethodBox.Items.Add("Standard (3-5 Days)")
         ShippingMethodBox.Items.Add("Express (1-2 Days)")
@@ -453,6 +453,7 @@ Class MainWindow
         DistributionTab.IsSelected = True
         DisableCreationControls()
         DisableDataViewFunctions()
+
         LocationNameText.Text = Nothing
         CustomerJobNumComboBox.Text = Nothing
         InternalJobNumComboBox.Text = Nothing
@@ -469,6 +470,7 @@ Class MainWindow
         AddressZipCodeText.Text = Nothing
         AddressPhoneNumberText.Text = Nothing
 
+        HideDistributionTabFields()
 
         DistributionTab.Visibility = Visibility.Visible
         DistributionTabGrid.Visibility = Visibility.Visible
@@ -477,6 +479,90 @@ Class MainWindow
         ChassisListView.Items.Clear()
         RemoteLinkGrid.Children.RemoveRange(0, RemoteLinkGrid.Children.Count)
         PrintListView.Items.Clear()
+    End Sub
+
+
+    Private Sub HideDistributionTabFields()
+        LocationNameText.Visibility = Visibility.Hidden
+        CustomerJobNumComboBox.Visibility = Visibility.Hidden
+        InternalJobNumComboBox.Visibility = Visibility.Hidden
+        CustomerComboBox.Visibility = Visibility.Hidden
+        TrackingNumberText.Visibility = Visibility.Hidden
+        InvoiceNumText.Visibility = Visibility.Hidden
+        ShippingMethodBox.Visibility = Visibility.Hidden
+        DistributionDatePicker.Visibility = Visibility.Hidden
+        RecipientNameText.Visibility = Visibility.Hidden
+        AddressStreetText.Visibility = Visibility.Hidden
+        AddressCityText.Visibility = Visibility.Hidden
+        AddressPhoneNumberText.Visibility = Visibility.Hidden
+        AddressStateBox.Visibility = Visibility.Hidden
+        AddressZipCodeText.Visibility = Visibility.Hidden
+        AddressPhoneNumberText.Visibility = Visibility.Hidden
+
+        LocationNameLabel.Visibility = Visibility.Hidden
+        CustomerJobNumLabel.Visibility = Visibility.Hidden
+        InternalJobNumLabel.Visibility = Visibility.Hidden
+        CustomerLabel.Visibility = Visibility.Hidden
+        TrackingNumberLabel.Visibility = Visibility.Hidden
+        InvoiceNumberLabel.Visibility = Visibility.Hidden
+        ShippingMethodLabel.Visibility = Visibility.Hidden
+        DistributionDateLabel.Visibility = Visibility.Hidden
+        DistributionRecipientLabel.Visibility = Visibility.Hidden
+        StreetLabel.Visibility = Visibility.Hidden
+        CityLabel.Visibility = Visibility.Hidden
+        PhoneNumberLabel.Visibility = Visibility.Hidden
+        StateLabel.Visibility = Visibility.Hidden
+        ZipCodeLabel.Visibility = Visibility.Hidden
+        PhoneNumberLabel.Visibility = Visibility.Hidden
+
+        LocationInputsLabel.Visibility = Visibility.Hidden
+        DistributionInputsLabel.Visibility = Visibility.Hidden
+        AddressInputsLabel.Visibility = Visibility.Hidden
+
+        DistributionAddressSeparator.Visibility = Visibility.Hidden
+        LocationDistributionSeparator.Visibility = Visibility.Hidden
+    End Sub
+
+
+    Private Sub ShowDistributionTabFields()
+        LocationNameText.Visibility = Visibility.Visible
+        CustomerJobNumComboBox.Visibility = Visibility.Visible
+        InternalJobNumComboBox.Visibility = Visibility.Visible
+        CustomerComboBox.Visibility = Visibility.Visible
+        TrackingNumberText.Visibility = Visibility.Visible
+        InvoiceNumText.Visibility = Visibility.Visible
+        ShippingMethodBox.Visibility = Visibility.Visible
+        DistributionDatePicker.Visibility = Visibility.Visible
+        RecipientNameText.Visibility = Visibility.Visible
+        AddressStreetText.Visibility = Visibility.Visible
+        AddressCityText.Visibility = Visibility.Visible
+        AddressPhoneNumberText.Visibility = Visibility.Visible
+        AddressStateBox.Visibility = Visibility.Visible
+        AddressZipCodeText.Visibility = Visibility.Visible
+        AddressPhoneNumberText.Visibility = Visibility.Visible
+
+        LocationNameLabel.Visibility = Visibility.Visible
+        CustomerJobNumLabel.Visibility = Visibility.Visible
+        InternalJobNumLabel.Visibility = Visibility.Visible
+        CustomerLabel.Visibility = Visibility.Visible
+        TrackingNumberLabel.Visibility = Visibility.Visible
+        InvoiceNumberLabel.Visibility = Visibility.Visible
+        ShippingMethodLabel.Visibility = Visibility.Visible
+        DistributionDateLabel.Visibility = Visibility.Visible
+        DistributionRecipientLabel.Visibility = Visibility.Visible
+        StreetLabel.Visibility = Visibility.Visible
+        CityLabel.Visibility = Visibility.Visible
+        PhoneNumberLabel.Visibility = Visibility.Visible
+        StateLabel.Visibility = Visibility.Visible
+        ZipCodeLabel.Visibility = Visibility.Visible
+        PhoneNumberLabel.Visibility = Visibility.Visible
+
+        LocationInputsLabel.Visibility = Visibility.Visible
+        DistributionInputsLabel.Visibility = Visibility.Visible
+        AddressInputsLabel.Visibility = Visibility.Visible
+
+        DistributionAddressSeparator.Visibility = Visibility.Visible
+        LocationDistributionSeparator.Visibility = Visibility.Visible
     End Sub
 
 
@@ -555,6 +641,8 @@ Class MainWindow
                 AddHandler CancelButton.Click, AddressOf CancelButton_Click
 
                 ShowProgramSelectorPanel(True)
+                OkButton.Focusable = True
+                OkButton.Focus()
             Else
                 MsgBox("There are no files to distribute in the selected folder.")
             End If
@@ -652,6 +740,7 @@ Class MainWindow
         Me.ProgressBar.Visibility = Visibility.Hidden
         TaskbarItemInfo.ProgressState = Shell.TaskbarItemProgressState.None
 
+        ShowDistributionTabFields()
         PopulatePrintList()
 
         If locationInfo IsNot Nothing Then
@@ -1124,6 +1213,7 @@ Class MainWindow
 
     Private Sub CreateLabels()
         Dim labelPath = FindOrCreateLabelsDirectory()
+        Dim labelsStr = Nothing
         Dim doc As XDocument = XDocument.Load("resources\Blank.label")
         Dim labelnode = doc.Descendants("String")
         For Each prog In DistributionPrograms
@@ -1132,13 +1222,23 @@ Class MainWindow
                     labelnode(0).Value = prog.MAPLabelStr
                     labelnode(1).Value = prog.MAPLabelStr
                     doc.Save(labelPath & "\" & prog.GetName & ".label")
+                    labelsStr = labelsStr & vbTab & prog.GetEquipType() & ": " & prog.GetName & ".label" & vbCrLf
                 ElseIf {"VHLC", "NVHLC"}.Contains(prog.GetEquipType()) Then
                     labelnode(0).Value = prog.evenLabelStr
                     labelnode(1).Value = prog.oddLabelStr
                     doc.Save(labelPath & "\" & prog.GetName & ".label")
+                    labelsStr = labelsStr & vbTab & prog.GetEquipType() & ": " & prog.GetName & ".label" & vbCrLf
                 End If
             End If
         Next
+        If labelsStr Is Nothing Then
+            MessageBox.Show("No labels were created." & vbCrLf & "There were no VHLC or EC4 programs selected.", ":-(")
+        Else
+            MessageBox.Show("Labels located in:" & vbCrLf & labelPath & "." & vbCrLf &
+               vbCrLf & "The following labels were created:" & vbCrLf &
+               vbCrLf & labelsStr, "Noice!")
+        End If
+
     End Sub
 
 
@@ -1206,7 +1306,7 @@ Class MainWindow
     End Sub
 
 
-    Private Sub MyHost_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles MyHost.PreviewKeyDown
+    Private Sub MyHost_PreviewKeyDown(sender As Object, e As KeyEventArgs) Handles DistroPathFormHost.PreviewKeyDown
         If e.Key = Key.Enter Then
             If Directory.Exists(Me.DistroPathText.Text) Then
                 'Enter and path exists
