@@ -454,21 +454,21 @@ Class MainWindow
         DisableCreationControls()
         DisableDataViewFunctions()
 
-        LocationNameText.Text = Nothing
-        CustomerJobNumComboBox.Text = Nothing
-        InternalJobNumComboBox.Text = Nothing
-        CustomerComboBox.Text = Nothing
-        TrackingNumberText.Text = Nothing
-        InvoiceNumText.Text = Nothing
+        LocationNameText.Text = ""
+        CustomerJobNumComboBox.Text = ""
+        InternalJobNumComboBox.Text = ""
+        CustomerComboBox.Text = ""
+        TrackingNumberText.Text = ""
+        InvoiceNumText.Text = ""
         ShippingMethodBox.SelectedItem = "Standard (3-5 Days)"
         DistributionDatePicker.SelectedDate = DateTime.Now
-        RecipientNameText.Text = Nothing
-        AddressStreetText.Text = Nothing
-        AddressCityText.Text = Nothing
-        AddressPhoneNumberText.Text = Nothing
+        RecipientNameText.Text = ""
+        AddressStreetText.Text = ""
+        AddressCityText.Text = ""
+        AddressPhoneNumberText.Text = ""
         AddressStateBox.SelectedValue = "AL"
-        AddressZipCodeText.Text = Nothing
-        AddressPhoneNumberText.Text = Nothing
+        AddressZipCodeText.Text = ""
+        AddressPhoneNumberText.Text = ""
 
         HideDistributionTabFields()
 
@@ -1531,7 +1531,14 @@ Class MainWindow
             If Not Directory.Exists(newfolderpath) Then
                 Directory.CreateDirectory(newfolderpath)
             End If
-            Dim myFilePath As String = newfolderpath & "\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Link Comparison.txt"
+
+            Dim myFilePath As String = ""
+            If locationInfo IsNot Nothing Then
+                myFilePath = newfolderpath & "\" & GetTimeStamp() & locationInfo.GetLocationName & " Remote Link Comparison.txt"
+            Else
+                myFilePath = newfolderpath & "\" & GetTimeStamp() & "myLocationName Remote Link Comparison.txt"
+            End If
+
             Using outputFile As StreamWriter = New StreamWriter(myFilePath, True)
                 For i = 0 To mainChassis.GetLinkUpStatus.Count - 1
                     Dim mainLinkInfoArray = Split(mainChassis.GetLinkSetup(i), "       ")
@@ -1818,10 +1825,18 @@ Class MainWindow
         mySaveAsDialog.DefaultExt = ".txt" ' Default file extension
         mySaveAsDialog.Filter = "Text documents (.txt)|*.txt" ' Filter files by extension
         If e.Source.Name.Equals("ExportLocationInfoMenuItem") Then
-            mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Location Information File" ' Default file name
+            If Me.LocationNameText.Text.Equals("") Then
+                mySaveAsDialog.FileName = GetTimeStamp() & "myLocationName Location Information File" ' Default file name
+            Else
+                mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Location Information File" ' Default file name
+            End If
             fileContent = LocationDataFlowDoc
         Else
-            mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Remote Link Comparison"
+            If Me.LocationNameText.Text.Equals("") Then
+                mySaveAsDialog.FileName = GetTimeStamp() & "myLocationName Remote Link Comparison" ' Default file name
+            Else
+                mySaveAsDialog.FileName = GetTimeStamp() & Me.LocationNameText.Text & " Remote Link Comparison" ' Default file name
+            End If
             fileContent = LinkCompareFlowDoc
         End If
         If mySaveAsDialog.ShowDialog Then
