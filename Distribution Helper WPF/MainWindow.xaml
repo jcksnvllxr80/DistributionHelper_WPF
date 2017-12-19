@@ -18,7 +18,7 @@
         GlowBrush="{DynamicResource AccentColorBrush}"
         mc:Ignorable="d"
         Title="Distribution Helper" 
-        Height="775" 
+        Height="800" 
         MinHeight="600"
         Width="1000" 
         MinWidth="950"
@@ -261,12 +261,6 @@
                             <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
                             <RowDefinition Height="3" />
-                            <RowDefinition Height="15" />
-                            <RowDefinition Height="3" />
-                            <RowDefinition Height="33" />
-                            <RowDefinition Height="3" />
-                            <RowDefinition Height="33" />
-                            <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
                             <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
@@ -274,10 +268,13 @@
                             <RowDefinition Height="15" />
                             <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
-                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
                             <RowDefinition Height="10" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -405,7 +402,7 @@
                                                         Background="Transparent" 
                                                         Foreground="White"/>
                         <Separator x:Name="LocationDistributionSeparator"
-                                        Grid.Row="7" 
+                                        Grid.Row="9" 
                                         Grid.Column="1"
                                         Grid.ColumnSpan="7"
                                         BorderBrush="{StaticResource HeaderColor}"
@@ -420,7 +417,7 @@
                                     BorderThickness="1" 
                                     CornerRadius="15" 
                                     Padding="25"/>-->
-                        <Label Grid.Row="9" 
+                        <Label Grid.Row="11" 
                                     Grid.Column="1"
                                     Grid.ColumnSpan="2"
                                     x:Name="DistributionInputsLabel" 
@@ -429,12 +426,12 @@
                                     FontSize="18"
                                     Foreground="yellow"
                                     Content="Distribution" />
-                        <Label Grid.Row="11" 
+                        <Label Grid.Row="13" 
                                     Grid.Column="1"
                                     x:Name="TrackingNumberLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Tracking Num" />
-                        <TextBox Grid.Row="11" 
+                        <TextBox Grid.Row="13" 
                                         Grid.Column="2" 
                                         Grid.ColumnSpan="2" 
                                         x:Name="TrackingNumberText" 
@@ -444,12 +441,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter tracking number"/>
-                        <Label Grid.Row="11" 
+                        <Label Grid.Row="13" 
                                     Grid.Column="4"
                                     x:Name="DistributionDateLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Distribution Date" />
-                        <Controls:DateTimePicker Grid.Row="11" 
+                        <Controls:DateTimePicker Grid.Row="13" 
                                                         Grid.Column="5" 
                                                         Grid.ColumnSpan="3" 
                                                         x:Name="DistributionDatePicker"
@@ -461,12 +458,12 @@
                                                         MouseLeave="Text_MouseLeave"  
                                                         SelectedDate="{x:Static sys:DateTime.Now}" 
                                                         Tag="Pick a distribution date"/>
-                        <Label Grid.Row="13" 
+                        <Label Grid.Row="15" 
                                     Grid.Column="1"
                                     x:Name="InvoiceNumberLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Invoice Num" />
-                        <TextBox Grid.Row="13" 
+                        <TextBox Grid.Row="15" 
                                         Grid.Column="2" 
                                         Grid.ColumnSpan="2" 
                                         x:Name="InvoiceNumText" 
@@ -476,12 +473,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter invoice number"/>
-                        <Label Grid.Row="13" 
+                        <Label Grid.Row="15" 
                                     Grid.Column="4"
                                     x:Name="ShippingMethodLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Shipping Method" />
-                        <ComboBox Grid.Row="13" 
+                        <ComboBox Grid.Row="15" 
                                   Grid.Column="5" 
                                   Grid.ColumnSpan="3" 
                                   x:Name="ShippingMethodBox" 
@@ -492,7 +489,7 @@
                                   MouseLeave="Text_MouseLeave" 
                                   Tag="Choose shipping method"/>
                         <Separator x:Name="DistributionAddressSeparator"
-                                   Grid.Row="15" 
+                                   Grid.Row="19" 
                                    Grid.Column="1"
                                    Grid.ColumnSpan="7"
                                    BorderBrush="{StaticResource HeaderColor}"
@@ -507,7 +504,7 @@
                                     BorderThickness="1" 
                                     CornerRadius="0" 
                                     Padding="25"/>-->
-                        <Label Grid.Row="17" 
+                        <Label Grid.Row="21" 
                                     Grid.Column="1"
                                     Grid.ColumnSpan="2"
                                     x:Name="AddressInputsLabel" 
@@ -516,12 +513,12 @@
                                     FontSize="18"
                                     Foreground="yellow"
                                     Content="Address" />
-                        <Label Grid.Row="19" 
+                        <Label Grid.Row="23" 
                                     Grid.Column="1"
                                     x:Name="DistributionRecipientLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Delivery Recipient" />
-                        <TextBox Grid.Row="19" 
+                        <TextBox Grid.Row="23" 
                                         Grid.Column="2" 
                                         Grid.ColumnSpan="2" 
                                         x:Name="RecipientNameText" 
@@ -531,12 +528,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter recipient of distribution"/>
-                        <Label Grid.Row="19" 
+                        <Label Grid.Row="23" 
                                     Grid.Column="4"
                                     x:Name="StreetLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Street" />
-                        <TextBox Grid.Row="19" 
+                        <TextBox Grid.Row="23" 
                                         Grid.Column="5" 
                                         Grid.ColumnSpan="3" 
                                         x:Name="AddressStreetText" 
@@ -546,12 +543,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter the street information (including suite/room/apt)"/>
-                        <Label Grid.Row="21" 
+                        <Label Grid.Row="25" 
                                     Grid.Column="1"
                                     x:Name="CityLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="City" />
-                        <TextBox Grid.Row="21" 
+                        <TextBox Grid.Row="25" 
                                         Grid.Column="2" 
                                         Grid.ColumnSpan="2" 
                                         x:Name="AddressCityText" 
@@ -561,12 +558,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter the city"/>
-                        <Label Grid.Row="21" 
+                        <Label Grid.Row="25" 
                                     Grid.Column="4"
                                     x:Name="StateLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="State" />
-                        <ComboBox Grid.Row="21" 
+                        <ComboBox Grid.Row="25" 
                                         Grid.Column="5" 
                                         Grid.ColumnSpan="1" 
                                         x:Name="AddressStateBox" 
@@ -580,12 +577,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Select state"/>
-                        <Label Grid.Row="21" 
+                        <Label Grid.Row="25" 
                                     Grid.Column="6"
                                     x:Name="ZipCodeLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Zip Code" />
-                        <TextBox Grid.Row="21" 
+                        <TextBox Grid.Row="25" 
                                         Grid.Column="7" 
                                         Grid.ColumnSpan="1" 
                                         x:Name="AddressZipCodeText" 
@@ -595,12 +592,12 @@
                                         MouseEnter="Text_MouseEnter" 
                                         MouseLeave="Text_MouseLeave" 
                                         Tag="Enter the zip code"/>
-                        <Label Grid.Row="23" 
+                        <Label Grid.Row="27" 
                                     Grid.Column="1"
                                     x:Name="PhoneNumberLabel" 
                                     HorizontalContentAlignment="Right" 
                                     Content="Phone" />
-                        <xctk:MaskedTextBox Grid.Row="23" 
+                        <xctk:MaskedTextBox Grid.Row="27" 
                                         Grid.Column="2" 
                                         Grid.ColumnSpan="2" 
                                         x:Name="AddressPhoneNumberText" 
@@ -896,42 +893,333 @@
                 Tag="Create an RTVP" 
                 Visibility="Collapsed"
                 FlowDirection="LeftToRight">
-                <Grid x:Name="ReducedTestTabGrid">
-                </Grid>
+                <ScrollViewer VerticalScrollBarVisibility="Visible"
+                              Grid.Row="4"
+                              Grid.Column="0"
+                              Grid.RowSpan="25"
+                              Grid.ColumnSpan="3">
+                    <Grid x:Name="ReducedTestTabGrid">
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="DocCreatorTab" 
+                     Header="Doc_Creator" 
+                     Tag="Create folder and documents" 
+                     Visibility="Collapsed"
+                     FlowDirection="LeftToRight">
+                <ScrollViewer VerticalScrollBarVisibility="Visible"
+                              Grid.Row="4"
+                              Grid.Column="0"
+                              Grid.RowSpan="25"
+                              Grid.ColumnSpan="3">
+                    <Grid x:Name="DocCreatorTabGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="10" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="1" 
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"
+                               x:Name="UserInfoLabel" 
+                               HorizontalContentAlignment="Left"
+                               FontWeight="Heavy"
+                               FontSize="18"
+                               Foreground="yellow"
+                               Content="User Information" />
+                        <Label Grid.Row="3" 
+                               Grid.Column="1"
+                               x:Name="ProgrammerLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Programmer Name" />
+                        <TextBox Grid.Row="3" 
+                                 Grid.Column="2" 
+                                 Grid.ColumnSpan="2" 
+                                 x:Name="ProgrammerText" 
+                                 Text=""
+                                 FontSize="16"
+                                 FontStyle="Normal"
+                                 MouseEnter="Text_MouseEnter" 
+                                 MouseLeave="Text_MouseLeave" 
+                                 Tag="Programmer's name" 
+                                 Background="Transparent" 
+                                 Foreground="White"/>
+                        <Label Grid.Row="3" 
+                               Grid.Column="5"
+                               x:Name="ProgrammerInitialsLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Programmer Initials" />
+                        <TextBox Grid.Row="3" 
+                                 Grid.Column="6" 
+                                 Grid.ColumnSpan="1" 
+                                 x:Name="ProgrammerInitialsText" 
+                                 Text=""
+                                 FontSize="16"
+                                 FontStyle="Normal"
+                                 MouseEnter="Text_MouseEnter" 
+                                 MouseLeave="Text_MouseLeave" 
+                                 Tag="Programmer's Initials" 
+                                 Background="Transparent" 
+                                 Foreground="White"/>
+                        <Separator x:Name="UserJobSeparator"
+                                   Grid.Row="7" 
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="7"
+                                   BorderBrush="{StaticResource HeaderColor}"
+                                   BorderThickness="1"/>
+                        <Label Grid.Row="9" 
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"
+                               x:Name="DocCreatorLocationInputsLabel" 
+                               HorizontalContentAlignment="Left"
+                               FontWeight="Heavy"
+                               FontSize="18"
+                               Foreground="yellow"
+                               Content="Job Information" />
+                        <Label Grid.Row="11" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorProjectManagerLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Project manager" />
+                        <Controls1:AutoCompleteBox Grid.Row="11" 
+                                                   Grid.Column="2" 
+                                                   Grid.ColumnSpan="2" 
+                                                   x:Name="DocCreatorRailroadProjectManagerText" 
+                                                   Text=""
+                                                   FontSize="16"
+                                                   FontStyle="Normal"
+                                                   MouseEnter="Text_MouseEnter" 
+                                                   MouseLeave="Text_MouseLeave" 
+                                                   Tag="Enter project manager"
+                                                   Background="Transparent" 
+                                                   Foreground="White"/>
+                        <Label Grid.Row="11" 
+                               Grid.Column="5"
+                               x:Name="ProgramStartDateLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Program Started" />
+                        <DatePicker Grid.Row="11" 
+                                    Grid.Column="6" 
+                                    Grid.ColumnSpan="1" 
+                                    x:Name="ProgramStartDatePicker" 
+                                    SelectedDate="{x:Static sys:DateTime.Now}"
+                                    FontSize="16"
+                                    FontStyle="Normal"
+                                    SelectedDateFormat="Short"
+                                    MouseEnter="Text_MouseEnter" 
+                                    MouseLeave="Text_MouseLeave" 
+                                    Tag="Select programming start date" 
+                                    Background="Transparent" 
+                                    Foreground="White"/>
+                        <Label Grid.Row="13" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorSignalRulesLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Signal Rules" />
+                        <Controls1:AutoCompleteBox Grid.Row="13" 
+                                                   Grid.Column="2" 
+                                                   Grid.ColumnSpan="2" 
+                                                   x:Name="DocCreatorSignalRulesText" 
+                                                   Text="example: 1281 - 1298"
+                                                   FontSize="16"
+                                                   FontStyle="Normal"
+                                                   MouseEnter="Text_MouseEnter" 
+                                                   MouseLeave="Text_MouseLeave" 
+                                                   Tag="Enter signal rules"
+                                                   Background="Transparent" 
+                                                   Foreground="White"/>
+                        <Label Grid.Row="13" 
+                               Grid.Column="5"
+                               x:Name="DocCreatorDesignerInitialsLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Designer Initials" />
+                        <Controls1:AutoCompleteBox Grid.Row="13" 
+                                                   Grid.Column="6" 
+                                                   Grid.ColumnSpan="1" 
+                                                   x:Name="DocCreatorDesignerInitialsText" 
+                                                   Text=""
+                                                   FontSize="16"
+                                                   FontStyle="Normal"
+                                                   MouseEnter="Text_MouseEnter" 
+                                                   MouseLeave="Text_MouseLeave" 
+                                                   Tag="Enter designer initials"
+                                                   Background="Transparent" 
+                                                   Foreground="White"/>
+                        <Label Grid.Row="15" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorRailroadEngineerInitialsLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="RR Engineer Initials" />
+                        <Controls1:AutoCompleteBox Grid.Row="15" 
+                                                   Grid.Column="2" 
+                                                   Grid.ColumnSpan="1" 
+                                                   x:Name="DocCreatorRailroadEngineerInitialsText" 
+                                                   Text=""
+                                                   FontSize="16"
+                                                   FontStyle="Normal"
+                                                   MouseEnter="Text_MouseEnter" 
+                                                   MouseLeave="Text_MouseLeave" 
+                                                   Tag="Enter railroad engineer initials"
+                                                   Background="Transparent" 
+                                                   Foreground="White"/>
+                        <Separator x:Name="JobChassisSeparator"
+                                   Grid.Row="19" 
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="7"
+                                   BorderBrush="{StaticResource HeaderColor}"
+                                   BorderThickness="1"/>
+                        <Label Grid.Row="21" 
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"
+                               x:Name="DocCreatorChassisInfoLabel" 
+                               HorizontalContentAlignment="Left"
+                               FontWeight="Heavy"
+                               FontSize="18"
+                               Foreground="yellow"
+                               Content="Chassis Information" />
+                        <Label Grid.Row="23" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorEquipmentLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Equipment Type" />
+                        <ComboBox Grid.Row="23" 
+                                  Grid.Column="2" 
+                                  Grid.ColumnSpan="1" 
+                                  x:Name="DocCreatorEquipmentTypeText" 
+                                  Text=""
+                                  FontSize="16"
+                                  FontStyle="Normal"
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave" 
+                                  Tag="Select chassis type"
+                                  Background="Transparent" 
+                                  Foreground="White">
+                            <ComboBoxItem Tag="ELGX" Content="ElectroLogIXS"/>
+                            <ComboBoxItem Tag="ML2" Content="Microlok II"/>
+                            <ComboBoxItem Tag="VHLC" Content="VHLC"/>
+                            <ComboBoxItem Tag="HLC" Content="HLC"/>
+                            <ComboBoxItem Tag="EC4" Content="EC4"/>
+                            <ComboBoxItem Tag="EC5" Content="EC5"/>
+                        </ComboBox>
+                        <Label Grid.Row="25" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorAceVersionLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Ace Compiler Version" />
+                        <ComboBox Grid.Row="25" 
+                                  Grid.Column="2" 
+                                  Grid.ColumnSpan="1" 
+                                  x:Name="DocCreatorAceVersionText" 
+                                  Text=""
+                                  FontSize="16"
+                                  FontStyle="Normal"
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave" 
+                                  Tag="Select Ace compiler version"
+                                  Background="Transparent" 
+                                  Foreground="White">
+                            <ComboBoxItem Tag="1.10" Content="4.7"/>
+                            <ComboBoxItem Tag="1.11" Content="4.8"/>
+                            <ComboBoxItem Tag="1.12" Content="4.9"/>
+                            <ComboBoxItem Tag="2.1" Content="5.1"/>
+                            <ComboBoxItem Tag="2.5" Content="5.5" IsSelected="True"/>
+                            <ComboBoxItem Tag="2.8" Content="5.8"/>
+                        </ComboBox>
+                        <CheckBox x:Name="IsRTVP"
+                                  Grid.Row="23" 
+                                  Grid.Column="6"
+                                  HorizontalAlignment="Center"
+                                  HorizontalContentAlignment="Left" 
+                                  Margin="8,0,0,0"
+                                  Content="Reduced Test" 
+                                  IsChecked="False"
+                                  MouseEnter="Text_MouseEnter" 
+                                  MouseLeave="Text_MouseLeave" 
+                                  Tag="Check this box if this location is an RTVP"/>
+                        <Button x:Name="CreateDocsButton"
+                                Grid.Row="25" 
+                                Grid.Column="6"
+                                HorizontalAlignment="Center"
+                                Width="100"
+                                HorizontalContentAlignment="Center" 
+                                Margin="8,0,0,0"
+                                Content="Create"
+                                Background="Firebrick"
+                                MouseEnter="Text_MouseEnter" 
+                                MouseLeave="Text_MouseLeave" 
+                                Tag="Create files/folders for the given information"/>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="5"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
                 x:Name="StatBar">
-        <StatusBar.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                </Grid>
-            </ItemsPanelTemplate>
-        </StatusBar.ItemsPanel>
-        <StatusBarItem Grid.Column="0" 
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0" 
                         Grid.ColumnSpan="2" 
                         VerticalContentAlignment="Stretch"  
                         HorizontalContentAlignment="Stretch">
-            <TextBlock x:Name="StatusLabel" 
+                <TextBlock x:Name="StatusLabel" 
                         Text=""/>
-        </StatusBarItem>
-        <StatusBarItem Grid.Column="2" 
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" 
                         VerticalContentAlignment="Center" 
                         HorizontalContentAlignment="Stretch">
-            <ProgressBar x:Name="ProgressBar" 
+                <ProgressBar x:Name="ProgressBar" 
                             Value="0" 
                             Height="28" 
                             BorderThickness="1"
                             Background="WhiteSmoke"
                             Visibility="Hidden"/>
-        </StatusBarItem>
-    </StatusBar>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Controls:MetroWindow>

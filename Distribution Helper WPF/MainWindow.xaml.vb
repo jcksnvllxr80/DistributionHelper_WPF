@@ -114,6 +114,7 @@ Class MainWindow
         AddHandler printFilesBGWorker.RunWorkerCompleted, AddressOf BackgroundWorker_FilePrintWorkerCompleted
 
         AddHandler PrintListFilterComboBox.SelectionChanged, AddressOf PopulatePrintList
+        AddHandler DocCreatorEquipmentTypeText.SelectionChanged, AddressOf DocCreatorEquipmentTypeText_SelectionChanged
     End Sub
 
 
@@ -744,12 +745,34 @@ Class MainWindow
         PopulatePrintList()
 
         If locationInfo IsNot Nothing Then
+            'set distribution tab fields
             Me.CustomerJobNumComboBox.Text = locationInfo.GetCustomerNumber()
             Me.InternalJobNumComboBox.Text = locationInfo.GetInternalNumber()
             Me.LocationNameText.Text = locationInfo.GetLocationName()
             Me.AddressStateBox.Text = locationInfo.GetState()
             Me.AddressCityText.Text = locationInfo.GetCity()
             locationInfo.SetCustomer(Me.CustomerComboBox.Text)
+
+            'set Doc Creator tab fields
+            Me.ProgrammerText.Text = locationInfo.ProgrammerName
+            Me.ProgrammerInitialsText.Text = locationInfo.ProgrammerInitials
+            Me.ProgramStartDatePicker.Text = locationInfo.StartDate
+            Me.DocCreatorSignalRulesText.Text = locationInfo.SignalRules
+            Me.DocCreatorDesignerInitialsText.Text = locationInfo.DesignerInitals
+            Me.DocCreatorRailroadProjectManagerText.Text = locationInfo.ProjectManager
+            Me.DocCreatorRailroadEngineerInitialsText.Text = locationInfo.RailroadEngineer
+            For Each item As ComboBoxItem In Me.DocCreatorEquipmentTypeText.Items
+                If item.Content.ToString.ToUpper.Equals(locationInfo.EquipmentType.ToUpper) Then
+                    Me.DocCreatorEquipmentTypeText.SelectedItem = item
+                    Exit For ' found item
+                End If
+            Next
+
+            If locationInfo.IsRTVP Then
+                IsRTVP.IsChecked = True
+            Else
+                IsRTVP.IsChecked = False
+            End If
 
             AddRtvpToPrintList()
         Else
@@ -765,6 +788,26 @@ Class MainWindow
                 DisableDataViewFunctions()
             End If
         Next
+    End Sub
+
+
+    Private Sub DocCreatorEquipmentTypeText_SelectionChanged()
+        If DocCreatorEquipmentTypeText.SelectedItem.Content.Equals("ElectroLogIXS") Then
+            If locationInfo IsNot Nothing Then
+                'Console.WriteLine("Logicstation Version: " & locationInfo.LogicstationVersion)
+                For Each item As ComboBoxItem In Me.DocCreatorAceVersionText.Items
+                    If item.Tag.Equals(locationInfo.LogicstationVersion) Then
+                        Me.DocCreatorAceVersionText.SelectedItem = item
+                        Exit For ' found item
+                    End If
+                Next
+            End If
+            Me.DocCreatorAceVersionLabel.Visibility = Visibility.Visible
+            Me.DocCreatorAceVersionText.Visibility = Visibility.Visible
+        Else
+            Me.DocCreatorAceVersionLabel.Visibility = Visibility.Hidden
+            Me.DocCreatorAceVersionText.Visibility = Visibility.Hidden
+        End If
     End Sub
 
 
@@ -1126,7 +1169,9 @@ Class MainWindow
         PrintLocInfoMenuItem.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
-        ProgramRevisionsTab.Visibility = Visibility.Visible
+        'ReducedTestTab.Visibility = Visibility.Visible
+        'ProgramRevisionsTab.Visibility = Visibility.Visible
+        DocCreatorTab.Visibility = Visibility.Visible
         PrintingTab.Visibility = Visibility.Visible
         LocationDataFlowDoc = CreateDistInfoDocument()
         LocationInfoViewer.Document = LocationDataFlowDoc
@@ -1154,7 +1199,9 @@ Class MainWindow
         PrintLocInfoMenuItem.IsEnabled = False
 
         PrintPreviewTab.Visibility = Visibility.Collapsed
+        ReducedTestTab.Visibility = Visibility.Collapsed
         ProgramRevisionsTab.Visibility = Visibility.Collapsed
+        DocCreatorTab.Visibility = Visibility.Collapsed
         PrintingTab.Visibility = Visibility.Collapsed
 
         LinkComparePreviewSource.IsEnabled = False
@@ -1845,6 +1892,7 @@ Class MainWindow
             'Dim filename As String = mySaveAsDialog.FileName
         End If
     End Sub
+
 End Class
 
 

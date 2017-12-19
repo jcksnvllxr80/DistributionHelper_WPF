@@ -8,11 +8,21 @@
     Private Subdivision As String
     Private SubdivAbrev As String
     Private State As String
-    Private City
+    Private City As String
     Private RTVP As Boolean
     Private RTVPyear As String
     Private RTVPfolderNum As String = Nothing
     Private Filename As String
+
+    Public Property ProgrammerName As String = ""
+    Public Property ProgrammerInitials As String = ""
+    Public Property StartDate As String = ""
+    Public Property SignalRules As String = ""
+    Public Property DesignerInitals As String = ""
+    Public Property ProjectManager As String = ""
+    Public Property RailroadEngineer As String = ""
+    Public Property EquipmentType As String = ""
+    Public Property LogicstationVersion As String = ""
 
     Public Sub New(filename As String)
         Me.Filename = filename
@@ -102,6 +112,18 @@
         objExcel.Visible = False
         Dim excelInput = objExcel.Workbooks.Open(Me.Filename)
         With Me
+            .ProgrammerName = UCase(excelInput.Sheets("Sheet1").Range("B1").Value)
+            .ProgrammerInitials = UCase(excelInput.Sheets("Sheet1").Range("B13").Value)
+            Dim dateStr As String = UCase(excelInput.Sheets("Sheet1").Range("B14").Value)
+            If Not dateStr.Equals(vbNullChar) Then
+                .StartDate = dateStr
+            End If
+            .SignalRules = UCase(excelInput.Sheets("Sheet1").Range("B12").Value)
+            .DesignerInitals = UCase(excelInput.Sheets("Sheet1").Range("B11").Value)
+            .ProjectManager = UCase(excelInput.Sheets("Sheet1").Range("D18").Value)
+            .RailroadEngineer = UCase(excelInput.Sheets("Sheet1").Range("B10").Value)
+            .EquipmentType = UCase(excelInput.Sheets("Sheet1").Range("B8").Value)
+            .LogicstationVersion = UCase(excelInput.Sheets("Sheet1").Range("D2").Value)
             .LocationName = UCase(excelInput.Sheets("Sheet1").Range("B2").Value)
             .MilePost = UCase(excelInput.Sheets("Sheet1").Range("B3").Value)
             .InternalNumber = UCase(excelInput.Sheets("Sheet1").Range("B4").Value)
