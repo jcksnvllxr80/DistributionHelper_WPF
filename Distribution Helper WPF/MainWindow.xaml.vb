@@ -6,6 +6,7 @@ Imports Microsoft.Office.Interop
 Imports System.Threading
 Imports System.Printing
 Imports System.Drawing.Printing
+Imports WPFFolderBrowser
 'Imports Xceed.Wpf.Toolkit
 
 Class MainWindow
@@ -16,6 +17,7 @@ Class MainWindow
     Private createLetterBGWorker As New BackgroundWorker()
     Private printFilesBGWorker As New BackgroundWorker()
     Private tempInfoString = ""
+    Private InitialDistroPathText As String = "Type or paste the directory path here or click the folder icon"
     Private DistributionPrograms As New LinkedList(Of Object)
     Private DistributionDataLoaded As Boolean
     Private locationInfo As LocationData
@@ -661,6 +663,9 @@ Class MainWindow
         Select Case PrintListFilterComboBox.SelectedValue.Name
             Case "ALL"
                 FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
+            Case "XRL"
+                FileFilterStringArray = {"PDF", "DOC"}
+                'look for {"PDF", "XLSX", "DOC", "DOCX", "XLSM", "URL"} in XRL folder
             Case "Software"
                 FileFilterStringArray = {"ALL", "RPT", "LER", "ML2", "DOC", "DOCX"}
                 RtvpBelongsInPrintList = False
@@ -682,7 +687,18 @@ Class MainWindow
         End Select
 
         If Not PrintListFilterComboBox.SelectedValue.Name.Equals("RTVP") Then
-            For Each file In Directory.GetFiles(Me.DistroPathText.Text)
+            Dim PrintFilesDirectory As String = Me.DistroPathText.Text
+            If PrintListFilterComboBox.SelectedValue.Name.Equals("XRL") Then
+                Dim ExpectedXRLPath As String = PrintFilesDirectory & "\XRL"
+                For Each subf In Directory.GetDirectories(PrintFilesDirectory)
+                    If subf.Substring(0, ExpectedXRLPath.Length).Equals(ExpectedXRLPath) Then
+                        PrintFilesDirectory = subf
+                        Exit For
+                    End If
+                Next
+            End If
+
+            For Each file In Directory.GetFiles(PrintFilesDirectory)
                 Dim filesys = CreateObject("Scripting.FileSystemObject")
                 Dim filetype = filesys.GetExtensionName(file)
                 Dim filename = filesys.GetFileName(file)
@@ -757,6 +773,9 @@ Class MainWindow
             Me.ProgrammerText.Text = locationInfo.ProgrammerName
             Me.ProgrammerInitialsText.Text = locationInfo.ProgrammerInitials
             Me.ProgramStartDatePicker.Text = locationInfo.StartDate
+            Me.DocCreatorDivisionText.Text = locationInfo.GetDivision
+            Me.DocCreatorSubdivisionText.Text = locationInfo.GetSubdivision
+            Me.DocCreatorSubdivAbbreviationText.Text = locationInfo.GetSubdivAbrev
             Me.DocCreatorSignalRulesText.Text = locationInfo.SignalRules
             Me.DocCreatorDesignerInitialsText.Text = locationInfo.DesignerInitals
             Me.DocCreatorRailroadProjectManagerText.Text = locationInfo.ProjectManager
@@ -788,6 +807,17 @@ Class MainWindow
                 DisableDataViewFunctions()
             End If
         Next
+    End Sub
+
+
+    Sub CheckDivisionAndSub()
+        Dim DivBeginStr As String = InStr(1, Me.DocCreatorDivisionText.Text.ToUpper, "DIVISION")
+        Dim SubdivBeginStr As String = InStr(1, Me.DocCreatorSubdivisionText.Text.ToUpper, "SUBDIVISION")
+        If DivBeginStr > 0 Then
+            Me.DocCreatorDivisionText.Text = Trim(Me.DocCreatorDivisionText.Text.Substring(0, DivBeginStr - 1))
+        ElseIf SubdivBeginStr > 0 Then
+            Me.DocCreatorSubdivisionText.Text = Trim(Me.DocCreatorSubdivisionText.Text.Substring(0, SubdivBeginStr - 1))
+        End If
     End Sub
 
 
@@ -956,18 +986,19 @@ Class MainWindow
 
 
     Private Sub SelectFolder()
-        Dim StartDir As String
-        If DistroPathText.Text = "Type" Then
-            StartDir = "P:\"
+        Dim folderBrowser As New WPFFolderBrowserDialog("Browse for folder containing distribution files")
+        If DistroPathText.Text = InitialDistroPathText Then
+            folderBrowser.InitialDirectory = "P:\"
         ElseIf Not Me.DistroPathText.Text = "" Then
-            StartDir = Me.DistroPathText.Text
+            folderBrowser.InitialDirectory = Me.DistroPathText.Text
         Else
-            StartDir = "P:\"
+            folderBrowser.InitialDirectory = "P:\"
         End If
-        Dim FilesDirectory = GetDistributionFolder(StartDir, "Browse for folder containing distribution files")
         StatusLabel.Text = tempInfoString
-        If Not FilesDirectory = "" Then
-            DistroPathText.Text = FilesDirectory
+
+        Dim result = folderBrowser.ShowDialog()
+        If result.Value Then
+            DistroPathText.Text = folderBrowser.FileName
             FindFilesAndCreateProgramSelectPanel()
         End If
     End Sub
@@ -1370,7 +1401,7 @@ Class MainWindow
 
 
     Private Sub DistroPathText_Click(sender As Object, e As EventArgs) Handles DistroPathText.Click
-        If DistroPathText.Text = "Type or paste the directory path here or click the folder icon" Then
+        If DistroPathText.Text = InitialDistroPathText Then
             DistroPathText.Text = ""
         End If
     End Sub
@@ -1379,7 +1410,7 @@ Class MainWindow
     Private Sub DistroPathText_MouseLeave(sender As Object, e As EventArgs) Handles DistroPathText.MouseLeave
         StatusLabel.Text = tempInfoString
         If DistroPathText.Text.Trim = "" Then
-            DistroPathText.Text = "Type or paste the directory path here or click the folder icon"
+            DistroPathText.Text = InitialDistroPathText
         End If
     End Sub
 
@@ -1893,6 +1924,15 @@ Class MainWindow
         End If
     End Sub
 
+
+    Private Sub AboutMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles AboutMenuItem.Click
+        'create about window
+    End Sub
+
+
+    Private Sub HelpMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles HelpMenuItem.Click
+        'Forms.Help.ShowHelp(Nothing, "https://intranet.xorail.com") 'need to create a help website for the distribution helper
+    End Sub
 End Class
 
 

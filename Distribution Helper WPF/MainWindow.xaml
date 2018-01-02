@@ -119,6 +119,41 @@
                               IsChecked="False"/>
                 </MenuItem>
             </MenuItem>
+            <MenuItem Header="_Email"
+                      x:Name="EmailMenu"
+                      IsEnabled="False">
+                <MenuItem Header="_Mail Template" 
+                          x:Name="MailTemplateMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_In-Service" 
+                          x:Name="MailSoftwareVerificationMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_P Hours" 
+                          x:Name="MailP_HoursMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="P_K Hours" 
+                          x:Name="MailPK_HoursMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_RTVP Output" 
+                          x:Name="MailRTVP_DistMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="Pre_lim Upload" 
+                          x:Name="MailPrelimUploadMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_Final Upload" 
+                          x:Name="MailFinalUploadMenuItem"
+                          IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="_RailDOCS"
+                      x:Name="RailDocsMenu"
+                      IsEnabled="False">
+                <MenuItem Header="_PSR Page" 
+                          x:Name="RaildocsPSRMenuItem"
+                          IsEnabled="False"/>
+                <MenuItem Header="_Job Main Page" 
+                          x:Name="RaildocsMainJobMenuItem"
+                          IsEnabled="False"/>
+            </MenuItem>
             <MenuItem Header="_Database"
                       x:Name="DatabaseMenu"
                       IsEnabled="False">
@@ -135,6 +170,13 @@
                 <MenuItem Header="_Refresh" 
                           x:Name="RefreshDatabase" 
                           Click="FillDataGridFromDB"/>
+            </MenuItem>
+            <MenuItem Header="_Help"
+                      x:Name="HelpMenu">
+                <MenuItem Header="_About" 
+                          x:Name="AboutMenuItem"/>
+                <MenuItem Header="_Help" 
+                          x:Name="HelpMenuItem"/>
             </MenuItem>
         </Menu>
         <ToolBar Grid.Row="1"
@@ -872,6 +914,7 @@
                                   MouseEnter="Text_MouseEnter" 
                                   MouseLeave="Text_MouseLeave" >
                             <ComboBoxItem x:Name="ALL" Content="Pertinent Location Files" IsSelected="True"/>
+                            <ComboBoxItem x:Name="XRL" Content="XRL Folder Items"/>
                             <ComboBoxItem x:Name="Software" Content="Only Software Files"/>
                             <ComboBoxItem x:Name="ELGX" Content="ElectroLogIXS Program Files"/>
                             <ComboBoxItem x:Name="ML2" Content="Microlok II Program Files"/>
@@ -931,6 +974,8 @@
                             <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
                             <RowDefinition Height="3" />
+                            <RowDefinition Height="33" />
+                            <RowDefinition Height="3" />
                             <RowDefinition Height="15" />
                             <RowDefinition Height="3" />
                             <RowDefinition Height="33" />
@@ -967,7 +1012,7 @@
                                Grid.Column="1"
                                x:Name="ProgrammerLabel" 
                                HorizontalContentAlignment="Right" 
-                               Content="Programmer Name" />
+                               Content="* Programmer Name" />
                         <TextBox Grid.Row="3" 
                                  Grid.Column="2" 
                                  Grid.ColumnSpan="2" 
@@ -984,7 +1029,7 @@
                                Grid.Column="5"
                                x:Name="ProgrammerInitialsLabel" 
                                HorizontalContentAlignment="Right" 
-                               Content="Programmer Initials" />
+                               Content="* Programmer Initials" />
                         <TextBox Grid.Row="3" 
                                  Grid.Column="6" 
                                  Grid.ColumnSpan="1" 
@@ -1083,11 +1128,29 @@
                                                    Foreground="White"/>
                         <Label Grid.Row="15" 
                                Grid.Column="1"
+                               x:Name="DocCreatorDivsionLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="* Divsion" />
+                        <TextBox Grid.Row="15" 
+                                 Grid.Column="2" 
+                                 Grid.ColumnSpan="2" 
+                                 x:Name="DocCreatorDivisionText" 
+                                 TextChanged="CheckDivisionAndSub"
+                                 Text=""
+                                 FontSize="16"
+                                 FontStyle="Normal"
+                                 MouseEnter="Text_MouseEnter" 
+                                 MouseLeave="Text_MouseLeave" 
+                                 Tag="Enter division"
+                                 Background="Transparent" 
+                                 Foreground="White"/>
+                        <Label Grid.Row="15" 
+                               Grid.Column="5"
                                x:Name="DocCreatorRailroadEngineerInitialsLabel" 
                                HorizontalContentAlignment="Right" 
                                Content="RR Engineer Initials" />
                         <Controls1:AutoCompleteBox Grid.Row="15" 
-                                                   Grid.Column="2" 
+                                                   Grid.Column="6" 
                                                    Grid.ColumnSpan="1" 
                                                    x:Name="DocCreatorRailroadEngineerInitialsText" 
                                                    Text=""
@@ -1098,13 +1161,48 @@
                                                    Tag="Enter railroad engineer initials"
                                                    Background="Transparent" 
                                                    Foreground="White"/>
+                        <Label Grid.Row="17" 
+                               Grid.Column="1"
+                               x:Name="DocCreatorSubdivsionLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="* Subdivsion" />
+                        <TextBox Grid.Row="17" 
+                                 Grid.Column="2" 
+                                 Grid.ColumnSpan="2" 
+                                 x:Name="DocCreatorSubdivisionText" 
+                                 TextChanged="CheckDivisionAndSub"
+                                 Text=""
+                                 FontSize="16"
+                                 FontStyle="Normal"
+                                 MouseEnter="Text_MouseEnter" 
+                                 MouseLeave="Text_MouseLeave" 
+                                 Tag="Enter subdivision"
+                                 Background="Transparent" 
+                                 Foreground="White"/>
+                        <Label Grid.Row="17" 
+                               Grid.Column="5"
+                               x:Name="DocCreatorSubdivAbbreviationLabel" 
+                               HorizontalContentAlignment="Right" 
+                               Content="Subdiv Abbreviation" />
+                        <Controls1:AutoCompleteBox Grid.Row="17" 
+                                                   Grid.Column="6" 
+                                                   Grid.ColumnSpan="1" 
+                                                   x:Name="DocCreatorSubdivAbbreviationText" 
+                                                   Text=""
+                                                   FontSize="16"
+                                                   FontStyle="Normal"
+                                                   MouseEnter="Text_MouseEnter" 
+                                                   MouseLeave="Text_MouseLeave" 
+                                                   Tag="Enter subdivision abbreviation"
+                                                   Background="Transparent" 
+                                                   Foreground="White"/>
                         <Separator x:Name="JobChassisSeparator"
-                                   Grid.Row="19" 
+                                   Grid.Row="21" 
                                    Grid.Column="1"
                                    Grid.ColumnSpan="7"
                                    BorderBrush="{StaticResource HeaderColor}"
                                    BorderThickness="1"/>
-                        <Label Grid.Row="21" 
+                        <Label Grid.Row="23" 
                                Grid.Column="1"
                                Grid.ColumnSpan="2"
                                x:Name="DocCreatorChassisInfoLabel" 
@@ -1113,12 +1211,12 @@
                                FontSize="18"
                                Foreground="yellow"
                                Content="Chassis Information" />
-                        <Label Grid.Row="23" 
+                        <Label Grid.Row="25" 
                                Grid.Column="1"
                                x:Name="DocCreatorEquipmentLabel" 
                                HorizontalContentAlignment="Right" 
                                Content="Equipment Type" />
-                        <ComboBox Grid.Row="23" 
+                        <ComboBox Grid.Row="25" 
                                   Grid.Column="2" 
                                   Grid.ColumnSpan="1" 
                                   x:Name="DocCreatorEquipmentTypeText" 
@@ -1137,12 +1235,12 @@
                             <ComboBoxItem Tag="EC4" Content="EC4"/>
                             <ComboBoxItem Tag="EC5" Content="EC5"/>
                         </ComboBox>
-                        <Label Grid.Row="25" 
+                        <Label Grid.Row="27" 
                                Grid.Column="1"
                                x:Name="DocCreatorAceVersionLabel" 
                                HorizontalContentAlignment="Right" 
                                Content="Ace Compiler Version" />
-                        <ComboBox Grid.Row="25" 
+                        <ComboBox Grid.Row="27" 
                                   Grid.Column="2" 
                                   Grid.ColumnSpan="1" 
                                   x:Name="DocCreatorAceVersionText" 
@@ -1162,7 +1260,7 @@
                             <ComboBoxItem Tag="2.8" Content="5.8"/>
                         </ComboBox>
                         <CheckBox x:Name="IsRTVP"
-                                  Grid.Row="23" 
+                                  Grid.Row="25" 
                                   Grid.Column="6"
                                   HorizontalAlignment="Center"
                                   HorizontalContentAlignment="Left" 
@@ -1173,7 +1271,7 @@
                                   MouseLeave="Text_MouseLeave" 
                                   Tag="Check this box if this location is an RTVP"/>
                         <Button x:Name="CreateDocsButton"
-                                Grid.Row="25" 
+                                Grid.Row="27" 
                                 Grid.Column="6"
                                 HorizontalAlignment="Center"
                                 Width="100"
