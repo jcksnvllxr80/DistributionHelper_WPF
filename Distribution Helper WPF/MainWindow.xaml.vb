@@ -1295,7 +1295,7 @@ Class MainWindow
         'PrintLinkCompMenuItem.IsEnabled = True
         ExportMenuItem.IsEnabled = True
         PrintLocInfoMenuItem.IsEnabled = True
-        RailDocsMenu.IsEnabled = True
+        RailDOCSMenu.IsEnabled = True
         EmailMenu.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
@@ -1328,7 +1328,7 @@ Class MainWindow
         ExportMenuItem.IsEnabled = False
         ExportRemoteComparisonMenuItem.IsEnabled = False
         PrintLocInfoMenuItem.IsEnabled = False
-        RailDocsMenu.IsEnabled = False
+        RailDOCSMenu.IsEnabled = False
         EmailMenu.IsEnabled = False
 
         PrintPreviewTab.Visibility = Visibility.Collapsed
@@ -2034,6 +2034,43 @@ Class MainWindow
 
     Private Sub HelpMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles HelpMenuItem.Click
         'Forms.Help.ShowHelp(Nothing, "https://intranet.xorail.com") 'need to create a help website for the distribution helper
+    End Sub
+
+
+    Private Sub RaildocsPSRMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles RaildocsPSRMenuItem.Click
+        OpenBrowserWith("https://www.raildocs.net/CSXTrans/DgnProjTracking/ProjectSummaryReport/index.cgi/view?CSXProjNum=" &
+                        locationInfo.GetCustomerNumber)
+    End Sub
+
+
+    Private Sub RaildocsMainJobMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles RaildocsMainJobMenuItem.Click
+        OpenBrowserWith("https://www.raildocs.net/CSXTrans/DgnProjTracking/EditProj.cgi?CSXProjNum=" &
+                        locationInfo.GetCustomerNumber & "#q=1")
+    End Sub
+
+
+    Private Sub OpenBrowserWith(URL As String)
+        Try
+            Process.Start(URL)
+        Catch ex As System.Exception
+            Console.WriteLine(ex)
+        End Try
+    End Sub
+
+
+    Private Sub OracleMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles OracleMenuItem.Click
+        OpenBrowserWith("http://wcssrv0340.wabtec.com:8009/OA_HTML/RF.jsp?function_id=1028108&resp_id=-1&resp_appl_id=-1" &
+                        "&security_group_id=0&lang_code=US&params=n9i84W2HD0fd7VSPSKkmMDdHNtlcBpJgG2aUUG8CvAOeD3BeN5k3UF" &
+                        "lWhVh0vFlHYZxiE06CmUbK7s7WQHPPcvtWclFN.R4RJFBQuDgpeqqtb5GRqFmrymW06tTmMosJvP9b5jCJyhYsDu7fcBedQ" &
+                        "uZkTTDyKpfxkJgeo2VSpr8ZikbWmBAET2x3oZVWMmmobDiNEOSBXe0Aq7YHL.ssY2Z2Mfs3Xt3t0fN0I1tqHFJw0PFWiWDt" &
+                        "Z4F6hEryhQEPn1MBbKRUwtmeLHUL4XmCUP98YnBrASo-6dSbXCRAgkQaqUUB6Ug6iABfQEq0wxF35A49HRDJbCLsEVX5U-R" &
+                        "JUXoYPJYAEojt5ucSQGVEPyLATSOl-UMOaLXFedNul8mwKP9mWiWp51Oxg.Bnwh3V0AyUb.eWof7OUGa54-eL5DjaKuYHyZ" &
+                        "SbhHMkfInoApVlpNZhaTxr3qMKv-u0y1VSlQ&oas=ROzQIW2KQ8s_Jm-qmAAa2w..#")
+    End Sub
+
+
+    Private Sub SharepointMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles SharepointMenuItem.Click
+        OpenBrowserWith("https://wabtec.sharepoint.com/sites/xorail/accounts/CSX/VLC/Lists/Project%20Tracking/AllItems.aspx")
     End Sub
 End Class
 

@@ -137,15 +137,20 @@
                 <MenuItem Header="_Final Upload" 
                           x:Name="MailFinalUploadMenuItem"/>
             </MenuItem>
-            <MenuItem Header="_RailDOCS"
-                      x:Name="RailDocsMenu"
-                      IsEnabled="False">
-                <MenuItem Header="_PSR Page" 
-                          x:Name="RaildocsPSRMenuItem"
-                          IsEnabled="False"/>
-                <MenuItem Header="_Job Main Page" 
-                          x:Name="RaildocsMainJobMenuItem"
-                          IsEnabled="False"/>
+            <MenuItem Header="_Web"
+                      x:Name="WebMenu">
+                <MenuItem x:Name="RailDOCSMenu" 
+                          Header="RailDOCS"
+                          IsEnabled="False">
+                    <MenuItem Header="_PSR Page" 
+                              x:Name="RaildocsPSRMenuItem"/>
+                    <MenuItem Header="_Job Main Page" 
+                              x:Name="RaildocsMainJobMenuItem"/>
+                </MenuItem>
+                <MenuItem Header="_Timesheet" 
+                          x:Name="OracleMenuItem"/>
+                <MenuItem Header="_Project Tracking" 
+                          x:Name="SharepointMenuItem"/>
             </MenuItem>
             <MenuItem Header="_Database"
                       x:Name="DatabaseMenu"
