@@ -123,26 +123,19 @@
                       x:Name="EmailMenu"
                       IsEnabled="False">
                 <MenuItem Header="_Mail Template" 
-                          x:Name="MailTemplateMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailTemplateMenuItem"/>
                 <MenuItem Header="_In-Service" 
-                          x:Name="MailSoftwareVerificationMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailSoftwareVerificationMenuItem"/>
                 <MenuItem Header="_P Hours" 
-                          x:Name="MailP_HoursMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailP_HoursMenuItem"/>
                 <MenuItem Header="P_K Hours" 
-                          x:Name="MailPK_HoursMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailPK_HoursMenuItem"/>
                 <MenuItem Header="_RTVP Output" 
-                          x:Name="MailRTVP_DistMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailRTVP_DistMenuItem"/>
                 <MenuItem Header="Pre_lim Upload" 
-                          x:Name="MailPrelimUploadMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailPrelimUploadMenuItem"/>
                 <MenuItem Header="_Final Upload" 
-                          x:Name="MailFinalUploadMenuItem"
-                          IsEnabled="False"/>
+                          x:Name="MailFinalUploadMenuItem"/>
             </MenuItem>
             <MenuItem Header="_RailDOCS"
                       x:Name="RailDocsMenu"
@@ -224,8 +217,7 @@
                     Tag="Create Distribution Email" 
                     MouseEnter="Text_MouseEnter" 
                     MouseLeave="Text_MouseLeave" 
-                    IsEnabled="False"
-                    Click="CreateEmail">
+                    IsEnabled="False">
                 <Image Source="resources\Mail_32x.png" />
             </Button>
             <Button x:Name="CreateLabelsToolBttn" 

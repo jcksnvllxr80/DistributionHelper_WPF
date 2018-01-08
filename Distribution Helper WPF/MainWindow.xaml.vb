@@ -7,6 +7,8 @@ Imports System.Threading
 Imports System.Printing
 Imports System.Drawing.Printing
 Imports WPFFolderBrowser
+Imports Microsoft.Office.Interop.Outlook
+Imports OutlookApp = Microsoft.Office.Interop.Outlook.Application
 'Imports Xceed.Wpf.Toolkit
 
 Class MainWindow
@@ -168,8 +170,7 @@ Class MainWindow
     End Sub
 
 
-    Private Sub CreateEmail()
-        Dim subjectSubstr = "– Program Books & Chips"
+    Private Sub CreateDistributionEmail(sender As Object, e As RoutedEventArgs) Handles CreateEmailToolBttn.Click
         Dim bodyStr As String = locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
                     locationInfo.GetState & " / MP. " & locationInfo.GetMilePost & vbCr & locationInfo.GetDivision & " Division / " &
                     locationInfo.GetSubdivision & " Subdivision" & vbCr & locationInfo.GetCustomerNumber & vbCr & locationInfo.GetInternalNumber &
@@ -184,23 +185,119 @@ Class MainWindow
                     "    Service type:" & vbTab & vbTab & "FedEx " & ShippingMethodBox.Text & vbCr &
                     "    Packaging type:" & vbTab & "FedEx Box"
         Dim TO_Recipients As String = ""
-        Dim CC_Recipients As String = "Miller, John <J.Miller@xorail.com>; Holmes, Daryl (D.Holmes@xorail.com)"
-        Dim subjectStr As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " " & subjectSubstr
+        Dim CC_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim subjectStr As String = locationInfo.GetCustomerNumber & "; " & locationInfo.GetLocationName & " – Program Books & Chips"
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
 
-        Dim otlApp = CreateObject("Outlook.Application")
-        Dim olMailItem As Object = Nothing
-        Dim otlNewMail = otlApp.CreateItem(olMailItem)
-        Dim WshShell = CreateObject("WScript.Shell")
+
+    Private Function EmailHeader() As String
+        Return vbCr & locationInfo.GetLocationName & vbCr & locationInfo.GetCity & ", " &
+            locationInfo.GetState & " / MP. " & locationInfo.GetMilePost & vbCr &
+            locationInfo.GetDivision & " Division / " & locationInfo.GetSubdivision & " Subdivision" &
+            vbCr & locationInfo.GetCustomerNumber & vbCr & locationInfo.GetInternalNumber & vbCr & vbCr
+    End Function
+
+
+    Private Sub CreateTemplateEmail(sender As Object, e As RoutedEventArgs) Handles MailTemplateMenuItem.Click
+        Dim bodyStr As String = EmailHeader()
+        Dim TO_Recipients As String = ""
+        Dim CC_Recipients As String = ""
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & locationInfo.GetLocationName
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreateSoftwareVerificationEmail(sender As Object, e As RoutedEventArgs) Handles MailSoftwareVerificationMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "An RTVP is required for " & locationInfo.GetLocationName &
+            ". In order to begin an RTVP, we need field verification of the in-service software" &
+            ". Will you please ask the field to provide this information?"
+        Dim TO_Recipients As String = ""
+        Dim CC_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & "Field Verification of In-Service Software for " &
+            locationInfo.GetLocationName
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreateP_HoursEmail(sender As Object, e As RoutedEventArgs) Handles MailP_HoursMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "I need _________ programming (P) hours for " & locationInfo.GetLocationName &
+            ". The scope is _________ ."
+        Dim TO_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim CC_Recipients As String = ""
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & "Need Programming Hours for " & locationInfo.GetLocationName
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreatePK_HoursEmail(sender As Object, e As RoutedEventArgs) Handles MailPK_HoursMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "I need _________ programming check (PK) hours for " &
+            locationInfo.GetLocationName & ". The scope is programming check (paper\simulation\final)."
+        Dim TO_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim CC_Recipients As String = ""
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & "Need Programming Check Hours for " & locationInfo.GetLocationName
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreateRTVPDistributionEmail(sender As Object, e As RoutedEventArgs) Handles MailRTVP_DistMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "The final software for " & locationInfo.GetLocationName &
+            " has been uploaded to RailDOCS under project " & locationInfo.GetCustomerNumber &
+            ". The RTVP document reflecting the changes made to the in-service software can be" &
+            " found on the testing tab of this job on RailDOCS. Please let me know if there are any questions or concerns."
+        Dim TO_Recipients As String = "RTV_ServiceTest@csx.com; Russell Turner <precisionsignal@gmail.com>"
+        Dim CC_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com); Jubin, Tom <T.Jubin@xorail.com>; Grote, Lucas <l.grote@xorail.com>"
+        Dim subjectStr As String = locationInfo.GetCustomerNumber & ", " & locationInfo.GetLocationName & " – Review RTV"
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreatePrelimUploadEmail(sender As Object, e As RoutedEventArgs) Handles MailPrelimUploadMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "The preliminary software for " & locationInfo.GetLocationName &
+            " has been uploaded to RailDOCS under project " & locationInfo.GetCustomerNumber &
+            ". Please find attached the compare reports reflecting the changes made to the software." &
+            " Please let me know if there are any questions or concerns."
+        Dim TO_Recipients As String = ""
+        Dim CC_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & locationInfo.GetLocationName &
+            " Preliminary Software Uploaded to RailDOCS"
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreateFinalUploadEmail(sender As Object, e As RoutedEventArgs) Handles MailFinalUploadMenuItem.Click
+        Dim bodyStr As String = EmailHeader() & "The final software for " & locationInfo.GetLocationName &
+            " has been uploaded to RailDOCS under project " & locationInfo.GetCustomerNumber &
+            ". Please find attached the compare reports reflecting the changes made to the software." &
+            "Please let me know if there are any questions Or concerns."
+        Dim TO_Recipients As String = ""
+        Dim CC_Recipients As String = "Holmes, Daryl (D.Holmes@xorail.com)"
+        Dim subjectStr As String = locationInfo.GetCustomer & "#: " & locationInfo.GetCustomerNumber &
+            "; XRL#: " & locationInfo.GetInternalNumber & "; " & locationInfo.GetLocationName &
+            " Final Software Uploaded to RailDOCS"
+        CreateEmail(TO_Recipients, CC_Recipients, subjectStr, bodyStr)
+    End Sub
+
+
+    Private Sub CreateEmail(TO_Recipients As String, CC_Recipients As String, subjectStr As String, bodyStr As String)
+        Dim otlApp As New OutlookApp()
+        Dim otlNewMail = otlApp.CreateItem(OlItemType.olMailItem)
+        Dim WshShell = Type.GetTypeFromProgID("WScript.Shell")
         With otlNewMail
-            .Display
-            WshShell.AppActivate(subjectStr & " - Message (HTML)")
+            .Display(subjectStr & " - Message (HTML)")
             .Subject = subjectStr
             .To = TO_Recipients
             .CC = CC_Recipients
-            Dim objDoc = otlApp.ActiveInspector.WordEditor
-            Dim objSel = objDoc.Windows(1).Selection
-            objSel.InsertBefore(bodyStr)
         End With
+        Dim objDoc = otlApp.ActiveInspector().WordEditor
+        Dim objSel = objDoc.Windows(1).Selection
+        objSel.InsertBefore(bodyStr)
+
         WshShell = Nothing
         otlNewMail = Nothing
         otlApp = Nothing
@@ -215,7 +312,7 @@ Class MainWindow
             Dim myDate As Date = Me.DistributionDatePicker.DisplayDate
             InsertToDatabseBGWorker.RunWorkerAsync(myDate) ' this starts the background worker
         Else
-            MsgBox("what to do when an attempt to add to the database is made but the fields were not properly filled at some point. this is know because locationInfo is = Nothing")
+            MsgBox("what to do when an attempt to add to the database Is made but the fields were Not properly filled at some point. this Is know because locationInfo Is = Nothing")
         End If
     End Sub
 
@@ -1198,6 +1295,8 @@ Class MainWindow
         'PrintLinkCompMenuItem.IsEnabled = True
         ExportMenuItem.IsEnabled = True
         PrintLocInfoMenuItem.IsEnabled = True
+        RailDocsMenu.IsEnabled = True
+        EmailMenu.IsEnabled = True
 
         PrintPreviewTab.Visibility = Visibility.Visible
         'ReducedTestTab.Visibility = Visibility.Visible
@@ -1206,6 +1305,7 @@ Class MainWindow
         PrintingTab.Visibility = Visibility.Visible
         LocationDataFlowDoc = CreateDistInfoDocument()
         LocationInfoViewer.Document = LocationDataFlowDoc
+
         'SaveToolBttn.Enabled = True
         'SaveMenuItem.Enabled = True
         'SaveAsMenuItem.Enabled = True
@@ -1228,6 +1328,8 @@ Class MainWindow
         ExportMenuItem.IsEnabled = False
         ExportRemoteComparisonMenuItem.IsEnabled = False
         PrintLocInfoMenuItem.IsEnabled = False
+        RailDocsMenu.IsEnabled = False
+        EmailMenu.IsEnabled = False
 
         PrintPreviewTab.Visibility = Visibility.Collapsed
         ReducedTestTab.Visibility = Visibility.Collapsed
@@ -1830,7 +1932,7 @@ Class MainWindow
 
                 Try
                     PrintPDF(fileToPrint)
-                Catch ex As Exception
+                Catch ex As System.Exception
                     Console.WriteLine(ex)
                 End Try
 
