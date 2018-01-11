@@ -971,18 +971,22 @@ Class MainWindow
 
 
     Private Function FindSubfolderContaining(folderToIterate As String, searchStr As String, startPos As Short) As String
-        Dim fso = CreateObject("Scripting.FileSystemObject")
         Dim match As String = Nothing
-        Dim folder = fso.GetFolder(folderToIterate)
-        For Each subF In folder.subFolders
-            If subF.Name.Length >= searchStr.Length Then
-                If UCase(subF.name.Substring(startPos, searchStr.Length).Equals(searchStr)) Then
-                    match = fso.GetAbsolutePathName(subF)
-                    Exit For 'found it, stop looking
+        If Directory.Exists(folderToIterate) Then
+            Dim fso = CreateObject("Scripting.FileSystemObject")
+            Dim folder = fso.GetFolder(folderToIterate)
+            For Each subF In folder.subFolders
+                If subF.Name.Length >= searchStr.Length Then
+                    If UCase(subF.name.Substring(startPos, searchStr.Length).Equals(searchStr)) Then
+                        match = fso.GetAbsolutePathName(subF)
+                        Exit For 'found it, stop looking
+                    End If
                 End If
-            End If
-        Next
-        fso = Nothing
+            Next
+            fso = Nothing
+        Else
+            MsgBox("The folder """ & folderToIterate & """ which was being search for """ & searchStr & """ does not exist.")
+        End If
         Return match
     End Function
 
