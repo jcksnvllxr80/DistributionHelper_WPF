@@ -70,8 +70,7 @@ Class MainWindow
             CloneDoc.PageWidth = printer.PrintableAreaWidth
             CloneDoc.Foreground = System.Windows.Media.Brushes.Black
             Dim idocument As IDocumentPaginatorSource = CloneDoc
-            Dim buttonPressed As Button = sender
-            If buttonPressed.Name.Equals("PrintLinkCompMenuItem") Then
+            If sender.Name.Equals("PrintLinkCompMenuItem") Then
                 If PrintLinkCompMenuItem.IsEnabled Then
                     printer.PrintDocument(idocument.DocumentPaginator, locationInfo.GetLocationName & " Remote Link Comparison")
                 End If
@@ -940,7 +939,7 @@ Class MainWindow
 
     Sub AddRtvpToPrintList()
         Dim reducedTestDir As String = Nothing
-        If locationInfo.GetRTVPfolderNum IsNot Nothing Then
+        If Not locationInfo.GetRTVPfolderNum.Equals(vbNullChar) Then
             'Console.WriteLine("RTVP folder num is """ & locationInfo.GetRTVPfolderNum & """.")
 
             Dim validationYearDir = "P:\Validation\" & locationInfo.GetRTVPyear & "\" & locationInfo.GetCustomer
