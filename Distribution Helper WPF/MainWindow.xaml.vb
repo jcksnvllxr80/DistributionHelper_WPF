@@ -2075,6 +2075,10 @@ Class MainWindow
     Private Sub SharepointMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles SharepointMenuItem.Click
         OpenBrowserWith("https://wabtec.sharepoint.com/sites/xorail/accounts/CSX/VLC/Lists/Project%20Tracking/AllItems.aspx")
     End Sub
+
+    Private Sub CreateDocsButton_Click(sender As Object, e As RoutedEventArgs) Handles CreateDocsButton.Click
+        'stub
+    End Sub
 End Class
 
 
